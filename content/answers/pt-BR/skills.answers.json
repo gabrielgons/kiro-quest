@@ -1,0 +1,8 @@
+{
+  "stage": "skills",
+  "answers": [
+    { "questionId": "sk-001", "correctAnswerId": "a" },
+    { "questionId": "sk-002", "correctAnswerId": "true" },
+    { "questionId": "sk-003", "correctAnswerId": "a" }
+  ]
+}

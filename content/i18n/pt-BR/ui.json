@@ -1,0 +1,95 @@
+{
+  "app.title": "Kiro Quiz Game",
+  "app.description": "Aprenda Kiro de forma interativa",
+
+  "home.welcome": "Teste seus conhecimentos sobre Kiro!",
+  "home.start": "Começar",
+  "home.subtitle": "Um quiz progressivo para dominar conceitos de Kiro",
+  "home.resume": "Continuar de onde parou",
+
+  "nav.home": "Início",
+  "nav.stages": "Estágios",
+  "nav.back": "Voltar",
+
+  "stage.select": "Escolha um Estágio",
+  "stage.completed": "Concluído",
+  "stage.inProgress": "Em andamento",
+  "stage.notStarted": "Não iniciado",
+  "stage.questions": "{count} perguntas",
+
+  "stage.name.kiro-basics": "Kiro Básico",
+  "stage.name.specs": "Specs",
+  "stage.name.feature-specs": "Feature Specs",
+  "stage.name.bugfix-specs": "Bugfix Specs",
+  "stage.name.steering": "Steering",
+  "stage.name.hooks": "Hooks",
+  "stage.name.mcp": "MCP",
+  "stage.name.powers": "Powers",
+  "stage.name.skills": "Skills",
+  "stage.name.real-world-workflows": "Fluxos Reais de Trabalho",
+  "stage.name.enterprise-scenarios": "Cenários Empresariais",
+
+  "quiz.progress": "{current} / {total}",
+  "quiz.submit": "Confirmar Resposta",
+  "quiz.next": "Próxima Pergunta",
+  "quiz.finish": "Finalizar Estágio",
+  "quiz.selectOption": "Selecione uma opção",
+  "quiz.orderItems": "Organize os itens na ordem correta",
+  "quiz.moveUp": "Mover para cima",
+  "quiz.moveDown": "Mover para baixo",
+  "quiz.true": "Verdadeiro",
+  "quiz.false": "Falso",
+
+  "feedback.correct": "Correto!",
+  "feedback.incorrect": "Incorreto",
+  "feedback.explanation": "Explicação",
+  "feedback.source": "Saiba mais na documentação oficial",
+  "feedback.correctAnswer": "Resposta correta: {answer}",
+  "feedback.correctOrder": "Ordem correta: {order}",
+
+  "summary.title": "Resultado do Estágio",
+  "summary.score": "Você acertou {correct} de {total}",
+  "summary.nextStage": "Próximo Estágio",
+  "summary.backToStages": "Voltar aos Estágios",
+  "summary.retryStage": "Tentar Novamente",
+
+  "achievement.title": "Parabéns!",
+  "achievement.subtitle": "Você completou todos os estágios!",
+  "achievement.overallScore": "Pontuação geral: {correct} de {total}",
+  "achievement.level": "Seu nível: {level}",
+  "achievement.backToHome": "Voltar ao Início",
+
+  "performance.iniciante": "Iniciante em Kiro",
+  "performance.praticante": "Praticante de Kiro",
+  "performance.especialista": "Especialista em Kiro",
+  "performance.mestre": "Mestre em Kiro",
+
+  "share.button": "Compartilhar no LinkedIn",
+  "share.copied": "Texto copiado!",
+  "share.copyFallback": "Copiar resultado",
+  "share.template": "Completei o estágio {stage} no Kiro Quiz Game com {correct}/{total} acertos! {level} #KiroQuizGame #Kiro",
+  "share.templateFull": "Completei o Kiro Quiz Game com {correct}/{total} acertos! Meu nível: {level} #KiroQuizGame #Kiro",
+  "share.failed": "Não foi possível abrir o compartilhamento. Texto copiado para a área de transferência.",
+
+  "progress.unavailable": "Progresso não será salvo nesta sessão",
+  "progress.corrupted": "Progresso anterior não pôde ser recuperado",
+  "progress.saved": "Progresso salvo",
+
+  "error.generic": "Ocorreu um erro inesperado",
+  "error.stageNotFound": "Estágio não encontrado",
+  "error.noQuestions": "Nenhuma pergunta disponível para este estágio",
+  "error.loadFailed": "Falha ao carregar dados",
+
+  "notification.dismiss": "Fechar",
+
+  "difficulty.iniciante": "Iniciante",
+  "difficulty.intermediário": "Intermediário",
+  "difficulty.avançado": "Avançado",
+
+  "a11y.progressBar": "Progresso: pergunta {current} de {total}",
+  "a11y.correctAnswer": "Resposta correta",
+  "a11y.incorrectAnswer": "Resposta incorreta",
+  "a11y.selectedOption": "Opção selecionada",
+  "a11y.stageComplete": "Estágio concluído",
+  "a11y.dragHandle": "Arrastar para reordenar"
+}

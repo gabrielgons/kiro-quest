@@ -1,0 +1,55 @@
+{
+  "stage": "mcp",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "mcp-001",
+      "category": "Model Context Protocol",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que é o MCP (Model Context Protocol) no contexto do Kiro?",
+      "options": [
+        { "id": "a", "label": "Um protocolo que permite ao Kiro se conectar a ferramentas e serviços externos" },
+        { "id": "b", "label": "Um formato de arquivo para armazenar modelos de machine learning" },
+        { "id": "c", "label": "Um protocolo de rede para comunicação entre microserviços" },
+        { "id": "d", "label": "Um sistema de cache para acelerar compilações" }
+      ],
+      "explanation": "MCP (Model Context Protocol) é um protocolo que permite ao Kiro se conectar a ferramentas e serviços externos, expandindo suas capacidades além do ambiente local de desenvolvimento.",
+      "sourceUrl": "https://kiro.dev/docs/mcp",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "mcp-002",
+      "category": "Model Context Protocol",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "Servidores MCP no Kiro podem fornecer ferramentas que são acessadas através da interface de Powers.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Quando um Power inclui servidores MCP, suas ferramentas são acessadas através da interface de Powers do Kiro, mantendo o contexto focado enquanto fornece acesso completo às capacidades sob demanda.",
+      "sourceUrl": "https://kiro.dev/docs/mcp-servers",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "mcp-003",
+      "category": "Model Context Protocol",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "Sua equipe precisa que o Kiro acesse uma API interna de documentação. Qual é a melhor abordagem?",
+      "options": [
+        { "id": "a", "label": "Criar um servidor MCP personalizado que expõe a API como ferramentas acessíveis pelo Kiro" },
+        { "id": "b", "label": "Copiar toda a documentação para arquivos locais no projeto" },
+        { "id": "c", "label": "Pedir ao Kiro para acessar a API diretamente via HTTP" },
+        { "id": "d", "label": "Desistir da integração e consultar a documentação manualmente" }
+      ],
+      "explanation": "A abordagem recomendada é criar um servidor MCP personalizado que expõe a API interna como ferramentas. Isso permite ao Kiro acessar a documentação de forma estruturada e segura através do protocolo MCP.",
+      "sourceUrl": "https://kiro.dev/docs/custom-mcp",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

@@ -1,0 +1,55 @@
+{
+  "stage": "powers",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "pow-001",
+      "category": "Powers",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que são Powers no Kiro?",
+      "options": [
+        { "id": "a", "label": "Pacotes que combinam documentação, guias de workflow e opcionalmente servidores MCP" },
+        { "id": "b", "label": "Plugins de terceiros para adicionar linguagens de programação" },
+        { "id": "c", "label": "Extensões visuais para personalizar a interface do Kiro" },
+        { "id": "d", "label": "Scripts de automação para deploy em produção" }
+      ],
+      "explanation": "Powers são pacotes que combinam documentação, guias de workflow (steering files) e opcionalmente servidores MCP, fornecendo capacidades expandidas ao Kiro de forma modular.",
+      "sourceUrl": "https://kiro.dev/docs/powers",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "pow-002",
+      "category": "Powers",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "Para usar as ferramentas de um Power, é necessário primeiro ativá-lo com a ação 'activate'.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Antes de usar as ferramentas de um Power, é necessário ativá-lo para obter a documentação completa, schemas de ferramentas e guias de workflow disponíveis.",
+      "sourceUrl": "https://kiro.dev/docs/powers-usage",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "pow-003",
+      "category": "Powers",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Organize as etapas para usar um Power no Kiro na ordem correta:",
+      "options": [
+        { "id": "step-1", "label": "Listar os Powers instalados" },
+        { "id": "step-2", "label": "Ativar o Power desejado" },
+        { "id": "step-3", "label": "Revisar as ferramentas e schemas disponíveis" },
+        { "id": "step-4", "label": "Executar a ferramenta com os argumentos corretos" }
+      ],
+      "explanation": "O fluxo correto para usar um Power é: listar os disponíveis, ativar o desejado para obter documentação e schemas, revisar as ferramentas disponíveis, e então executar com os parâmetros adequados.",
+      "sourceUrl": "https://kiro.dev/docs/powers-workflow",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

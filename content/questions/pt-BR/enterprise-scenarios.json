@@ -1,0 +1,55 @@
+{
+  "stage": "enterprise-scenarios",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "es-001",
+      "category": "Cenários Enterprise",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "Qual benefício principal o Kiro oferece para equipes enterprise?",
+      "options": [
+        { "id": "a", "label": "Padronização de workflows de desenvolvimento através de Specs e Steering compartilhados" },
+        { "id": "b", "label": "Substituição completa de todos os desenvolvedores da equipe" },
+        { "id": "c", "label": "Gerenciamento automático de infraestrutura em produção" },
+        { "id": "d", "label": "Eliminação da necessidade de code review" }
+      ],
+      "explanation": "Para equipes enterprise, o Kiro oferece padronização de workflows através de Specs e Steering compartilhados no repositório, garantindo consistência nas práticas de desenvolvimento.",
+      "sourceUrl": "https://kiro.dev/docs/enterprise",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "es-002",
+      "category": "Cenários Enterprise",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "Steering files no repositório (.kiro/steering/) são compartilhados automaticamente com toda a equipe via controle de versão.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Steering files em .kiro/steering/ fazem parte do repositório e são compartilhados com toda a equipe via Git, garantindo que todos sigam as mesmas diretrizes de desenvolvimento.",
+      "sourceUrl": "https://kiro.dev/docs/steering-sharing",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "es-003",
+      "category": "Cenários Enterprise",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "Uma equipe de 20 desenvolvedores precisa garantir que todos sigam padrões de segurança ao criar APIs. Qual combinação de recursos do Kiro é mais eficaz?",
+      "options": [
+        { "id": "a", "label": "Steering files com regras de segurança + Hooks que validam antes de cada escrita de código" },
+        { "id": "b", "label": "Apenas documentação interna no wiki da empresa" },
+        { "id": "c", "label": "Treinamento presencial mensal sobre segurança" },
+        { "id": "d", "label": "Revisão manual de cada pull request por um especialista em segurança" }
+      ],
+      "explanation": "A combinação de Steering files (definindo regras de segurança) com Hooks (validando automaticamente antes de escritas) garante enforcement contínuo e automático dos padrões de segurança em toda a equipe.",
+      "sourceUrl": "https://kiro.dev/docs/enterprise-security",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

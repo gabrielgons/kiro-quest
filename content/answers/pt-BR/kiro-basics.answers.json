@@ -1,0 +1,9 @@
+{
+  "stage": "kiro-basics",
+  "answers": [
+    { "questionId": "kb-001", "correctAnswerId": "a" },
+    { "questionId": "kb-002", "correctAnswerId": "true" },
+    { "questionId": "kb-003", "correctAnswerId": "a" },
+    { "questionId": "kb-004", "correctAnswerId": ["step-1", "step-2", "step-3", "step-4"] }
+  ]
+}

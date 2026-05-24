@@ -1,0 +1,8 @@
+{
+  "stage": "real-world-workflows",
+  "answers": [
+    { "questionId": "rww-001", "correctAnswerId": "a" },
+    { "questionId": "rww-002", "correctAnswerId": "false" },
+    { "questionId": "rww-003", "correctAnswerId": ["step-1", "step-2", "step-3", "step-4"] }
+  ]
+}

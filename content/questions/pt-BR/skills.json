@@ -1,0 +1,55 @@
+{
+  "stage": "skills",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "sk-001",
+      "category": "Skills",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que são Skills no Kiro?",
+      "options": [
+        { "id": "a", "label": "Instruções reutilizáveis que podem ser ativadas para carregar contexto específico" },
+        { "id": "b", "label": "Certificações que o desenvolvedor obtém ao completar cursos" },
+        { "id": "c", "label": "Métricas de performance do código gerado" },
+        { "id": "d", "label": "Templates de projeto pré-configurados" }
+      ],
+      "explanation": "Skills no Kiro são instruções reutilizáveis que podem ser ativadas para carregar contexto e instruções específicas, permitindo comportamentos especializados sob demanda.",
+      "sourceUrl": "https://kiro.dev/docs/skills",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sk-002",
+      "category": "Skills",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "Skills podem ser definidas tanto no nível do usuário (~/.kiro/skills/) quanto no nível do workspace (.kiro/skills/).",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Skills podem ser adicionadas em ~/.kiro/skills/ para uso global do usuário ou em .kiro/skills/ para uso específico do workspace, oferecendo flexibilidade na organização.",
+      "sourceUrl": "https://kiro.dev/docs/skills-config",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sk-003",
+      "category": "Skills",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "Você quer que o Kiro sempre siga um padrão específico de logging ao criar serviços. Qual recurso é mais adequado?",
+      "options": [
+        { "id": "a", "label": "Criar uma Skill com as instruções de logging que pode ser ativada quando necessário" },
+        { "id": "b", "label": "Adicionar comentários em cada arquivo de serviço explicando o padrão" },
+        { "id": "c", "label": "Criar um linter customizado que verifica o padrão" },
+        { "id": "d", "label": "Escrever um script que adiciona logging automaticamente após a criação" }
+      ],
+      "explanation": "Uma Skill é ideal para este caso pois permite definir instruções reutilizáveis sobre o padrão de logging que o Kiro seguirá sempre que a skill for ativada durante a criação de serviços.",
+      "sourceUrl": "https://kiro.dev/docs/skills-patterns",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

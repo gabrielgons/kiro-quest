@@ -1,0 +1,73 @@
+{
+  "stage": "hooks",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "hk-001",
+      "category": "Hooks",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que são Hooks no Kiro?",
+      "options": [
+        { "id": "a", "label": "Automações que mapeiam eventos do IDE para ações do agente" },
+        { "id": "b", "label": "Funções JavaScript que executam no navegador" },
+        { "id": "c", "label": "Plugins de terceiros para extensão do editor" },
+        { "id": "d", "label": "Callbacks de ciclo de vida de componentes Vue" }
+      ],
+      "explanation": "Hooks no Kiro são automações que conectam eventos do IDE (como edição de arquivo, envio de prompt) a ações do agente (askAgent ou runCommand). Quando o evento ocorre, a ação especificada é executada automaticamente.",
+      "sourceUrl": "https://kiro.dev/docs/hooks",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "hk-002",
+      "category": "Hooks",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Um Hook no Kiro pode ser configurado para executar automaticamente um comando de lint sempre que um arquivo TypeScript é editado.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Hooks suportam o evento 'fileEdited' com filtro por padrão de arquivo (filePatterns). Combinado com a ação 'runCommand', é possível executar lint automaticamente ao editar arquivos .ts.",
+      "sourceUrl": "https://kiro.dev/docs/hooks#file-events",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "hk-003",
+      "category": "Hooks",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Você quer que o Kiro revise automaticamente cada operação de escrita em arquivo antes de executá-la. Qual configuração de Hook é apropriada?",
+      "options": [
+        { "id": "a", "label": "eventType: preToolUse, hookAction: askAgent, toolTypes: write" },
+        { "id": "b", "label": "eventType: fileEdited, hookAction: runCommand, command: git diff" },
+        { "id": "c", "label": "eventType: promptSubmit, hookAction: askAgent" },
+        { "id": "d", "label": "eventType: postToolUse, hookAction: runCommand, command: npm test" }
+      ],
+      "explanation": "O evento 'preToolUse' com toolTypes 'write' intercepta operações de escrita antes da execução. Combinado com 'askAgent', o Kiro pode revisar e validar a operação antes de prosseguir.",
+      "sourceUrl": "https://kiro.dev/docs/hooks#pre-tool-use",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "hk-004",
+      "category": "Hooks",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Organize os tipos de evento de Hook do mais precoce ao mais tardio no ciclo de execução:",
+      "options": [
+        { "id": "step-1", "label": "promptSubmit - quando o usuário envia um prompt" },
+        { "id": "step-2", "label": "preTaskExecution - antes de iniciar uma tarefa" },
+        { "id": "step-3", "label": "preToolUse - antes de usar uma ferramenta" },
+        { "id": "step-4", "label": "postToolUse - após usar uma ferramenta" },
+        { "id": "step-5", "label": "postTaskExecution - após completar uma tarefa" }
+      ],
+      "explanation": "O ciclo de execução segue: prompt do usuário → início da tarefa → uso de ferramenta → resultado da ferramenta → conclusão da tarefa. Cada evento de Hook corresponde a um ponto neste ciclo.",
+      "sourceUrl": "https://kiro.dev/docs/hooks#event-lifecycle",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

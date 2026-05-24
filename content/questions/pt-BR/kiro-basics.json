@@ -1,0 +1,72 @@
+{
+  "stage": "kiro-basics",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "kb-001",
+      "category": "Conceitos Fundamentais",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que é o Kiro?",
+      "options": [
+        { "id": "a", "label": "Um ambiente de desenvolvimento baseado em IA que ajuda desenvolvedores a projetar, implementar e testar software" },
+        { "id": "b", "label": "Um framework de testes automatizados para aplicações web" },
+        { "id": "c", "label": "Um banco de dados NoSQL para armazenamento em nuvem" },
+        { "id": "d", "label": "Um sistema operacional para servidores Linux" }
+      ],
+      "explanation": "Kiro é um ambiente de desenvolvimento inteligente baseado em IA que trabalha junto com desenvolvedores para projetar sistemas, explorar soluções e implementar código de forma eficiente.",
+      "sourceUrl": "https://kiro.dev/docs/overview",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "kb-002",
+      "category": "Conceitos Fundamentais",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Kiro é capaz de editar arquivos e executar comandos no terminal diretamente no ambiente de desenvolvimento.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Kiro possui capacidades de edição de arquivos, execução de comandos no terminal e assistência com tarefas de automação CLI, trabalhando diretamente no ambiente do desenvolvedor.",
+      "sourceUrl": "https://kiro.dev/docs/capabilities",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "kb-003",
+      "category": "Conceitos Fundamentais",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Você está começando um novo projeto e quer que o Kiro ajude a estruturar a arquitetura. Qual abordagem é mais adequada?",
+      "options": [
+        { "id": "a", "label": "Pedir ao Kiro para criar um Spec com requisitos, design e tarefas antes de implementar" },
+        { "id": "b", "label": "Escrever todo o código manualmente e pedir ao Kiro apenas para revisar no final" },
+        { "id": "c", "label": "Usar o Kiro apenas para gerar testes automatizados após a implementação" },
+        { "id": "d", "label": "Ignorar o planejamento e pedir ao Kiro para gerar todo o código de uma vez" }
+      ],
+      "explanation": "Kiro trabalha melhor quando usado para planejar antes de implementar. O fluxo de Specs permite definir requisitos, criar um design e gerar tarefas incrementais, resultando em código mais estruturado e correto.",
+      "sourceUrl": "https://kiro.dev/docs/specs",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "kb-004",
+      "category": "Conceitos Fundamentais",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Organize as etapas do fluxo de trabalho típico com Kiro na ordem correta:",
+      "options": [
+        { "id": "step-1", "label": "Definir requisitos e critérios de aceitação" },
+        { "id": "step-2", "label": "Criar o documento de design com arquitetura" },
+        { "id": "step-3", "label": "Gerar tarefas de implementação" },
+        { "id": "step-4", "label": "Executar tarefas incrementalmente com verificação" }
+      ],
+      "explanation": "O fluxo de trabalho com Kiro segue uma progressão estruturada: primeiro define-se os requisitos, depois cria-se o design, geram-se as tarefas e finalmente executa-se cada tarefa com verificação contínua.",
+      "sourceUrl": "https://kiro.dev/docs/workflow",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

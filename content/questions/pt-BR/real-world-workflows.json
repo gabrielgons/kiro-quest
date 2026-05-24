@@ -1,0 +1,55 @@
+{
+  "stage": "real-world-workflows",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "rww-001",
+      "category": "Workflows Reais",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "Qual é a vantagem principal de usar Specs antes de implementar uma feature?",
+      "options": [
+        { "id": "a", "label": "Garante alinhamento entre requisitos, design e implementação antes de escrever código" },
+        { "id": "b", "label": "Gera automaticamente toda a documentação do projeto" },
+        { "id": "c", "label": "Elimina a necessidade de testes automatizados" },
+        { "id": "d", "label": "Permite deploy automático em produção" }
+      ],
+      "explanation": "Usar Specs antes de implementar garante que requisitos, design e tarefas estejam alinhados, reduzindo retrabalho e garantindo que a implementação atenda às necessidades reais.",
+      "sourceUrl": "https://kiro.dev/docs/workflows",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "rww-002",
+      "category": "Workflows Reais",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "Em um workflow real com Kiro, é recomendado executar todas as tarefas de uma vez sem verificação intermediária.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "O workflow recomendado é executar tarefas incrementalmente com verificação após cada etapa, garantindo que erros sejam detectados cedo e não se propaguem para tarefas subsequentes.",
+      "sourceUrl": "https://kiro.dev/docs/task-execution",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "rww-003",
+      "category": "Workflows Reais",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Organize o workflow completo de bugfix com Kiro na ordem correta:",
+      "options": [
+        { "id": "step-1", "label": "Investigar e identificar a causa raiz do bug" },
+        { "id": "step-2", "label": "Escrever um teste que reproduz o bug" },
+        { "id": "step-3", "label": "Implementar a correção" },
+        { "id": "step-4", "label": "Verificar que o teste passa com a correção" }
+      ],
+      "explanation": "O workflow de bugfix com Kiro segue: investigar a causa raiz, escrever um teste de exploração que confirma o bug, implementar a correção, e verificar que o teste agora passa.",
+      "sourceUrl": "https://kiro.dev/docs/bugfix-workflow",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

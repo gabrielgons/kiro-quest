@@ -1,0 +1,9 @@
+{
+  "stage": "hooks",
+  "answers": [
+    { "questionId": "hk-001", "correctAnswerId": "a" },
+    { "questionId": "hk-002", "correctAnswerId": "true" },
+    { "questionId": "hk-003", "correctAnswerId": "a" },
+    { "questionId": "hk-004", "correctAnswerId": ["step-1", "step-2", "step-3", "step-4", "step-5"] }
+  ]
+}

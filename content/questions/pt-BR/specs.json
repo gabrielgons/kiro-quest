@@ -1,0 +1,72 @@
+{
+  "stage": "specs",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "sp-001",
+      "category": "Specs",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "Qual é o propósito principal de um Spec no Kiro?",
+      "options": [
+        { "id": "a", "label": "Definir requisitos, design e tarefas de implementação de forma estruturada" },
+        { "id": "b", "label": "Gerar documentação de API automaticamente" },
+        { "id": "c", "label": "Executar testes de performance no código" },
+        { "id": "d", "label": "Gerenciar dependências do projeto" }
+      ],
+      "explanation": "Um Spec no Kiro é um documento estruturado que define requisitos (requirements.md), design (design.md) e tarefas (tasks.md), guiando a implementação de forma incremental e verificável.",
+      "sourceUrl": "https://kiro.dev/docs/specs",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sp-002",
+      "category": "Specs",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Um Spec no Kiro é composto por três documentos principais: requirements.md, design.md e tasks.md.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Specs no Kiro seguem uma estrutura de três documentos: requirements.md para critérios de aceitação, design.md para arquitetura e decisões técnicas, e tasks.md para o plano de implementação.",
+      "sourceUrl": "https://kiro.dev/docs/specs/structure",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sp-003",
+      "category": "Specs",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Você precisa adicionar uma funcionalidade de autenticação ao seu projeto. Qual fluxo de Spec é mais apropriado?",
+      "options": [
+        { "id": "a", "label": "Feature Spec: começar pelos requisitos, depois design, e finalmente tarefas" },
+        { "id": "b", "label": "Bugfix Spec: identificar o bug e criar um teste de exploração" },
+        { "id": "c", "label": "Fast Task: implementar diretamente sem planejamento" }
+      ],
+      "explanation": "Para novas funcionalidades, o fluxo de Feature Spec é ideal pois permite definir requisitos claros, projetar a arquitetura e gerar tarefas incrementais antes da implementação.",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sp-004",
+      "category": "Specs",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Organize as etapas do fluxo Requirements-First de um Feature Spec:",
+      "options": [
+        { "id": "step-1", "label": "Escrever user stories e critérios de aceitação" },
+        { "id": "step-2", "label": "Analisar requisitos para ambiguidades" },
+        { "id": "step-3", "label": "Criar documento de design com arquitetura" },
+        { "id": "step-4", "label": "Gerar plano de tarefas incrementais" },
+        { "id": "step-5", "label": "Executar tarefas com verificação" }
+      ],
+      "explanation": "O fluxo Requirements-First segue a progressão: definir requisitos → analisar ambiguidades → criar design → gerar tarefas → executar com verificação. Cada etapa informa a próxima.",
+      "sourceUrl": "https://kiro.dev/docs/specs/workflows",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

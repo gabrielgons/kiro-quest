@@ -1,0 +1,73 @@
+{
+  "stage": "feature-specs",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "fs-001",
+      "category": "Feature Specs",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "Qual é a diferença entre o fluxo Requirements-First e Design-First em Feature Specs?",
+      "options": [
+        { "id": "a", "label": "Requirements-First começa pelos requisitos; Design-First começa pela arquitetura técnica" },
+        { "id": "b", "label": "Requirements-First é para projetos pequenos; Design-First é para projetos grandes" },
+        { "id": "c", "label": "Requirements-First usa TypeScript; Design-First usa JavaScript" },
+        { "id": "d", "label": "Não há diferença, são nomes alternativos para o mesmo fluxo" }
+      ],
+      "explanation": "No fluxo Requirements-First, você define requisitos e critérios de aceitação antes do design. No Design-First, você começa pela arquitetura técnica e depois deriva os requisitos a partir dela.",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "fs-002",
+      "category": "Feature Specs",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "Em um Feature Spec, o documento de design deve incluir propriedades de corretude (correctness properties) que podem ser verificadas por testes baseados em propriedades.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "O design.md de um Feature Spec inclui propriedades de corretude que definem comportamentos universais do sistema. Essas propriedades servem como ponte entre especificações legíveis e garantias verificáveis por máquina.",
+      "sourceUrl": "https://kiro.dev/docs/specs/design",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "fs-003",
+      "category": "Feature Specs",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Você está criando um Feature Spec e o Kiro detectou ambiguidades nos requisitos. O que acontece?",
+      "options": [
+        { "id": "a", "label": "O Kiro apresenta perguntas clarificadoras e sugere resoluções automáticas quando possível" },
+        { "id": "b", "label": "O Kiro ignora as ambiguidades e prossegue com a implementação" },
+        { "id": "c", "label": "O Kiro deleta os requisitos ambíguos automaticamente" },
+        { "id": "d", "label": "O Kiro para completamente e exige que você reescreva tudo" }
+      ],
+      "explanation": "Quando o Kiro detecta ambiguidades nos requisitos, ele usa o serviço de raciocínio para apresentar perguntas clarificadoras. Itens auto-resolvíveis são incluídos com respostas recomendadas, enquanto questões restantes são apresentadas ao usuário.",
+      "sourceUrl": "https://kiro.dev/docs/specs/requirements-analysis",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "fs-004",
+      "category": "Feature Specs",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Organize os componentes de um documento de design (design.md) na ordem em que aparecem:",
+      "options": [
+        { "id": "step-1", "label": "Overview e decisões de design" },
+        { "id": "step-2", "label": "Arquitetura e diagramas" },
+        { "id": "step-3", "label": "Componentes e interfaces" },
+        { "id": "step-4", "label": "Modelos de dados" },
+        { "id": "step-5", "label": "Propriedades de corretude" }
+      ],
+      "explanation": "O design.md segue uma estrutura progressiva: começa com overview e decisões, passa pela arquitetura, detalha componentes e interfaces, define modelos de dados, e finaliza com propriedades de corretude verificáveis.",
+      "sourceUrl": "https://kiro.dev/docs/specs/design",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

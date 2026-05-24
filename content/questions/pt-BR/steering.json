@@ -1,0 +1,71 @@
+{
+  "stage": "steering",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "st-001",
+      "category": "Steering",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que são arquivos de Steering no Kiro?",
+      "options": [
+        { "id": "a", "label": "Guias de fluxo de trabalho que direcionam o comportamento do agente para tarefas específicas" },
+        { "id": "b", "label": "Arquivos de configuração do servidor web" },
+        { "id": "c", "label": "Scripts de automação de deploy" },
+        { "id": "d", "label": "Templates de código para geração automática" }
+      ],
+      "explanation": "Arquivos de Steering são documentos markdown que fornecem instruções detalhadas ao Kiro sobre como executar fluxos de trabalho específicos. Eles direcionam o comportamento do agente para padrões e práticas desejadas.",
+      "sourceUrl": "https://kiro.dev/docs/steering",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "st-002",
+      "category": "Steering",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Arquivos de Steering podem ser definidos tanto no nível do usuário (~/.kiro/steering/) quanto no nível do workspace (.kiro/steering/).",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Steering files podem existir em dois níveis: no diretório do usuário (~/.kiro/steering/) para configurações pessoais, e no workspace (.kiro/steering/) para configurações compartilhadas com a equipe via controle de versão.",
+      "sourceUrl": "https://kiro.dev/docs/steering#locations",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "st-003",
+      "category": "Steering",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Sua equipe quer que o Kiro sempre siga um padrão específico ao criar componentes React. Qual abordagem é mais adequada?",
+      "options": [
+        { "id": "a", "label": "Criar um arquivo de Steering no workspace com as convenções de componentes da equipe" },
+        { "id": "b", "label": "Repetir as instruções manualmente em cada prompt" },
+        { "id": "c", "label": "Modificar o código-fonte do Kiro" },
+        { "id": "d", "label": "Criar um arquivo README com as convenções e esperar que o Kiro leia" }
+      ],
+      "explanation": "Arquivos de Steering no workspace (.kiro/steering/) são a forma ideal de definir convenções de equipe. Eles são carregados automaticamente e garantem consistência sem necessidade de repetir instruções.",
+      "sourceUrl": "https://kiro.dev/docs/steering#team-conventions",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "st-004",
+      "category": "Steering",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Organize os tipos de inclusão de Steering do mais automático ao mais manual:",
+      "options": [
+        { "id": "step-1", "label": "Inclusão automática (inclusion: auto) - carregado sempre" },
+        { "id": "step-2", "label": "Inclusão por ativação (Skills) - carregado sob demanda" },
+        { "id": "step-3", "label": "Referência manual no prompt pelo usuário" }
+      ],
+      "explanation": "Steering files com 'inclusion: auto' são carregados automaticamente em toda interação. Skills são ativados sob demanda quando relevantes. Referências manuais requerem que o usuário mencione explicitamente.",
+      "sourceUrl": "https://kiro.dev/docs/steering#inclusion-modes",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}
