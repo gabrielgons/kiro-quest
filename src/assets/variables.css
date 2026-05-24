@@ -75,7 +75,19 @@
   --min-touch-target: 44px;
 
   /* Focus */
+  --color-focus: var(--color-primary);
   --focus-ring: 0 0 0 3px var(--color-primary-light);
+
+  /* Derived colors */
+  --color-white: #ffffff;
+  --color-primary-dark: #4f46e5;
+  --color-surface: #ffffff;
+  --color-warning-dark: #92400e;
+  --color-error-dark: #991b1b;
+
+  /* Font sizes (aliases) */
+  --font-size-md: var(--font-size-base);
+  --font-size-xxl: var(--font-size-4xl);
 }
 
 /* Reset */
