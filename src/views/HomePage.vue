@@ -1,48 +1,98 @@
 <script setup lang="ts">
-import { computed } from 'vue';
+import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLocale } from '@/i18n/useLocale';
-import { useProgressStore } from '@/stores/progressStore';
+import { useQuizStore } from '@/stores/quizStore';
 
 const router = useRouter();
 const { t } = useLocale();
-const progressStore = useProgressStore();
+const quizStore = useQuizStore();
 
-const hasProgress = computed(() => progressStore.currentProgress.completedStages.length > 0);
+const showConfirmDialog = ref(false);
+
+const hasProgress = computed(() => {
+  return quizStore.completedStages.length > 0 ||
+    Object.keys(quizStore.userAnswersByStage).length > 0;
+});
 
 function handleStart() {
   router.push('/stages');
 }
+
+function handleContinue() {
+  quizStore.restoreProgress();
+  if (quizStore.quizPhase === 'stage-complete') {
+    router.push(`/summary/${quizStore.currentStage}`);
+  } else {
+    router.push(`/quiz/${quizStore.currentStage}`);
+  }
+}
+
+function handleRestart() {
+  showConfirmDialog.value = true;
+}
+
+function confirmRestart() {
+  quizStore.resetProgress();
+  showConfirmDialog.value = false;
+  router.push('/stages');
+}
+
+function cancelRestart() {
+  showConfirmDialog.value = false;
+}
 </script>
 
 <template>
-  <main :class="$style.home">
-    <div :class="$style.content">
-      <h1 :class="$style.title">{{ t('app.title') }}</h1>
-      <p :class="$style.subtitle">{{ t('home.subtitle') }}</p>
-      <p :class="$style.welcome">{{ t('home.welcome') }}</p>
+  <main class="home">
+    <div class="content">
+      <h1 class="title">{{ t('app.title') }}</h1>
+      <p class="subtitle">{{ t('home.subtitle') }}</p>
+      <p class="welcome">{{ t('home.welcome') }}</p>
 
-      <div :class="$style.actions">
-        <button
-          :class="$style.startButton"
-          @click="handleStart"
-          @keydown.enter="handleStart"
-        >
-          {{ hasProgress ? t('home.resume') : t('home.start') }}
-        </button>
+      <div class="actions">
+        <template v-if="!hasProgress">
+          <button class="btn-primary" @click="handleStart">
+            {{ t('home.start') }}
+          </button>
+        </template>
+
+        <template v-else>
+          <button class="btn-primary" @click="handleContinue">
+            {{ t('home.resume') }}
+          </button>
+          <button class="btn-secondary" @click="handleRestart">
+            {{ t('home.restart') }}
+          </button>
+        </template>
+      </div>
+    </div>
+
+    <!-- Confirmation Dialog -->
+    <div v-if="showConfirmDialog" class="dialog-overlay" @click.self="cancelRestart">
+      <div class="dialog" role="alertdialog" aria-labelledby="restart-title">
+        <p id="restart-title" class="dialog-text">{{ t('home.restartConfirm') }}</p>
+        <div class="dialog-actions">
+          <button class="btn-danger" @click="confirmRestart">
+            {{ t('home.restartConfirmYes') }}
+          </button>
+          <button class="btn-secondary" @click="cancelRestart">
+            {{ t('home.restartConfirmNo') }}
+          </button>
+        </div>
       </div>
     </div>
   </main>
 </template>
 
-<style module>
+<style scoped>
 .home {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   min-height: 100vh;
-  padding: var(--spacing-lg);
+  padding: 1.5rem;
 }
 
 .content {
@@ -52,47 +102,117 @@ function handleStart() {
 }
 
 .title {
-  font-size: var(--font-size-xxl, 2.5rem);
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-sm);
+  font-size: 2.5rem;
+  color: var(--color-primary, #3b82f6);
+  margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  font-size: var(--font-size-lg, 1.25rem);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-md);
+  font-size: 1.25rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-bottom: 1rem;
 }
 
 .welcome {
-  font-size: var(--font-size-md, 1rem);
-  color: var(--color-text);
-  margin-bottom: var(--spacing-xl);
+  font-size: 1rem;
+  color: var(--color-text, #1f2937);
+  margin-bottom: 2rem;
 }
 
 .actions {
   display: flex;
-  justify-content: center;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
 }
 
-.startButton {
-  padding: var(--spacing-md) var(--spacing-xl);
-  font-size: var(--font-size-lg, 1.25rem);
-  background-color: var(--color-primary);
-  color: var(--color-white, #fff);
+.btn-primary {
+  padding: 0.75rem 2rem;
+  font-size: 1.125rem;
+  background-color: var(--color-primary, #3b82f6);
+  color: #fff;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   cursor: pointer;
-  min-width: 200px;
+  min-width: 240px;
   min-height: 44px;
-  transition: background-color 0.2s ease;
 }
 
-.startButton:hover {
-  background-color: var(--color-primary-dark);
+.btn-primary:hover {
+  background-color: var(--color-primary-dark, #2563eb);
 }
 
-.startButton:focus-visible {
-  outline: 3px solid var(--color-focus);
+.btn-primary:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
   outline-offset: 2px;
+}
+
+.btn-secondary {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  cursor: pointer;
+  min-width: 240px;
+  min-height: 44px;
+}
+
+.btn-secondary:hover {
+  border-color: var(--color-primary, #3b82f6);
+  color: var(--color-primary, #3b82f6);
+}
+
+.btn-secondary:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
+  outline-offset: 2px;
+}
+
+.btn-danger {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background-color: #ef4444;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+}
+
+.btn-danger:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
+  outline-offset: 2px;
+}
+
+.dialog-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.dialog {
+  background: var(--color-surface, #fff);
+  border-radius: 12px;
+  padding: 2rem;
+  max-width: 400px;
+  width: 90%;
+  text-align: center;
+}
+
+.dialog-text {
+  margin-bottom: 1.5rem;
+  font-size: 1rem;
+  line-height: 1.5;
+}
+
+.dialog-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: center;
 }
 </style>

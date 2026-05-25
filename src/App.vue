@@ -1,24 +1,41 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useProgressStore } from '@/stores/progressStore';
+import { onMounted, ref } from 'vue';
+import { useQuizStore } from '@/stores/quizStore';
+import { progressTracker } from '@/progress/progressTracker';
 
-const progressStore = useProgressStore();
+const quizStore = useQuizStore();
+const showRecoveryError = ref(false);
 
 onMounted(() => {
-  progressStore.initialize();
+  // Attempt to restore progress on app mount
+  quizStore.restoreProgress();
+
+  // If restore didn't load anything, check if there was corrupted data
+  if (quizStore.completedStages.length === 0 && Object.keys(quizStore.userAnswersByStage).length === 0) {
+    try {
+      const raw = localStorage.getItem('kiro-quest:progress:v1');
+      if (raw !== null) {
+        // Data existed but failed validation — show notification
+        showRecoveryError.value = true;
+        progressTracker.clear();
+        setTimeout(() => { showRecoveryError.value = false; }, 5000);
+      }
+    } catch {
+      // localStorage unavailable
+    }
+  }
 });
+
+function dismissError() {
+  showRecoveryError.value = false;
+}
 </script>
 
 <template>
-  <!-- Storage unavailability notification -->
-  <div v-if="!progressStore.isStorageAvailable" class="notification warning">
-    <p>{{ 'Progresso não será salvo nesta sessão' }}</p>
-  </div>
-
   <!-- Recovery error notification -->
-  <div v-if="progressStore.hasRecoveryError" class="notification error">
-    <p>{{ 'Progresso anterior não pôde ser recuperado' }}</p>
-    <button @click="progressStore.dismissRecoveryError()">Fechar</button>
+  <div v-if="showRecoveryError" class="notification error" role="alert">
+    <p>Progresso anterior não pôde ser recuperado</p>
+    <button @click="dismissError()">Fechar</button>
   </div>
 
   <router-view />
@@ -34,38 +51,32 @@ onMounted(() => {
 
 .notification {
   position: fixed;
-  top: var(--spacing-md);
+  top: 1rem;
   left: 50%;
   transform: translateX(-50%);
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--radius-md);
+  padding: 0.5rem 1.5rem;
+  border-radius: 8px;
   z-index: 1000;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-sm, 0.875rem);
+  gap: 0.5rem;
+  font-size: 0.875rem;
   max-width: 90%;
 }
 
-.notification.warning {
-  background: var(--color-warning-light, #fef3c7);
-  border: 1px solid var(--color-warning, #f59e0b);
-  color: var(--color-warning-dark, #92400e);
-}
-
 .notification.error {
-  background: var(--color-error-light, #fee2e2);
-  border: 1px solid var(--color-error, #ef4444);
-  color: var(--color-error-dark, #991b1b);
+  background: #fee2e2;
+  border: 1px solid #ef4444;
+  color: #991b1b;
 }
 
 .notification button {
   background: none;
   border: 1px solid currentColor;
-  border-radius: var(--radius-sm);
+  border-radius: 4px;
   padding: 2px 8px;
   cursor: pointer;
   color: inherit;
-  font-size: var(--font-size-sm, 0.875rem);
+  font-size: 0.875rem;
 }
 </style>

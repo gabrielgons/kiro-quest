@@ -1,11 +1,16 @@
-import type { LearningStage, QuizState, UserAnswer, StageResult, AnswerResult } from './types';
-import type { QuestionPresentation, AnswerKey } from '@/data/types';
-import { questionStore } from '@/data/questionStore';
+import type {
+  LearningStage,
+  VerificationResult,
+  StageResult,
+  PerformanceLevel,
+  UserAnswer,
+} from './types';
+import type { QuestionType, AnswerKey } from '@/data/types';
 
 /**
  * Ordered list of all learning stages for progression logic.
  */
-const STAGE_ORDER: LearningStage[] = [
+export const STAGE_ORDER: LearningStage[] = [
   'kiro-basics',
   'specs',
   'feature-specs',
@@ -20,229 +25,115 @@ const STAGE_ORDER: LearningStage[] = [
 ];
 
 /**
- * Creates a fresh initial QuizState for a given stage.
+ * Verifies an answer against the answer key.
+ * Returns a minimal VerificationResult (no labels, no explanation).
+ * Pure function — no side effects, no dependencies on data layer.
  */
-function createInitialState(stage: LearningStage, sessionSeed: number): QuizState {
+export function verifyAnswer(
+  questionType: QuestionType,
+  answerKey: AnswerKey,
+  selectedAnswer: string | string[]
+): VerificationResult {
+  let isCorrect: boolean;
+  let correctAnswer: string | string[];
+
+  if (questionType === 'ordering') {
+    // Support both correctOrder and correctAnswerId as array (legacy format)
+    correctAnswer = answerKey.correctOrder ?? (Array.isArray(answerKey.correctAnswerId) ? answerKey.correctAnswerId : []);
+    if (Array.isArray(selectedAnswer) && Array.isArray(correctAnswer)) {
+      if (selectedAnswer.length !== correctAnswer.length) {
+        isCorrect = false;
+      } else {
+        isCorrect = correctAnswer.every((id, index) => id === selectedAnswer[index]);
+      }
+    } else {
+      isCorrect = false;
+    }
+  } else {
+    // For non-ordering: correctAnswerId should be a string
+    correctAnswer = (typeof answerKey.correctAnswerId === 'string') ? answerKey.correctAnswerId : '';
+    isCorrect = selectedAnswer === correctAnswer;
+  }
+
   return {
-    currentStage: stage,
-    currentQuestionIndex: 0,
-    answers: {},
-    stageResults: {} as Record<LearningStage, StageResult>,
-    completedStages: [],
-    sessionSeed,
+    questionId: answerKey.questionId,
+    isCorrect,
+    selectedAnswer,
+    correctAnswer,
   };
 }
 
 /**
- * Determines whether the given answer is correct by comparing
- * the user's selected option(s) against the answer key.
+ * Calculates the stage result from user answers for a given stage.
  */
-function evaluateAnswer(
-  userAnswer: string | string[],
-  answerKey: AnswerKey
-): boolean {
-  const correctAnswer = answerKey.correctAnswerId;
-
-  if (Array.isArray(correctAnswer) && Array.isArray(userAnswer)) {
-    // Ordering question: order matters
-    if (correctAnswer.length !== userAnswer.length) return false;
-    return correctAnswer.every((id, index) => id === userAnswer[index]);
-  }
-
-  if (typeof correctAnswer === 'string' && typeof userAnswer === 'string') {
-    return correctAnswer === userAnswer;
-  }
-
-  return false;
+export function calculateStageResult(
+  stage: LearningStage,
+  answers: UserAnswer[]
+): StageResult {
+  const correctCount = answers.filter((a) => a.isCorrect).length;
+  return {
+    stage,
+    correctCount,
+    totalCount: answers.length,
+    completedAt: Date.now(),
+  };
 }
 
 /**
- * Gets the next stage in the progression after the given stage.
- * Returns undefined if the given stage is the final one (enterprise-scenarios).
+ * Calculates a percentage truncated to one decimal place.
+ * Returns 0 if totalCount is 0.
  */
-function getNextStage(currentStage: LearningStage): LearningStage | undefined {
+export function calculatePercentage(correctCount: number, totalCount: number): number {
+  if (totalCount === 0) return 0;
+  return Math.trunc((correctCount / totalCount) * 1000) / 10;
+}
+
+/**
+ * Assigns a PerformanceLevel based on correctCount and totalCount.
+ * Uses percentage thresholds: 0-49 Iniciante, 50-74 Praticante, 75-89 Especialista, 90+ Mestre.
+ */
+export function calculatePerformanceLevel(
+  correctCount: number,
+  totalCount: number
+): PerformanceLevel {
+  const percentage = totalCount === 0 ? 0 : (correctCount / totalCount) * 100;
+
+  if (percentage >= 90) return 'Mestre em Kiro';
+  if (percentage >= 75) return 'Especialista em Kiro';
+  if (percentage >= 50) return 'Praticante de Kiro';
+  return 'Iniciante em Kiro';
+}
+
+/**
+ * Returns true only when all 11 stages are completed.
+ */
+export function canShowFinalPerformance(completedStages: LearningStage[]): boolean {
+  return completedStages.length >= STAGE_ORDER.length;
+}
+
+/**
+ * Returns the next stage in the official order regardless of completion status.
+ * Returns null if currentStage is the last stage.
+ */
+export function getNextStageInOrder(currentStage: LearningStage): LearningStage | null {
   const currentIndex = STAGE_ORDER.indexOf(currentStage);
   if (currentIndex === -1 || currentIndex >= STAGE_ORDER.length - 1) {
-    return undefined;
+    return null;
   }
   return STAGE_ORDER[currentIndex + 1];
 }
 
 /**
- * Checks if the given stage is the final stage.
+ * Returns the first incomplete stage in the official order.
+ * Returns null if all stages are completed.
  */
-function isFinalStage(stage: LearningStage): boolean {
-  return stage === 'enterprise-scenarios';
+export function getRecommendedNextStage(
+  completedStages: LearningStage[]
+): LearningStage | null {
+  for (const stage of STAGE_ORDER) {
+    if (!completedStages.includes(stage)) {
+      return stage;
+    }
+  }
+  return null;
 }
-
-export interface QuizEngine {
-  /**
-   * Starts a stage by loading its questions and initializing quiz state.
-   * Questions are sorted by difficulty (iniciante -> intermediario -> avancado).
-   * Returns the initial QuizState and the list of questions for the stage.
-   */
-  startStage(stage: LearningStage, existingState?: Partial<QuizState>): {
-    state: QuizState;
-    questions: QuestionPresentation[];
-  };
-
-  /**
-   * Submits an answer for a question, evaluates it, and returns the result.
-   * Updates the quiz state with the user's answer.
-   */
-  submitAnswer(
-    state: QuizState,
-    questionId: string,
-    selectedAnswer: string | string[]
-  ): {
-    state: QuizState;
-    result: AnswerResult;
-  };
-
-  /**
-   * Advances to the next question or signals stage completion.
-   * Returns updated state and navigation info.
-   */
-  nextQuestion(
-    state: QuizState,
-    questions: QuestionPresentation[]
-  ): {
-    state: QuizState;
-    isStageComplete: boolean;
-    isFinalStageComplete: boolean;
-    nextStage?: LearningStage;
-  };
-
-  /**
-   * Gets the next stage in progression order.
-   */
-  getNextStage(currentStage: LearningStage): LearningStage | undefined;
-
-  /**
-   * Checks if a stage is the final stage.
-   */
-  isFinalStage(stage: LearningStage): boolean;
-}
-
-/**
- * Quiz Engine implementation.
- *
- * Handles:
- * - Stage initialization with difficulty-sorted questions (Req 3.2)
- * - Answer submission and evaluation against separate answer keys (Req 5.1, 5.2)
- * - Stage progression: advance to next stage on completion (Req 3.3)
- * - Final stage (Enterprise Scenarios) detection for achievement screen (Req 3.5)
- */
-export const quizEngine: QuizEngine = {
-  startStage(stage: LearningStage, existingState?: Partial<QuizState>) {
-    const sessionSeed = existingState?.sessionSeed ?? Date.now();
-    const questions = questionStore.getQuestionsForStage(stage);
-
-    const state: QuizState = {
-      ...createInitialState(stage, sessionSeed),
-      ...existingState,
-      currentStage: stage,
-      currentQuestionIndex: 0,
-    };
-
-    return { state, questions };
-  },
-
-  submitAnswer(
-    state: QuizState,
-    questionId: string,
-    selectedAnswer: string | string[]
-  ) {
-    const answerKey = questionStore.getAnswerKey(questionId);
-    if (!answerKey) {
-      throw new Error(`Answer key not found for question: ${questionId}`);
-    }
-
-    const question = questionStore.getQuestionById(questionId);
-    if (!question) {
-      throw new Error(`Question not found: ${questionId}`);
-    }
-
-    const isCorrect = evaluateAnswer(selectedAnswer, answerKey);
-
-    const userAnswer: UserAnswer = {
-      questionId,
-      selectedOptionId: selectedAnswer,
-      isCorrect,
-      answeredAt: Date.now(),
-    };
-
-    const result: AnswerResult = {
-      isCorrect,
-      correctAnswerId: answerKey.correctAnswerId,
-      explanation: question.explanation,
-      sourceUrl: question.sourceUrl,
-    };
-
-    const newState: QuizState = {
-      ...state,
-      answers: {
-        ...state.answers,
-        [questionId]: userAnswer,
-      },
-    };
-
-    return { state: newState, result };
-  },
-
-  nextQuestion(state: QuizState, questions: QuestionPresentation[]) {
-    const nextIndex = state.currentQuestionIndex + 1;
-    const isStageComplete = nextIndex >= questions.length;
-
-    if (!isStageComplete) {
-      // Advance to next question within the stage
-      const newState: QuizState = {
-        ...state,
-        currentQuestionIndex: nextIndex,
-      };
-      return {
-        state: newState,
-        isStageComplete: false,
-        isFinalStageComplete: false,
-      };
-    }
-
-    // Stage is complete - calculate results
-    const correctCount = questions.filter(
-      (q) => state.answers[q.id]?.isCorrect
-    ).length;
-
-    const stageResult: StageResult = {
-      stage: state.currentStage,
-      correctCount,
-      totalCount: questions.length,
-      completedAt: Date.now(),
-    };
-
-    const completedStages = state.completedStages.includes(state.currentStage)
-      ? state.completedStages
-      : [...state.completedStages, state.currentStage];
-
-    const isFinal = isFinalStage(state.currentStage);
-    const nextStageId = getNextStage(state.currentStage);
-
-    const newState: QuizState = {
-      ...state,
-      stageResults: {
-        ...state.stageResults,
-        [state.currentStage]: stageResult,
-      },
-      completedStages,
-    };
-
-    return {
-      state: newState,
-      isStageComplete: true,
-      isFinalStageComplete: isFinal,
-      nextStage: nextStageId,
-    };
-  },
-
-  getNextStage,
-  isFinalStage,
-};

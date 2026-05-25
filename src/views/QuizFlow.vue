@@ -1,56 +1,75 @@
 <script setup lang="ts">
-import { ref, watch, onMounted } from 'vue';
+import { ref, computed, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useLocale } from '@/i18n/useLocale';
 import { useQuizStore } from '@/stores/quizStore';
-import { useProgressStore } from '@/stores/progressStore';
 import type { LearningStage } from '@/engine/types';
-import type { AnswerResult } from '@/engine/types';
+import type { AnswerOption, OrderingItem } from '@/data/types';
+import QuizProgressBar from '@/components/QuizProgressBar.vue';
+import FeedbackDisplay from '@/components/FeedbackDisplay.vue';
 
 const router = useRouter();
 const route = useRoute();
 const { t } = useLocale();
 const quizStore = useQuizStore();
-const progressStore = useProgressStore();
 
 const selectedAnswer = ref<string | string[] | null>(null);
-const feedback = ref<AnswerResult | null>(null);
-const hasSubmitted = ref(false);
+const feedbackRef = ref<HTMLElement | null>(null);
 
 const stage = route.params.stage as LearningStage;
 
 onMounted(() => {
-  if (quizStore.questions.length === 0 || quizStore.state.currentStage !== stage) {
+  if (quizStore.questions.length === 0 || quizStore.currentStage !== stage) {
     quizStore.startStage(stage);
   }
+  initializeAnswer();
 });
 
-// React to question changes: reset answer state and initialize ordering
+const currentQuestion = computed(() => quizStore.currentQuestion);
+const isLastQuestion = computed(() => quizStore.currentQuestionIndex >= quizStore.questions.length - 1);
+
+const submitLabel = computed(() => {
+  if (currentQuestion.value?.type === 'ordering') {
+    return t('quiz.confirmOrder');
+  }
+  return t('quiz.confirm');
+});
+
+const canSubmit = computed(() => {
+  if (quizStore.quizPhase !== 'answering') return false;
+  if (currentQuestion.value?.type === 'ordering') return true;
+  return selectedAnswer.value !== null;
+});
+
+// Watch question changes to reset local answer state
 watch(
-  () => quizStore.currentQuestionWithRandomizedOptions,
-  (question) => {
-    if (question?.type === 'ordering') {
-      selectedAnswer.value = question.options.map((o) => o.id);
-    } else {
-      selectedAnswer.value = null;
-    }
-    hasSubmitted.value = false;
-    feedback.value = null;
+  () => quizStore.currentQuestionIndex,
+  () => {
+    initializeAnswer();
   }
 );
 
+function initializeAnswer() {
+  const q = currentQuestion.value;
+  if (q?.type === 'ordering') {
+    selectedAnswer.value = (q.options as OrderingItem[]).map((o) => o.id);
+  } else {
+    selectedAnswer.value = null;
+  }
+}
+
 function selectOption(optionId: string) {
-  if (hasSubmitted.value) return;
+  if (quizStore.quizPhase !== 'answering') return;
   selectedAnswer.value = optionId;
 }
 
-function selectOrdering(orderedIds: string[]) {
-  if (hasSubmitted.value) return;
+function handleReorder(orderedIds: string[]) {
+  if (quizStore.quizPhase !== 'answering') return;
   selectedAnswer.value = orderedIds;
 }
 
 function moveItem(index: number, direction: 'up' | 'down') {
-  if (hasSubmitted.value) return;
+  if (quizStore.quizPhase !== 'answering') return;
   if (!Array.isArray(selectedAnswer.value)) return;
 
   const newOrder = [...selectedAnswer.value];
@@ -62,66 +81,83 @@ function moveItem(index: number, direction: 'up' | 'down') {
 }
 
 function handleSubmit() {
-  const question = quizStore.currentQuestionWithRandomizedOptions;
-  if (!question || selectedAnswer.value === null) return;
-
-  const result = quizStore.submitAnswer(question.id, selectedAnswer.value);
-  feedback.value = result;
-  hasSubmitted.value = true;
-  progressStore.save(quizStore.state);
+  if (!canSubmit.value || selectedAnswer.value === null) return;
+  quizStore.submitAnswer(selectedAnswer.value);
 }
 
 function handleNext() {
-  quizStore.advanceToNext();
-
-  if (quizStore.isFinalStageComplete) {
-    progressStore.save(quizStore.state);
-    router.push('/achievement');
-  } else if (quizStore.isStageComplete) {
-    progressStore.save(quizStore.state);
+  if (isLastQuestion.value) {
+    quizStore.completeStage();
     router.push(`/summary/${stage}`);
+  } else {
+    quizStore.nextQuestion();
   }
 }
 </script>
 
 <template>
-  <main :class="$style.container">
-    <!-- Progress Bar -->
-    <div :class="$style.progressBar" :aria-label="t('a11y.progressBar')">
-      <span :class="$style.progressText">{{ quizStore.stageProgress.formatted }}</span>
-      <div :class="$style.progressTrack">
-        <div
-          :class="$style.progressFill"
-          :style="{ width: `${quizStore.stageProgress.percentage}%` }"
-        />
-      </div>
+  <main class="quiz-view">
+    <!-- Error state -->
+    <div v-if="quizStore.errorMessage" class="error-state">
+      <p class="error-message">{{ quizStore.errorMessage }}</p>
+      <button class="btn-secondary" @click="router.push('/stages')">
+        {{ t('summary.backToStages') }}
+      </button>
     </div>
 
-    <!-- Question -->
-    <div v-if="quizStore.currentQuestionWithRandomizedOptions" :class="$style.questionArea">
-      <h2 :class="$style.questionText">
-        {{ quizStore.currentQuestionWithRandomizedOptions.text }}
-      </h2>
+    <!-- Quiz content -->
+    <template v-else-if="currentQuestion">
+      <QuizProgressBar
+        :current="quizStore.currentQuestionIndex + 1"
+        :total="quizStore.questions.length"
+        :stage-name="t(`stage.name.${stage}`)"
+        :difficulty="currentQuestion.difficulty"
+      />
 
-      <!-- Multiple Choice / True-False / Scenario -->
+      <!-- Aria-live region for question updates -->
+      <div aria-live="polite" class="sr-only">
+        Pergunta {{ quizStore.currentQuestionIndex + 1 }} de {{ quizStore.questions.length }}
+      </div>
+
+      <!-- Question text -->
+      <h2 class="question-text">{{ currentQuestion.text }}</h2>
+
+      <!-- Multiple Choice / Scenario -->
       <div
-        v-if="['multiple-choice', 'true-false', 'scenario'].includes(quizStore.currentQuestionWithRandomizedOptions.type)"
-        :class="$style.options"
+        v-if="currentQuestion.type === 'multiple-choice' || currentQuestion.type === 'scenario'"
         role="radiogroup"
+        :aria-label="currentQuestion.text"
+        class="options"
       >
         <button
-          v-for="option in quizStore.currentQuestionWithRandomizedOptions.options"
+          v-for="option in (currentQuestion.options as AnswerOption[])"
           :key="option.id"
-          :class="[
-            $style.optionButton,
-            selectedAnswer === option.id && $style.selected,
-            hasSubmitted && feedback?.isCorrect && selectedAnswer === option.id && $style.correct,
-            hasSubmitted && !feedback?.isCorrect && selectedAnswer === option.id && $style.incorrect,
-            hasSubmitted && option.id === feedback?.correctAnswerId && $style.correctAnswer,
-          ]"
-          :disabled="hasSubmitted"
           role="radio"
           :aria-checked="selectedAnswer === option.id"
+          :disabled="quizStore.quizPhase !== 'answering'"
+          class="option-button"
+          :class="{ selected: selectedAnswer === option.id }"
+          @click="selectOption(option.id)"
+        >
+          {{ option.label }}
+        </button>
+      </div>
+
+      <!-- True/False -->
+      <div
+        v-else-if="currentQuestion.type === 'true-false'"
+        role="radiogroup"
+        :aria-label="currentQuestion.text"
+        class="options options-row"
+      >
+        <button
+          v-for="option in (currentQuestion.options as AnswerOption[])"
+          :key="option.id"
+          role="radio"
+          :aria-checked="selectedAnswer === option.id"
+          :disabled="quizStore.quizPhase !== 'answering'"
+          class="option-button"
+          :class="{ selected: selectedAnswer === option.id }"
           @click="selectOption(option.id)"
         >
           {{ option.label }}
@@ -129,32 +165,30 @@ function handleNext() {
       </div>
 
       <!-- Ordering -->
-      <div
-        v-if="quizStore.currentQuestionWithRandomizedOptions.type === 'ordering'"
-        :class="$style.orderingList"
-      >
-        <p :class="$style.orderHint">{{ t('quiz.orderItems') }}</p>
+      <div v-else-if="currentQuestion.type === 'ordering'" class="ordering-list">
+        <p class="order-hint">{{ t('quiz.orderItems') }}</p>
         <div
           v-for="(optionId, index) in (selectedAnswer as string[] || [])"
           :key="optionId"
-          :class="$style.orderItem"
+          class="order-item"
         >
-          <span :class="$style.orderLabel">
-            {{ quizStore.currentQuestionWithRandomizedOptions.options.find(o => o.id === optionId)?.label }}
+          <span class="order-position">{{ index + 1 }}.</span>
+          <span class="order-label">
+            {{ (currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label }}
           </span>
-          <div :class="$style.orderControls">
+          <div class="order-controls">
             <button
-              :class="$style.moveButton"
-              :disabled="index === 0 || hasSubmitted"
-              :aria-label="t('quiz.moveUp')"
+              class="move-button"
+              :disabled="index === 0 || quizStore.quizPhase !== 'answering'"
+              :aria-label="`Mover ${(currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label} para cima`"
               @click="moveItem(index, 'up')"
             >
               &#9650;
             </button>
             <button
-              :class="$style.moveButton"
-              :disabled="index === (selectedAnswer as string[]).length - 1 || hasSubmitted"
-              :aria-label="t('quiz.moveDown')"
+              class="move-button"
+              :disabled="index === (selectedAnswer as string[]).length - 1 || quizStore.quizPhase !== 'answering'"
+              :aria-label="`Mover ${(currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label} para baixo`"
               @click="moveItem(index, 'down')"
             >
               &#9660;
@@ -163,188 +197,162 @@ function handleNext() {
         </div>
       </div>
 
-      <!-- Submit / Next buttons -->
-      <div :class="$style.actions">
+      <!-- Actions -->
+      <div class="actions">
         <button
-          v-if="!hasSubmitted"
-          :class="$style.submitButton"
-          :disabled="selectedAnswer === null"
+          v-if="quizStore.quizPhase === 'answering'"
+          class="btn-primary"
+          :disabled="!canSubmit"
           @click="handleSubmit"
         >
-          {{ t('quiz.submit') }}
+          {{ submitLabel }}
         </button>
 
         <button
-          v-if="hasSubmitted"
-          :class="$style.nextButton"
+          v-if="quizStore.quizPhase === 'feedback'"
+          class="btn-primary"
           @click="handleNext"
         >
-          {{ quizStore.stageProgress.current >= quizStore.stageProgress.total ? t('quiz.finish') : t('quiz.next') }}
+          {{ isLastQuestion ? t('quiz.finish') : t('quiz.next') }}
         </button>
       </div>
 
-      <!-- Feedback Panel -->
-      <div v-if="hasSubmitted && feedback" :class="[$style.feedback, feedback.isCorrect ? $style.feedbackCorrect : $style.feedbackIncorrect]">
-        <p :class="$style.feedbackTitle">
-          {{ feedback.isCorrect ? t('feedback.correct') : t('feedback.incorrect') }}
-        </p>
-        <p :class="$style.feedbackExplanation">
-          <strong>{{ t('feedback.explanation') }}:</strong> {{ feedback.explanation }}
-        </p>
-        <a
-          v-if="feedback.sourceUrl"
-          :href="feedback.sourceUrl"
-          target="_blank"
-          rel="noopener noreferrer"
-          :class="$style.sourceLink"
-        >
-          {{ t('feedback.source') }}
-        </a>
-      </div>
-    </div>
+      <!-- Feedback -->
+      <FeedbackDisplay
+        v-if="quizStore.quizPhase === 'feedback' && quizStore.lastAnswerResult"
+        ref="feedbackRef"
+        :result="quizStore.lastAnswerResult"
+        :question-type="currentQuestion.type"
+      />
+    </template>
 
-    <!-- No questions -->
-    <div v-else :class="$style.empty">
-      <p>{{ t('error.noQuestions') }}</p>
-      <button :class="$style.backButton" @click="router.push('/stages')">
-        {{ t('nav.back') }}
+    <!-- No questions fallback -->
+    <div v-else class="error-state">
+      <p class="error-message">{{ t('error.noQuestions') }}</p>
+      <button class="btn-secondary" @click="router.push('/stages')">
+        {{ t('summary.backToStages') }}
       </button>
     </div>
   </main>
 </template>
 
-<style module>
-.container {
-  padding: var(--spacing-lg);
+<style scoped>
+.quiz-view {
+  padding: 1.5rem;
   max-width: 700px;
   margin: 0 auto;
   min-height: 100vh;
 }
 
-.progressBar {
-  margin-bottom: var(--spacing-lg);
-}
-
-.progressText {
-  display: block;
-  text-align: center;
-  font-size: var(--font-size-sm, 0.875rem);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-xs);
-}
-
-.progressTrack {
-  height: 6px;
-  background: var(--color-border);
-  border-radius: 3px;
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
   overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 
-.progressFill {
-  height: 100%;
-  background: var(--color-primary);
-  border-radius: 3px;
-  transition: width 0.3s ease;
-}
-
-.questionArea {
-  margin-bottom: var(--spacing-xl);
-}
-
-.questionText {
-  font-size: var(--font-size-lg, 1.25rem);
-  color: var(--color-text);
-  margin-bottom: var(--spacing-lg);
+.question-text {
+  font-size: 1.25rem;
   line-height: 1.5;
+  margin-bottom: 1.5rem;
+  color: var(--color-text, #1f2937);
 }
 
 .options {
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-lg);
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.optionButton {
-  padding: var(--spacing-md);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
+.options-row {
+  flex-direction: row;
+}
+
+.option-button {
+  padding: 0.75rem 1rem;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--color-surface, #fff);
   cursor: pointer;
   text-align: left;
-  font-size: var(--font-size-md, 1rem);
+  font-size: 1rem;
   min-height: 44px;
   transition: border-color 0.2s ease;
 }
 
-.optionButton:hover:not(:disabled) {
-  border-color: var(--color-primary);
+.options-row .option-button {
+  flex: 1;
+  text-align: center;
 }
 
-.optionButton:focus-visible {
-  outline: 3px solid var(--color-focus);
+.option-button:hover:not(:disabled) {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.option-button:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
   outline-offset: 2px;
 }
 
-.optionButton.selected {
-  border-color: var(--color-primary);
-  background: var(--color-primary-light, rgba(59, 130, 246, 0.05));
+.option-button.selected {
+  border-color: var(--color-primary, #3b82f6);
+  background: rgba(59, 130, 246, 0.05);
 }
 
-.optionButton.correct,
-.optionButton.correctAnswer {
-  border-color: var(--color-success);
-  background: var(--color-success-light, rgba(34, 197, 94, 0.1));
-}
-
-.optionButton.incorrect {
-  border-color: var(--color-error);
-  background: var(--color-error-light, rgba(239, 68, 68, 0.1));
-}
-
-.optionButton:disabled {
+.option-button:disabled {
   cursor: default;
   opacity: 0.8;
 }
 
-.orderingList {
-  margin-bottom: var(--spacing-lg);
+.ordering-list {
+  margin-bottom: 1.5rem;
 }
 
-.orderHint {
-  font-size: var(--font-size-sm, 0.875rem);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-sm);
+.order-hint {
+  font-size: 0.875rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-bottom: 0.5rem;
 }
 
-.orderItem {
+.order-item {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-sm) var(--spacing-md);
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
-  background: var(--color-surface);
-  margin-bottom: var(--spacing-xs);
+  padding: 0.5rem 0.75rem;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  background: var(--color-surface, #fff);
+  margin-bottom: 0.5rem;
   min-height: 44px;
 }
 
-.orderLabel {
+.order-position {
+  font-weight: 600;
+  margin-right: 0.75rem;
+  color: var(--color-text-secondary, #6b7280);
+  min-width: 1.5rem;
+}
+
+.order-label {
   flex: 1;
-  font-size: var(--font-size-md, 1rem);
+  font-size: 1rem;
 }
 
-.orderControls {
+.order-controls {
   display: flex;
-  gap: var(--spacing-xs);
+  gap: 0.25rem;
 }
 
-.moveButton {
+.move-button {
   width: 36px;
   height: 36px;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
-  background: var(--color-surface);
+  border: 1px solid var(--color-border, #e5e7eb);
+  border-radius: 4px;
+  background: var(--color-surface, #fff);
   cursor: pointer;
   display: flex;
   align-items: center;
@@ -352,105 +360,66 @@ function handleNext() {
   font-size: 12px;
 }
 
-.moveButton:disabled {
+.move-button:disabled {
   opacity: 0.3;
   cursor: default;
 }
 
-.moveButton:focus-visible {
-  outline: 3px solid var(--color-focus);
+.move-button:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
   outline-offset: 2px;
 }
 
 .actions {
   display: flex;
   justify-content: center;
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 1.5rem;
 }
 
-.submitButton,
-.nextButton {
-  padding: var(--spacing-md) var(--spacing-xl);
-  font-size: var(--font-size-md, 1rem);
+.btn-primary {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background-color: var(--color-primary, #3b82f6);
+  color: #fff;
   border: none;
-  border-radius: var(--radius-md);
+  border-radius: 8px;
   cursor: pointer;
   min-height: 44px;
   min-width: 180px;
 }
 
-.submitButton {
-  background: var(--color-primary);
-  color: var(--color-white, #fff);
-}
-
-.submitButton:disabled {
+.btn-primary:disabled {
   opacity: 0.5;
   cursor: default;
 }
 
-.submitButton:focus-visible,
-.nextButton:focus-visible {
-  outline: 3px solid var(--color-focus);
+.btn-primary:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
   outline-offset: 2px;
 }
 
-.nextButton {
-  background: var(--color-primary);
-  color: var(--color-white, #fff);
-}
-
-.feedback {
-  padding: var(--spacing-lg);
-  border-radius: var(--radius-md);
-  margin-top: var(--spacing-md);
-}
-
-.feedbackCorrect {
-  background: var(--color-success-light, rgba(34, 197, 94, 0.1));
-  border: 2px solid var(--color-success);
-}
-
-.feedbackIncorrect {
-  background: var(--color-error-light, rgba(239, 68, 68, 0.1));
-  border: 2px solid var(--color-error);
-}
-
-.feedbackTitle {
-  font-size: var(--font-size-lg, 1.25rem);
-  font-weight: 700;
-  margin-bottom: var(--spacing-sm);
-}
-
-.feedbackExplanation {
-  font-size: var(--font-size-md, 1rem);
-  line-height: 1.5;
-  margin-bottom: var(--spacing-sm);
-}
-
-.sourceLink {
-  color: var(--color-primary);
-  text-decoration: underline;
-  font-size: var(--font-size-sm, 0.875rem);
-}
-
-.empty {
-  text-align: center;
-  padding: var(--spacing-xl);
-}
-
-.backButton {
-  margin-top: var(--spacing-md);
-  padding: var(--spacing-sm) var(--spacing-lg);
+.btn-secondary {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
   background: transparent;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
   cursor: pointer;
   min-height: 44px;
 }
 
-.backButton:focus-visible {
-  outline: 3px solid var(--color-focus);
+.btn-secondary:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
   outline-offset: 2px;
+}
+
+.error-state {
+  text-align: center;
+  padding: 3rem 1rem;
+}
+
+.error-message {
+  margin-bottom: 1rem;
+  color: var(--color-error, #ef4444);
 }
 </style>

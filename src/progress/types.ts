@@ -1,13 +1,12 @@
-import type { LearningStage, StageResult } from '@/engine/types';
+import type { LearningStage, QuizPhase, StageResult, UserAnswer } from '@/engine/types';
 
 export interface ProgressState {
   version: number;
-  completedStages: LearningStage[];
   currentStage: LearningStage;
   currentQuestionIndex: number;
-  questionsAnswered: number;
-  correctAnswerCount: number;
-  totalScore: number;
+  quizPhase: QuizPhase;
+  completedStages: LearningStage[];
   stageResults: Record<string, StageResult>;
+  userAnswersByStage: Record<string, UserAnswer[]>;
   lastUpdated: number;
 }
