@@ -3,9 +3,13 @@
   "app.description": "Aprenda Kiro de forma interativa",
 
   "home.welcome": "Teste seus conhecimentos sobre Kiro!",
-  "home.start": "Começar",
+  "home.start": "Começar Jornada",
   "home.subtitle": "Um quiz progressivo para dominar conceitos de Kiro",
-  "home.resume": "Continuar de onde parou",
+  "home.resume": "Continuar de onde parei",
+  "home.restart": "Recomeçar Jornada",
+  "home.restartConfirm": "Tem certeza que deseja recomeçar? Todo o progresso será perdido.",
+  "home.restartConfirmYes": "Sim, recomeçar",
+  "home.restartConfirmNo": "Cancelar",
 
   "nav.home": "Início",
   "nav.stages": "Estágios",
@@ -16,6 +20,7 @@
   "stage.inProgress": "Em andamento",
   "stage.notStarted": "Não iniciado",
   "stage.questions": "{count} perguntas",
+  "stage.recommended": "Recomendado",
 
   "stage.name.kiro-basics": "Kiro Básico",
   "stage.name.specs": "Specs",
@@ -30,6 +35,8 @@
   "stage.name.enterprise-scenarios": "Cenários Empresariais",
 
   "quiz.progress": "{current} / {total}",
+  "quiz.confirm": "Confirmar Resposta",
+  "quiz.confirmOrder": "Confirmar ordem",
   "quiz.submit": "Confirmar Resposta",
   "quiz.next": "Próxima Pergunta",
   "quiz.finish": "Finalizar Estágio",
@@ -43,21 +50,27 @@
   "feedback.correct": "Correto!",
   "feedback.incorrect": "Incorreto",
   "feedback.explanation": "Explicação",
-  "feedback.source": "Saiba mais na documentação oficial",
+  "feedback.source": "Ver documentação",
   "feedback.correctAnswer": "Resposta correta: {answer}",
-  "feedback.correctOrder": "Ordem correta: {order}",
+  "feedback.correctOrder": "Ordem correta:",
 
   "summary.title": "Resultado do Estágio",
-  "summary.score": "Você acertou {correct} de {total}",
+  "summary.score": "{correctCount} de {totalCount}",
   "summary.nextStage": "Próximo Estágio",
+  "summary.retry": "Tentar Novamente",
   "summary.backToStages": "Voltar aos Estágios",
+  "summary.backToHome": "Voltar ao início",
+  "summary.reviewErrors": "Revisar erros",
+  "summary.allCorrect": "Parabéns! Você acertou todas as perguntas!",
   "summary.retryStage": "Tentar Novamente",
 
   "achievement.title": "Parabéns!",
   "achievement.subtitle": "Você completou todos os estágios!",
   "achievement.overallScore": "Pontuação geral: {correct} de {total}",
+  "achievement.percentage": "Acertos: {percentage}%",
   "achievement.level": "Seu nível: {level}",
-  "achievement.backToHome": "Voltar ao Início",
+  "achievement.backToHome": "Voltar ao início",
+  "achievement.backToStages": "Voltar aos Estágios",
 
   "performance.iniciante": "Iniciante em Kiro",
   "performance.praticante": "Praticante de Kiro",
@@ -74,11 +87,13 @@
   "progress.unavailable": "Progresso não será salvo nesta sessão",
   "progress.corrupted": "Progresso anterior não pôde ser recuperado",
   "progress.saved": "Progresso salvo",
+  "progress.resetNotification": "Progresso foi redefinido devido a uma atualização.",
 
   "error.generic": "Ocorreu um erro inesperado",
   "error.stageNotFound": "Estágio não encontrado",
   "error.noQuestions": "Nenhuma pergunta disponível para este estágio",
   "error.loadFailed": "Falha ao carregar dados",
+  "error.cannotVerify": "Não foi possível verificar esta pergunta",
 
   "notification.dismiss": "Fechar",
 
@@ -91,5 +106,6 @@
   "a11y.incorrectAnswer": "Resposta incorreta",
   "a11y.selectedOption": "Opção selecionada",
   "a11y.stageComplete": "Estágio concluído",
-  "a11y.dragHandle": "Arrastar para reordenar"
+  "a11y.dragHandle": "Arrastar para reordenar",
+  "a11y.questionUpdate": "Pergunta {current} de {total}"
 }

@@ -3,9 +3,11 @@ import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useLocale } from '@/i18n/useLocale';
 import { useQuizStore } from '@/stores/quizStore';
-import { generateShareText, shareToLinkedIn, copyToClipboard } from '@/sharing/shareGenerator';
-import { calculateScorePercentage, calculatePerformanceLevel } from '@/engine/scoring';
+import { getNextStageInOrder } from '@/engine/quizEngine';
 import type { LearningStage } from '@/engine/types';
+import type { MistakeItem } from '@/components/types';
+import MistakeReview from '@/components/MistakeReview.vue';
+import { questionStore } from '@/data/questionStore';
 
 const router = useRouter();
 const route = useRoute();
@@ -13,237 +15,246 @@ const { t } = useLocale();
 const quizStore = useQuizStore();
 
 const stage = route.params.stage as LearningStage;
-const shareSuccess = ref(false);
+const showMistakes = ref(false);
 
-const stageResult = computed(() => quizStore.state.stageResults[stage]);
+const stageResult = computed(() => quizStore.stageResults[stage]);
+const nextStage = computed(() => getNextStageInOrder(stage));
+const hasMoreStages = computed(() => nextStage.value !== null);
+const allCorrect = computed(() => stageResult.value?.correctCount === stageResult.value?.totalCount);
 
-const stageName = computed(() => t(`stage.name.${stage}`));
+const mistakes = computed<MistakeItem[]>(() => {
+  const stageAnswers = quizStore.userAnswersByStage[stage] ?? [];
+  const incorrectAnswers = stageAnswers.filter((a) => !a.isCorrect);
 
-const percentage = computed(() => {
-  if (!stageResult.value) return 0;
-  return calculateScorePercentage(stageResult.value.correctCount, stageResult.value.totalCount);
+  return incorrectAnswers.map((answer) => {
+    const question = questionStore.getQuestionById(answer.questionId);
+    let userAnswerLabel = '';
+    let correctAnswerLabel = '';
+
+    if (question) {
+      if (question.type === 'ordering') {
+        userAnswerLabel = Array.isArray(answer.selectedOptionId)
+          ? answer.selectedOptionId.join(', ')
+          : String(answer.selectedOptionId);
+        try {
+          const answerKey = questionStore.getAnswerKey(answer.questionId);
+          correctAnswerLabel = (answerKey.correctOrder ?? []).join(', ');
+        } catch {
+          correctAnswerLabel = '';
+        }
+      } else {
+        const options = question.options as { id: string; label: string }[];
+        const selectedOpt = options.find((o) => o.id === answer.selectedOptionId);
+        userAnswerLabel = selectedOpt?.label ?? String(answer.selectedOptionId);
+        try {
+          const answerKey = questionStore.getAnswerKey(answer.questionId);
+          const correctOpt = options.find((o) => o.id === answerKey.correctAnswerId);
+          correctAnswerLabel = correctOpt?.label ?? '';
+        } catch {
+          correctAnswerLabel = '';
+        }
+      }
+    }
+
+    return {
+      questionText: question?.text ?? answer.questionId,
+      userAnswerLabel,
+      correctAnswerLabel,
+      explanation: question?.explanation ?? '',
+      sourceUrl: question?.sourceUrl || undefined,
+    };
+  });
 });
 
-const performanceLevel = computed(() => calculatePerformanceLevel(percentage.value));
-
-function handleShare() {
-  if (!stageResult.value) return;
-
-  const text = generateShareText({
-    stageName: stageName.value,
-    correctCount: stageResult.value.correctCount,
-    totalCount: stageResult.value.totalCount,
-    performanceLevel: performanceLevel.value,
-    isFullQuizComplete: false,
-  });
-
-  try {
-    shareToLinkedIn(text);
-  } catch {
-    handleCopy();
-  }
-}
-
-async function handleCopy() {
-  if (!stageResult.value) return;
-
-  const text = generateShareText({
-    stageName: stageName.value,
-    correctCount: stageResult.value.correctCount,
-    totalCount: stageResult.value.totalCount,
-    performanceLevel: performanceLevel.value,
-    isFullQuizComplete: false,
-  });
-
-  const success = await copyToClipboard(text);
-  if (success) {
-    shareSuccess.value = true;
-    setTimeout(() => { shareSuccess.value = false; }, 3000);
-  }
-}
-
 function handleNextStage() {
-  const next = quizStore.nextStage;
-  if (next) {
-    quizStore.startStage(next);
-    router.push(`/quiz/${next}`);
+  if (nextStage.value) {
+    quizStore.startStage(nextStage.value);
+    router.push(`/quiz/${nextStage.value}`);
   }
 }
 
 function handleRetry() {
-  quizStore.startStage(stage);
+  quizStore.retryStage(stage);
   router.push(`/quiz/${stage}`);
 }
 
 function handleBackToStages() {
   router.push('/stages');
 }
+
+function handleBackToHome() {
+  router.push('/');
+}
+
+function toggleMistakes() {
+  showMistakes.value = !showMistakes.value;
+}
 </script>
 
 <template>
-  <main :class="$style.container">
-    <h1 :class="$style.title">{{ t('summary.title') }}</h1>
-    <h2 :class="$style.stageName">{{ stageName }}</h2>
+  <main class="stage-summary">
+    <h1 class="page-title">{{ t('summary.title') }}</h1>
 
-    <div v-if="stageResult" :class="$style.scoreCard">
-      <p :class="$style.score">
-        {{ stageResult.correctCount }} / {{ stageResult.totalCount }}
-      </p>
-      <p :class="$style.level">{{ performanceLevel }}</p>
+    <div v-if="stageResult" class="result-card">
+      <p class="stage-name">{{ t(`stage.name.${stage}`) }}</p>
+      <p class="score">{{ stageResult.correctCount }} de {{ stageResult.totalCount }}</p>
+
+      <!-- All correct congratulation -->
+      <p v-if="allCorrect" class="congratulations">{{ t('summary.allCorrect') }}</p>
+
+      <!-- Overall performance if all stages complete -->
+      <div v-if="quizStore.isAllComplete" class="overall-performance">
+        <p class="percentage">{{ quizStore.overallPercentage }}%</p>
+        <p class="performance-level">{{ quizStore.performanceLevel }}</p>
+      </div>
     </div>
 
-    <div :class="$style.actions">
-      <button :class="$style.shareButton" @click="handleShare">
-        {{ t('share.button') }}
-      </button>
-
-      <button :class="$style.copyButton" @click="handleCopy">
-        {{ t('share.copyFallback') }}
-      </button>
-
-      <p v-if="shareSuccess" :class="$style.shareMessage">{{ t('share.copied') }}</p>
-    </div>
-
-    <div :class="$style.navigation">
-      <button
-        v-if="quizStore.nextStage"
-        :class="$style.primaryButton"
-        @click="handleNextStage"
-      >
+    <!-- Actions -->
+    <div class="actions">
+      <button v-if="hasMoreStages" class="btn-primary" @click="handleNextStage">
         {{ t('summary.nextStage') }}
       </button>
 
-      <button :class="$style.secondaryButton" @click="handleRetry">
-        {{ t('summary.retryStage') }}
+      <button class="btn-secondary" @click="handleRetry">
+        {{ t('summary.retry') }}
       </button>
 
-      <button :class="$style.secondaryButton" @click="handleBackToStages">
+      <button v-if="!allCorrect" class="btn-secondary" @click="toggleMistakes">
+        {{ t('summary.reviewErrors') }}
+      </button>
+
+      <button class="btn-secondary" @click="handleBackToStages">
         {{ t('summary.backToStages') }}
       </button>
+
+      <button class="btn-link" @click="handleBackToHome">
+        {{ t('summary.backToHome') }}
+      </button>
     </div>
+
+    <!-- Mistake Review -->
+    <MistakeReview v-if="showMistakes && mistakes.length > 0" :mistakes="mistakes" />
   </main>
 </template>
 
-<style module>
-.container {
-  padding: var(--spacing-lg);
-  max-width: 600px;
+<style scoped>
+.stage-summary {
+  padding: 1.5rem;
+  max-width: 700px;
   margin: 0 auto;
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 
-.title {
-  font-size: var(--font-size-xl, 2rem);
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-sm);
-}
-
-.stageName {
-  font-size: var(--font-size-lg, 1.25rem);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-xl);
-}
-
-.scoreCard {
+.page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
   text-align: center;
-  padding: var(--spacing-xl);
-  border: 2px solid var(--color-primary);
-  border-radius: var(--radius-lg, 12px);
-  margin-bottom: var(--spacing-xl);
-  min-width: 200px;
+  margin-bottom: 1.5rem;
+}
+
+.result-card {
+  text-align: center;
+  padding: 2rem;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  background: var(--color-surface, #fff);
+}
+
+.stage-name {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-bottom: 0.5rem;
 }
 
 .score {
-  font-size: var(--font-size-xxl, 2.5rem);
+  font-size: 2rem;
   font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-sm);
+  color: var(--color-text, #1f2937);
+  margin-bottom: 0.5rem;
 }
 
-.level {
-  font-size: var(--font-size-md, 1rem);
-  color: var(--color-text-secondary);
+.congratulations {
+  color: #16a34a;
+  font-weight: 600;
+  margin-top: 0.5rem;
+}
+
+.overall-performance {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid var(--color-border, #e5e7eb);
+}
+
+.percentage {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: var(--color-primary, #3b82f6);
+}
+
+.performance-level {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-top: 0.25rem;
 }
 
 .actions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-xl);
+  gap: 0.75rem;
+  margin-bottom: 2rem;
 }
 
-.shareButton,
-.copyButton {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-size: var(--font-size-md, 1rem);
-  min-height: 44px;
-  min-width: 200px;
-}
-
-.shareButton {
-  background: var(--color-primary);
-  color: var(--color-white, #fff);
+.btn-primary {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
+  background-color: var(--color-primary, #3b82f6);
+  color: #fff;
   border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 240px;
 }
 
-.copyButton {
-  background: transparent;
-  border: 2px solid var(--color-primary);
-  color: var(--color-primary);
-}
-
-.shareButton:focus-visible,
-.copyButton:focus-visible {
-  outline: 3px solid var(--color-focus);
+.btn-primary:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
   outline-offset: 2px;
 }
 
-.shareMessage {
-  font-size: var(--font-size-sm, 0.875rem);
-  color: var(--color-success);
-}
-
-.navigation {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.primaryButton {
-  padding: var(--spacing-md) var(--spacing-xl);
-  background: var(--color-primary);
-  color: var(--color-white, #fff);
-  border: none;
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-size: var(--font-size-md, 1rem);
-  min-height: 44px;
-  min-width: 200px;
-}
-
-.secondaryButton {
-  padding: var(--spacing-sm) var(--spacing-lg);
+.btn-secondary {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
   background: transparent;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
   cursor: pointer;
-  font-size: var(--font-size-md, 1rem);
-  color: var(--color-text);
   min-height: 44px;
-  min-width: 200px;
+  min-width: 240px;
 }
 
-.primaryButton:focus-visible,
-.secondaryButton:focus-visible {
-  outline: 3px solid var(--color-focus);
+.btn-secondary:hover {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.btn-secondary:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
+  outline-offset: 2px;
+}
+
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary, #6b7280);
+  cursor: pointer;
+  text-decoration: underline;
+  font-size: 0.875rem;
+  min-height: 44px;
+}
+
+.btn-link:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
   outline-offset: 2px;
 }
 </style>

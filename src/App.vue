@@ -1,24 +1,29 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
-import { useProgressStore } from '@/stores/progressStore';
+import { onMounted, ref } from 'vue';
+import { useQuizStore } from '@/stores/quizStore';
 
-const progressStore = useProgressStore();
+const quizStore = useQuizStore();
+const showRecoveryError = ref(false);
 
 onMounted(() => {
-  progressStore.initialize();
+  const wasCorrupted = quizStore.restoreProgress();
+
+  if (wasCorrupted) {
+    showRecoveryError.value = true;
+    setTimeout(() => { showRecoveryError.value = false; }, 5000);
+  }
 });
+
+function dismissError() {
+  showRecoveryError.value = false;
+}
 </script>
 
 <template>
-  <!-- Storage unavailability notification -->
-  <div v-if="!progressStore.isStorageAvailable" class="notification warning">
-    <p>{{ 'Progresso não será salvo nesta sessão' }}</p>
-  </div>
-
   <!-- Recovery error notification -->
-  <div v-if="progressStore.hasRecoveryError" class="notification error">
-    <p>{{ 'Progresso anterior não pôde ser recuperado' }}</p>
-    <button @click="progressStore.dismissRecoveryError()">Fechar</button>
+  <div v-if="showRecoveryError" class="notification error" role="alert">
+    <p>Progresso anterior não pôde ser recuperado</p>
+    <button @click="dismissError()">Fechar</button>
   </div>
 
   <router-view />
@@ -43,20 +48,14 @@ onMounted(() => {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  font-size: var(--font-size-sm, 0.875rem);
+  font-size: var(--font-size-sm);
   max-width: 90%;
 }
 
-.notification.warning {
-  background: var(--color-warning-light, #fef3c7);
-  border: 1px solid var(--color-warning, #f59e0b);
-  color: var(--color-warning-dark, #92400e);
-}
-
 .notification.error {
-  background: var(--color-error-light, #fee2e2);
-  border: 1px solid var(--color-error, #ef4444);
-  color: var(--color-error-dark, #991b1b);
+  background: var(--color-error-light);
+  border: 1px solid var(--color-error);
+  color: var(--color-error-dark);
 }
 
 .notification button {
@@ -66,6 +65,6 @@ onMounted(() => {
   padding: 2px 8px;
   cursor: pointer;
   color: inherit;
-  font-size: var(--font-size-sm, 0.875rem);
+  font-size: var(--font-size-sm);
 }
 </style>

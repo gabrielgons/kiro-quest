@@ -1,48 +1,21 @@
 <script setup lang="ts">
-import { ref } from 'vue';
+import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLocale } from '@/i18n/useLocale';
 import { useQuizStore } from '@/stores/quizStore';
-import { generateShareText, shareToLinkedIn, copyToClipboard } from '@/sharing/shareGenerator';
 
 const router = useRouter();
 const { t } = useLocale();
 const quizStore = useQuizStore();
 
-const shareSuccess = ref(false);
-
-const overall = quizStore.overallScore;
-
-function handleShare() {
-  const text = generateShareText({
-    stageName: '',
-    correctCount: overall.correctCount,
-    totalCount: overall.totalCount,
-    performanceLevel: overall.performanceLevel,
-    isFullQuizComplete: true,
-  });
-
-  try {
-    shareToLinkedIn(text);
-  } catch {
-    handleCopy();
+onMounted(() => {
+  if (!quizStore.isAllComplete) {
+    router.replace('/stages');
   }
-}
+});
 
-async function handleCopy() {
-  const text = generateShareText({
-    stageName: '',
-    correctCount: overall.correctCount,
-    totalCount: overall.totalCount,
-    performanceLevel: overall.performanceLevel,
-    isFullQuizComplete: true,
-  });
-
-  const success = await copyToClipboard(text);
-  if (success) {
-    shareSuccess.value = true;
-    setTimeout(() => { shareSuccess.value = false; }, 3000);
-  }
+function handleBackToStages() {
+  router.push('/stages');
 }
 
 function handleBackToHome() {
@@ -51,42 +24,39 @@ function handleBackToHome() {
 </script>
 
 <template>
-  <main :class="$style.container">
-    <div :class="$style.content">
-      <h1 :class="$style.title">{{ t('achievement.title') }}</h1>
-      <p :class="$style.subtitle">{{ t('achievement.subtitle') }}</p>
+  <main v-if="quizStore.isAllComplete" class="achievement">
+    <div class="content">
+      <h1 class="title">{{ t('achievement.title') }}</h1>
+      <p class="subtitle">{{ t('achievement.subtitle') }}</p>
 
-      <div :class="$style.scoreCard">
-        <p :class="$style.score">{{ overall.formatted }}</p>
-        <p :class="$style.level">{{ overall.performanceLevel }}</p>
+      <div class="stats">
+        <p class="percentage">{{ quizStore.overallPercentage }}%</p>
+        <p class="performance-level">{{ quizStore.performanceLevel }}</p>
+        <p class="score-detail">
+          {{ quizStore.correctAnswerCount }} de {{ quizStore.questionsAnswered }}
+        </p>
       </div>
 
-      <div :class="$style.actions">
-        <button :class="$style.shareButton" @click="handleShare">
-          {{ t('share.button') }}
+      <div class="actions">
+        <button class="btn-secondary" @click="handleBackToStages">
+          {{ t('achievement.backToStages') }}
         </button>
-
-        <button :class="$style.copyButton" @click="handleCopy">
-          {{ t('share.copyFallback') }}
+        <button class="btn-link" @click="handleBackToHome">
+          {{ t('achievement.backToHome') }}
         </button>
-
-        <p v-if="shareSuccess" :class="$style.shareMessage">{{ t('share.copied') }}</p>
       </div>
-
-      <button :class="$style.homeButton" @click="handleBackToHome">
-        {{ t('achievement.backToHome') }}
-      </button>
     </div>
   </main>
 </template>
 
-<style module>
-.container {
-  padding: var(--spacing-lg);
-  min-height: 100vh;
+<style scoped>
+.achievement {
   display: flex;
+  flex-direction: column;
   align-items: center;
   justify-content: center;
+  min-height: 100vh;
+  padding: 1.5rem;
 }
 
 .content {
@@ -96,92 +66,83 @@ function handleBackToHome() {
 }
 
 .title {
-  font-size: var(--font-size-xxl, 2.5rem);
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-sm);
+  font-size: 2.5rem;
+  color: var(--color-primary, #3b82f6);
+  margin-bottom: 0.5rem;
 }
 
 .subtitle {
-  font-size: var(--font-size-lg, 1.25rem);
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-xl);
+  font-size: 1.25rem;
+  color: var(--color-text-secondary, #6b7280);
+  margin-bottom: 2rem;
 }
 
-.scoreCard {
-  padding: var(--spacing-xl);
-  border: 3px solid var(--color-primary);
-  border-radius: var(--radius-lg, 12px);
-  margin-bottom: var(--spacing-xl);
-  background: var(--color-primary-light, rgba(59, 130, 246, 0.05));
+.stats {
+  padding: 2rem;
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 12px;
+  margin-bottom: 2rem;
+  background: var(--color-surface, #fff);
 }
 
-.score {
+.percentage {
   font-size: 3rem;
   font-weight: 700;
-  color: var(--color-primary);
-  margin-bottom: var(--spacing-sm);
+  color: var(--color-primary, #3b82f6);
+  margin-bottom: 0.5rem;
 }
 
-.level {
-  font-size: var(--font-size-lg, 1.25rem);
-  color: var(--color-text);
+.performance-level {
+  font-size: 1.25rem;
   font-weight: 600;
+  color: var(--color-text, #1f2937);
+  margin-bottom: 0.5rem;
+}
+
+.score-detail {
+  font-size: 1rem;
+  color: var(--color-text-secondary, #6b7280);
 }
 
 .actions {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: var(--spacing-sm);
-  margin-bottom: var(--spacing-xl);
+  gap: 0.75rem;
 }
 
-.shareButton,
-.copyButton {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border-radius: var(--radius-md);
-  cursor: pointer;
-  font-size: var(--font-size-md, 1rem);
-  min-height: 44px;
-  min-width: 220px;
-}
-
-.shareButton {
-  background: var(--color-primary);
-  color: var(--color-white, #fff);
-  border: none;
-}
-
-.copyButton {
+.btn-secondary {
+  padding: 0.75rem 2rem;
+  font-size: 1rem;
   background: transparent;
-  border: 2px solid var(--color-primary);
-  color: var(--color-primary);
+  border: 2px solid var(--color-border, #e5e7eb);
+  border-radius: 8px;
+  cursor: pointer;
+  min-height: 44px;
+  min-width: 200px;
 }
 
-.shareButton:focus-visible,
-.copyButton:focus-visible {
-  outline: 3px solid var(--color-focus);
+.btn-secondary:hover {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.btn-secondary:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
   outline-offset: 2px;
 }
 
-.shareMessage {
-  font-size: var(--font-size-sm, 0.875rem);
-  color: var(--color-success);
-}
-
-.homeButton {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  background: transparent;
-  border: 2px solid var(--color-border);
-  border-radius: var(--radius-md);
+.btn-link {
+  background: none;
+  border: none;
+  color: var(--color-text-secondary, #6b7280);
   cursor: pointer;
-  font-size: var(--font-size-md, 1rem);
-  color: var(--color-text);
+  text-decoration: underline;
+  font-size: 0.875rem;
   min-height: 44px;
 }
 
-.homeButton:focus-visible {
-  outline: 3px solid var(--color-focus);
+.btn-link:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
   outline-offset: 2px;
 }
 </style>

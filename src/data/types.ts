@@ -35,5 +35,6 @@ export interface OrderingItem {
 
 export interface AnswerKey {
   questionId: string;
-  correctAnswerId: string | string[];
+  correctAnswerId?: string | string[];
+  correctOrder?: string[];
 }

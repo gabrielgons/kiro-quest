@@ -11,14 +11,7 @@ export type LearningStage =
   | 'real-world-workflows'
   | 'enterprise-scenarios';
 
-export interface QuizState {
-  currentStage: LearningStage;
-  currentQuestionIndex: number;
-  answers: Record<string, UserAnswer>;
-  stageResults: Record<LearningStage, StageResult>;
-  completedStages: LearningStage[];
-  sessionSeed: number;
-}
+export type QuizPhase = 'answering' | 'feedback' | 'stage-complete';
 
 export interface UserAnswer {
   questionId: string;
@@ -34,11 +27,23 @@ export interface StageResult {
   completedAt: number;
 }
 
-export interface AnswerResult {
+export interface VerificationResult {
+  questionId: string;
   isCorrect: boolean;
-  correctAnswerId: string | string[];
+  selectedAnswer: string | string[];
+  correctAnswer: string | string[];
+}
+
+export interface AnswerResult {
+  questionId: string;
+  isCorrect: boolean;
+  selectedAnswer: string | string[];
+  correctAnswer: string | string[];
+  selectedAnswerLabel?: string;
+  correctAnswerLabel?: string;
+  correctOrderLabels?: string[];
   explanation: string;
-  sourceUrl: string;
+  sourceUrl?: string;
 }
 
 export type PerformanceLevel =
