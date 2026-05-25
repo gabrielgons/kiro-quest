@@ -5,6 +5,7 @@ defineProps<{
   options: AnswerOption[];
   selected: string | null;
   disabled: boolean;
+  ariaLabel?: string;
 }>();
 
 const emit = defineEmits<{
@@ -17,7 +18,7 @@ function handleSelect(optionId: string) {
 </script>
 
 <template>
-  <div role="radiogroup" class="true-false-options">
+  <div role="radiogroup" :aria-label="ariaLabel" class="true-false-options">
     <button
       v-for="option in options"
       :key="option.id"
@@ -36,34 +37,34 @@ function handleSelect(optionId: string) {
 <style scoped>
 .true-false-options {
   display: flex;
-  gap: 1rem;
+  gap: var(--spacing-md);
 }
 
 .option-button {
   flex: 1;
-  padding: 0.75rem 1rem;
-  border: 2px solid var(--color-border, #e5e7eb);
-  border-radius: 8px;
-  background: var(--color-surface, #fff);
+  padding: var(--spacing-md);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
   cursor: pointer;
   text-align: center;
-  font-size: 1rem;
-  min-height: 44px;
-  transition: border-color 0.2s ease;
+  font-size: var(--font-size-base);
+  min-height: var(--min-touch-target);
+  transition: border-color var(--transition-fast);
 }
 
 .option-button:hover:not(:disabled) {
-  border-color: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary);
 }
 
 .option-button:focus-visible {
-  outline: 3px solid var(--color-focus, #60a5fa);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
 .option-button.selected {
-  border-color: var(--color-primary, #3b82f6);
-  background: rgba(59, 130, 246, 0.05);
+  border-color: var(--color-primary);
+  background: var(--color-primary-light);
 }
 
 .option-button:disabled {

@@ -22,7 +22,7 @@
   "stage.questions": "{count} perguntas",
   "stage.recommended": "Recomendado",
 
-  "stage.name.kiro-basics": "Kiro Basics",
+  "stage.name.kiro-basics": "Kiro Básico",
   "stage.name.specs": "Specs",
   "stage.name.feature-specs": "Feature Specs",
   "stage.name.bugfix-specs": "Bugfix Specs",
@@ -31,8 +31,8 @@
   "stage.name.mcp": "MCP",
   "stage.name.powers": "Powers",
   "stage.name.skills": "Skills",
-  "stage.name.real-world-workflows": "Real-World Workflows",
-  "stage.name.enterprise-scenarios": "Enterprise Scenarios",
+  "stage.name.real-world-workflows": "Fluxos Reais de Trabalho",
+  "stage.name.enterprise-scenarios": "Cenários Empresariais",
 
   "quiz.progress": "{current} / {total}",
   "quiz.confirm": "Confirmar Resposta",

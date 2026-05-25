@@ -1,28 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useQuizStore } from '@/stores/quizStore';
-import { progressTracker } from '@/progress/progressTracker';
 
 const quizStore = useQuizStore();
 const showRecoveryError = ref(false);
 
 onMounted(() => {
-  // Attempt to restore progress on app mount
-  quizStore.restoreProgress();
+  const wasCorrupted = quizStore.restoreProgress();
 
-  // If restore didn't load anything, check if there was corrupted data
-  if (quizStore.completedStages.length === 0 && Object.keys(quizStore.userAnswersByStage).length === 0) {
-    try {
-      const raw = localStorage.getItem('kiro-quest:progress:v1');
-      if (raw !== null) {
-        // Data existed but failed validation — show notification
-        showRecoveryError.value = true;
-        progressTracker.clear();
-        setTimeout(() => { showRecoveryError.value = false; }, 5000);
-      }
-    } catch {
-      // localStorage unavailable
-    }
+  if (wasCorrupted) {
+    showRecoveryError.value = true;
+    setTimeout(() => { showRecoveryError.value = false; }, 5000);
   }
 });
 
@@ -51,32 +39,32 @@ function dismissError() {
 
 .notification {
   position: fixed;
-  top: 1rem;
+  top: var(--spacing-md);
   left: 50%;
   transform: translateX(-50%);
-  padding: 0.5rem 1.5rem;
-  border-radius: 8px;
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border-radius: var(--radius-md);
   z-index: 1000;
   display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.875rem;
+  gap: var(--spacing-sm);
+  font-size: var(--font-size-sm);
   max-width: 90%;
 }
 
 .notification.error {
-  background: #fee2e2;
-  border: 1px solid #ef4444;
-  color: #991b1b;
+  background: var(--color-error-light);
+  border: 1px solid var(--color-error);
+  color: var(--color-error-dark);
 }
 
 .notification button {
   background: none;
   border: 1px solid currentColor;
-  border-radius: 4px;
+  border-radius: var(--radius-sm);
   padding: 2px 8px;
   cursor: pointer;
   color: inherit;
-  font-size: 0.875rem;
+  font-size: var(--font-size-sm);
 }
 </style>

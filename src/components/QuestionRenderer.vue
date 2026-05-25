@@ -7,6 +7,7 @@ import OrderingOptions from './OrderingOptions.vue';
 const props = defineProps<{
   question: QuestionPresentation;
   disabled: boolean;
+  selectedAnswer: string | string[] | null;
 }>();
 
 const emit = defineEmits<{
@@ -29,16 +30,18 @@ function handleReorder(orderedIds: string[]) {
     <MultipleChoiceOptions
       v-if="question.type === 'multiple-choice' || question.type === 'scenario'"
       :options="(question.options as AnswerOption[])"
-      :selected="null"
+      :selected="typeof selectedAnswer === 'string' ? selectedAnswer : null"
       :disabled="disabled"
+      :aria-label="question.text"
       @select="handleOptionSelect"
     />
 
     <TrueFalseOptions
       v-else-if="question.type === 'true-false'"
       :options="(question.options as AnswerOption[])"
-      :selected="null"
+      :selected="typeof selectedAnswer === 'string' ? selectedAnswer : null"
       :disabled="disabled"
+      :aria-label="question.text"
       @select="handleOptionSelect"
     />
 
@@ -57,9 +60,9 @@ function handleReorder(orderedIds: string[]) {
 }
 
 .question-text {
-  font-size: 1.25rem;
-  line-height: 1.5;
-  margin-bottom: 1.5rem;
-  color: var(--color-text, #1f2937);
+  font-size: var(--font-size-xl);
+  line-height: var(--line-height-normal);
+  margin-bottom: var(--spacing-lg);
+  color: var(--color-text);
 }
 </style>

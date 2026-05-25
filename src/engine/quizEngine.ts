@@ -50,8 +50,11 @@ export function verifyAnswer(
       isCorrect = false;
     }
   } else {
-    // For non-ordering: correctAnswerId should be a string
-    correctAnswer = (typeof answerKey.correctAnswerId === 'string') ? answerKey.correctAnswerId : '';
+    // For non-ordering: correctAnswerId must be a non-empty string
+    if (typeof answerKey.correctAnswerId !== 'string' || !answerKey.correctAnswerId) {
+      throw new Error(`Answer key for "${answerKey.questionId}" is missing correctAnswerId`);
+    }
+    correctAnswer = answerKey.correctAnswerId;
     isCorrect = selectedAnswer === correctAnswer;
   }
 

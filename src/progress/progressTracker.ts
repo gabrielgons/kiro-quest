@@ -3,10 +3,15 @@ import type { ProgressState } from './types';
 const STORAGE_KEY = 'kiro-quest:progress:v1';
 const CURRENT_VERSION = 1;
 
+export interface RestoreResult {
+  state: ProgressState | null;
+  wasCorrupted: boolean;
+}
+
 /**
  * Validates that the given value conforms to the ProgressState schema.
  */
-export function isValid(data: unknown): data is ProgressState {
+function isValid(data: unknown): data is ProgressState {
   if (!data || typeof data !== 'object') return false;
 
   const obj = data as Record<string, unknown>;
@@ -28,7 +33,7 @@ export function isValid(data: unknown): data is ProgressState {
  * Persists the ProgressState to localStorage.
  * Wraps in try/catch for environments where localStorage is unavailable.
  */
-export function persist(state: ProgressState): void {
+function persist(state: ProgressState): void {
   try {
     const serialized = JSON.stringify(state);
     localStorage.setItem(STORAGE_KEY, serialized);
@@ -39,32 +44,33 @@ export function persist(state: ProgressState): void {
 
 /**
  * Restores the ProgressState from localStorage.
- * Returns null if:
- * - localStorage is unavailable
- * - No data stored
- * - Data is not valid JSON
- * - Data does not conform to the ProgressState schema
- * - Version mismatch
+ * Returns a discriminated result:
+ * - { state: ProgressState, wasCorrupted: false } on success
+ * - { state: null, wasCorrupted: false } when no data exists
+ * - { state: null, wasCorrupted: true } when data exists but is invalid/corrupted
  */
-export function restore(): ProgressState | null {
+function restore(): RestoreResult {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return null;
+    if (!raw) return { state: null, wasCorrupted: false };
 
     const parsed = JSON.parse(raw);
 
-    if (!isValid(parsed)) return null;
+    if (!isValid(parsed)) {
+      return { state: null, wasCorrupted: true };
+    }
 
-    return parsed;
+    return { state: parsed, wasCorrupted: false };
   } catch {
-    return null;
+    // JSON parse error or localStorage unavailable
+    return { state: null, wasCorrupted: true };
   }
 }
 
 /**
  * Clears stored progress from localStorage.
  */
-export function clear(): void {
+function clear(): void {
   try {
     localStorage.removeItem(STORAGE_KEY);
   } catch {

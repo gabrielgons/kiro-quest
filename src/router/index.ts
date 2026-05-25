@@ -2,6 +2,7 @@ import { createRouter, createWebHashHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 import { STAGE_ORDER } from '@/engine/quizEngine';
 import type { LearningStage } from '@/engine/types';
+import { useQuizStore } from '@/stores/quizStore';
 
 /**
  * Valid stage identifiers for route parameter validation.
@@ -70,32 +71,21 @@ router.beforeEach((to, _from, next) => {
 
   // Guard /achievement: redirect if not all stages complete
   if (to.name === 'achievement') {
-    // Lazy import to avoid circular dependency at module init
-    import('@/stores/quizStore').then(({ useQuizStore }) => {
-      const quizStore = useQuizStore();
-      if (!quizStore.isAllComplete) {
-        next({ path: '/stages' });
-      } else {
-        next();
-      }
-    });
-    return;
+    const quizStore = useQuizStore();
+    if (!quizStore.isAllComplete) {
+      return next({ path: '/stages' });
+    }
   }
 
   // Guard /summary/:stage: redirect if stage not completed and quizPhase not stage-complete
   if (to.name === 'summary' && stageParam && VALID_STAGES.has(stageParam)) {
-    import('@/stores/quizStore').then(({ useQuizStore }) => {
-      const quizStore = useQuizStore();
-      const isCompleted = quizStore.completedStages.includes(stageParam as LearningStage);
-      const isStageComplete = quizStore.quizPhase === 'stage-complete' && quizStore.currentStage === stageParam;
+    const quizStore = useQuizStore();
+    const isCompleted = quizStore.completedStages.includes(stageParam as LearningStage);
+    const isStageComplete = quizStore.quizPhase === 'stage-complete' && quizStore.currentStage === stageParam;
 
-      if (!isCompleted && !isStageComplete) {
-        next({ path: '/stages' });
-      } else {
-        next();
-      }
-    });
-    return;
+    if (!isCompleted && !isStageComplete) {
+      return next({ path: '/stages' });
+    }
   }
 
   next();

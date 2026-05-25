@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { LearningStage } from '@/engine/types';
 import type { StageStatus } from './types';
+import { useLocale } from '@/i18n/useLocale';
 
 defineProps<{
   stage: LearningStage;
@@ -12,24 +13,12 @@ const emit = defineEmits<{
   select: [stage: LearningStage];
 }>();
 
-const stageLabels: Record<LearningStage, string> = {
-  'kiro-basics': 'Kiro Basics',
-  'specs': 'Specs',
-  'feature-specs': 'Feature Specs',
-  'bugfix-specs': 'Bugfix Specs',
-  'steering': 'Steering',
-  'hooks': 'Hooks',
-  'mcp': 'MCP',
-  'powers': 'Powers',
-  'skills': 'Skills',
-  'real-world-workflows': 'Real-World Workflows',
-  'enterprise-scenarios': 'Enterprise Scenarios',
-};
+const { t } = useLocale();
 
-const statusLabels: Record<StageStatus, string> = {
-  'completed': 'Concluído',
-  'in-progress': 'Em progresso',
-  'not-started': 'Não iniciado',
+const statusKeys: Record<StageStatus, string> = {
+  'completed': 'stage.completed',
+  'in-progress': 'stage.inProgress',
+  'not-started': 'stage.notStarted',
 };
 </script>
 
@@ -40,10 +29,10 @@ const statusLabels: Record<StageStatus, string> = {
     @click="emit('select', stage)"
   >
     <div class="card-content">
-      <span class="stage-name">{{ stageLabels[stage] }}</span>
-      <span class="status-badge">{{ statusLabels[status] }}</span>
+      <span class="stage-name">{{ t(`stage.name.${stage}`) }}</span>
+      <span class="status-badge">{{ t(statusKeys[status]) }}</span>
     </div>
-    <span v-if="isRecommended" class="recommended-badge">Recomendado</span>
+    <span v-if="isRecommended" class="recommended-badge">{{ t('stage.recommended') }}</span>
   </button>
 </template>
 
@@ -51,36 +40,36 @@ const statusLabels: Record<StageStatus, string> = {
 .stage-card {
   display: block;
   width: 100%;
-  padding: 1rem 1.25rem;
-  border: 2px solid var(--color-border, #e5e7eb);
-  border-radius: 8px;
-  background: var(--color-surface, #fff);
+  padding: var(--spacing-md) var(--spacing-lg);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
   cursor: pointer;
   text-align: left;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
   position: relative;
 }
 
 .stage-card:hover {
-  border-color: var(--color-primary, #3b82f6);
+  border-color: var(--color-primary);
 }
 
 .stage-card:focus-visible {
-  outline: 3px solid var(--color-focus, #60a5fa);
+  outline: 3px solid var(--color-focus);
   outline-offset: 2px;
 }
 
 .stage-card.recommended {
-  border-color: var(--color-primary, #3b82f6);
-  box-shadow: 0 0 0 1px var(--color-primary, #3b82f6);
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 1px var(--color-primary);
 }
 
 .stage-card.status-completed {
-  border-left: 4px solid #22c55e;
+  border-left: 4px solid var(--color-success);
 }
 
 .stage-card.status-in-progress {
-  border-left: 4px solid #f59e0b;
+  border-left: 4px solid var(--color-warning);
 }
 
 .card-content {
@@ -90,26 +79,26 @@ const statusLabels: Record<StageStatus, string> = {
 }
 
 .stage-name {
-  font-weight: 600;
-  font-size: 1rem;
+  font-weight: var(--font-weight-semibold);
+  font-size: var(--font-size-base);
 }
 
 .status-badge {
-  font-size: 0.75rem;
+  font-size: var(--font-size-xs);
   padding: 2px 8px;
-  border-radius: 4px;
-  background: var(--color-border, #e5e7eb);
-  color: var(--color-text-secondary, #6b7280);
+  border-radius: var(--radius-sm);
+  background: var(--color-border);
+  color: var(--color-text-secondary);
 }
 
 .status-completed .status-badge {
-  background: #d1fae5;
+  background: var(--color-success-light);
   color: #065f46;
 }
 
 .status-in-progress .status-badge {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
 }
 
 .recommended-badge {
@@ -118,10 +107,10 @@ const statusLabels: Record<StageStatus, string> = {
   right: 12px;
   font-size: 0.625rem;
   padding: 1px 6px;
-  border-radius: 4px;
-  background: var(--color-primary, #3b82f6);
-  color: #fff;
-  font-weight: 600;
+  border-radius: var(--radius-sm);
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
+  font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
 }
 </style>
