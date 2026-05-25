@@ -35,6 +35,11 @@ export function formatScore(correctCount: number, totalCount: number): string {
  * Returns 0 if totalCount is 0 to avoid division by zero.
  */
 export function calculateScorePercentage(correctCount: number, totalCount: number): number {
-  if (totalCount === 0) return 0;
+  if (totalCount === 0) {
+    if (import.meta.env.DEV) {
+      console.warn('[scoring] calculateScorePercentage called with totalCount=0, this may indicate a bug');
+    }
+    return 0;
+  }
   return (correctCount / totalCount) * 100;
 }

@@ -42,6 +42,11 @@ function isValidProgressState(value: unknown): value is ProgressState {
   return true;
 }
 
+export interface LoadResult {
+  state: ProgressState;
+  wasRecovered: boolean;
+}
+
 export interface ProgressTracker {
   /**
    * Detects whether local storage is available.
@@ -57,10 +62,11 @@ export interface ProgressTracker {
 
   /**
    * Loads and validates stored progress data.
+   * Returns the state and whether recovery from corruption occurred.
    * Requirement 6.4: Deserialization and validation.
    * Requirement 6.7: Returns fresh initial state on corruption.
    */
-  load(): ProgressState;
+  load(): LoadResult;
 
   /**
    * Clears stored progress, resetting to initial state.
@@ -115,15 +121,15 @@ export const progressTracker: ProgressTracker = {
     }
   },
 
-  load(): ProgressState {
+  load(): LoadResult {
     if (!this.isAvailable()) {
-      return createInitialState();
+      return { state: createInitialState(), wasRecovered: false };
     }
 
     try {
       const raw = localStorage.getItem(STORAGE_KEY);
       if (!raw) {
-        return createInitialState();
+        return { state: createInitialState(), wasRecovered: false };
       }
 
       const parsed = JSON.parse(raw);
@@ -131,15 +137,15 @@ export const progressTracker: ProgressTracker = {
       if (!isValidProgressState(parsed)) {
         // Corruption recovery: invalid schema, reset to initial state
         this.reset();
-        return createInitialState();
+        return { state: createInitialState(), wasRecovered: true };
       }
 
       // Future: handle schema migration based on version field
-      return parsed;
+      return { state: parsed, wasRecovered: false };
     } catch {
       // Corruption recovery: JSON parse error, reset to initial state
       this.reset();
-      return createInitialState();
+      return { state: createInitialState(), wasRecovered: true };
     }
   },
 

@@ -154,8 +154,11 @@ export const quizEngine: QuizEngine = {
     selectedAnswer: string | string[]
   ) {
     const answerKey = questionStore.getAnswerKey(questionId);
-    const question = questionStore.getQuestionById(questionId);
+    if (!answerKey) {
+      throw new Error(`Answer key not found for question: ${questionId}`);
+    }
 
+    const question = questionStore.getQuestionById(questionId);
     if (!question) {
       throw new Error(`Question not found: ${questionId}`);
     }

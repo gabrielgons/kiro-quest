@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, onMounted } from 'vue';
+import { ref, watch, onMounted } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useLocale } from '@/i18n/useLocale';
 import { useQuizStore } from '@/stores/quizStore';
@@ -24,6 +24,20 @@ onMounted(() => {
     quizStore.startStage(stage);
   }
 });
+
+// React to question changes: reset answer state and initialize ordering
+watch(
+  () => quizStore.currentQuestionWithRandomizedOptions,
+  (question) => {
+    if (question?.type === 'ordering') {
+      selectedAnswer.value = question.options.map((o) => o.id);
+    } else {
+      selectedAnswer.value = null;
+    }
+    hasSubmitted.value = false;
+    feedback.value = null;
+  }
+);
 
 function selectOption(optionId: string) {
   if (hasSubmitted.value) return;
@@ -54,33 +68,20 @@ function handleSubmit() {
   const result = quizStore.submitAnswer(question.id, selectedAnswer.value);
   feedback.value = result;
   hasSubmitted.value = true;
-  progressStore.save();
+  progressStore.save(quizStore.state);
 }
 
 function handleNext() {
   quizStore.advanceToNext();
-  feedback.value = null;
-  hasSubmitted.value = false;
-  selectedAnswer.value = null;
 
   if (quizStore.isFinalStageComplete) {
-    progressStore.save();
+    progressStore.save(quizStore.state);
     router.push('/achievement');
   } else if (quizStore.isStageComplete) {
-    progressStore.save();
+    progressStore.save(quizStore.state);
     router.push(`/summary/${stage}`);
   }
 }
-
-function initOrderingAnswer() {
-  const question = quizStore.currentQuestionWithRandomizedOptions;
-  if (question && question.type === 'ordering' && !selectedAnswer.value) {
-    selectedAnswer.value = question.options.map((o) => o.id);
-  }
-}
-
-// Initialize ordering answer when question changes
-initOrderingAnswer();
 </script>
 
 <template>
@@ -119,7 +120,8 @@ initOrderingAnswer();
             hasSubmitted && option.id === feedback?.correctAnswerId && $style.correctAnswer,
           ]"
           :disabled="hasSubmitted"
-          :aria-pressed="selectedAnswer === option.id"
+          role="radio"
+          :aria-checked="selectedAnswer === option.id"
           @click="selectOption(option.id)"
         >
           {{ option.label }}

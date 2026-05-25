@@ -83,6 +83,9 @@ export function randomizeOrderingItems<T>(
   }
 
   const seed = questionSeed(sessionSeed, questionId);
+  // 10 attempts is more than sufficient: for n>=3 items,
+  // probability of same order is 1/n! (≈16% for 3 items, <5% for 4+).
+  // After 10 attempts the cumulative failure probability is negligible.
   const maxAttempts = 10;
 
   for (let attempt = 0; attempt < maxAttempts; attempt++) {

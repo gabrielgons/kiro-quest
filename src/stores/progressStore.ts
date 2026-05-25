@@ -1,8 +1,8 @@
 import { ref } from 'vue';
 import { defineStore } from 'pinia';
 import type { ProgressState } from '@/progress/types';
+import type { QuizState } from '@/engine/types';
 import { progressTracker } from '@/progress/progressTracker';
-import { useQuizStore } from './quizStore';
 
 export const useProgressStore = defineStore('progress', () => {
   // --- State ---
@@ -20,46 +20,29 @@ export const useProgressStore = defineStore('progress', () => {
     isStorageAvailable.value = progressTracker.isAvailable();
 
     if (isStorageAvailable.value) {
-      const loaded = progressTracker.load();
-
-      // Detect if recovery happened (version mismatch or load returned initial state
-      // when there was data in storage)
-      if (loaded.lastUpdated === 0 || loaded.completedStages.length === 0) {
-        // Could be fresh start or recovery - check if there was previous data
-        try {
-          const raw = localStorage.getItem('kiro-quest-progress');
-          if (raw && loaded.completedStages.length === 0) {
-            // Had data but loaded empty = corruption recovery happened
-            hasRecoveryError.value = true;
-          }
-        } catch {
-          // Storage not readable
-        }
-      }
-
-      currentProgress.value = loaded;
+      const { state, wasRecovered } = progressTracker.load();
+      hasRecoveryError.value = wasRecovered;
+      currentProgress.value = state;
     }
   }
 
   /**
    * Save current progress to local storage.
+   * Receives the quiz state as parameter to avoid circular store dependency.
    * Requirement 6.3: Auto-save on answer submission and stage completion.
    */
-  function save(): boolean {
+  function save(quizState: QuizState): boolean {
     if (!isStorageAvailable.value) return false;
-
-    const quizStore = useQuizStore();
-    const state = quizStore.state;
 
     const progressState: ProgressState = {
       version: 1,
-      completedStages: state.completedStages,
-      currentStage: state.currentStage,
-      currentQuestionIndex: state.currentQuestionIndex,
-      questionsAnswered: Object.keys(state.answers).length,
-      correctAnswerCount: Object.values(state.answers).filter((a) => a.isCorrect).length,
-      totalScore: Object.values(state.stageResults).reduce((sum, r) => sum + r.correctCount, 0),
-      stageResults: state.stageResults,
+      completedStages: quizState.completedStages,
+      currentStage: quizState.currentStage,
+      currentQuestionIndex: quizState.currentQuestionIndex,
+      questionsAnswered: Object.keys(quizState.answers).length,
+      correctAnswerCount: Object.values(quizState.answers).filter((a) => a.isCorrect).length,
+      totalScore: Object.values(quizState.stageResults).reduce((sum, r) => sum + r.correctCount, 0),
+      stageResults: quizState.stageResults,
       lastUpdated: Date.now(),
     };
 

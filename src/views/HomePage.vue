@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useLocale } from '@/i18n/useLocale';
 import { useProgressStore } from '@/stores/progressStore';
@@ -7,7 +8,7 @@ const router = useRouter();
 const { t } = useLocale();
 const progressStore = useProgressStore();
 
-const hasProgress = progressStore.currentProgress.completedStages.length > 0;
+const hasProgress = computed(() => progressStore.currentProgress.completedStages.length > 0);
 
 function handleStart() {
   router.push('/stages');

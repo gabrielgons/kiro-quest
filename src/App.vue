@@ -25,14 +25,6 @@ onMounted(() => {
 </template>
 
 <style>
-*,
-*::before,
-*::after {
-  box-sizing: border-box;
-  margin: 0;
-  padding: 0;
-}
-
 #app {
   font-family: var(--font-family-base);
   color: var(--color-text);
