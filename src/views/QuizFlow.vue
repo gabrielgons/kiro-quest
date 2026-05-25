@@ -50,7 +50,7 @@ watch(
 );
 
 function initializeAnswer() {
-  const q = currentQuestion.value;
+  const q = quizStore.currentQuestionWithRandomizedOptions;
   if (q?.type === 'ordering') {
     selectedAnswer.value = (q.options as OrderingItem[]).map((o) => o.id);
   } else {
