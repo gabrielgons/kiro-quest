@@ -15,7 +15,7 @@
         { "id": "d", "label": "Um sistema de cache para acelerar compilações" }
       ],
       "explanation": "MCP (Model Context Protocol) é um protocolo que permite ao Kiro se conectar a ferramentas e serviços externos, expandindo suas capacidades além do ambiente local de desenvolvimento.",
-      "sourceUrl": "https://kiro.dev/docs/mcp",
+      "sourceUrl": "https://kiro.dev/docs/mcp/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -30,7 +30,7 @@
         { "id": "false", "label": "Falso" }
       ],
       "explanation": "Quando um Power inclui servidores MCP, suas ferramentas são acessadas através da interface de Powers do Kiro, mantendo o contexto focado enquanto fornece acesso completo às capacidades sob demanda.",
-      "sourceUrl": "https://kiro.dev/docs/mcp-servers",
+      "sourceUrl": "https://kiro.dev/docs/mcp/servers/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -47,7 +47,7 @@
         { "id": "d", "label": "Desistir da integração e consultar a documentação manualmente" }
       ],
       "explanation": "A abordagem recomendada é criar um servidor MCP personalizado que expõe a API interna como ferramentas. Isso permite ao Kiro acessar a documentação de forma estruturada e segura através do protocolo MCP.",
-      "sourceUrl": "https://kiro.dev/docs/custom-mcp",
+      "sourceUrl": "https://kiro.dev/docs/mcp/configuration/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }

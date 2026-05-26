@@ -15,7 +15,7 @@
         { "id": "d", "label": "Eliminação da necessidade de code review" }
       ],
       "explanation": "Para equipes enterprise, o Kiro oferece padronização de workflows através de Specs e Steering compartilhados no repositório, garantindo consistência nas práticas de desenvolvimento.",
-      "sourceUrl": "https://kiro.dev/docs/enterprise",
+      "sourceUrl": "https://kiro.dev/docs/enterprise/concepts/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -30,7 +30,7 @@
         { "id": "false", "label": "Falso" }
       ],
       "explanation": "Steering files em .kiro/steering/ fazem parte do repositório e são compartilhados com toda a equipe via Git, garantindo que todos sigam as mesmas diretrizes de desenvolvimento.",
-      "sourceUrl": "https://kiro.dev/docs/steering-sharing",
+      "sourceUrl": "https://kiro.dev/docs/steering/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -47,7 +47,7 @@
         { "id": "d", "label": "Revisão manual de cada pull request por um especialista em segurança" }
       ],
       "explanation": "A combinação de Steering files (definindo regras de segurança) com Hooks (validando automaticamente antes de escritas) garante enforcement contínuo e automático dos padrões de segurança em toda a equipe.",
-      "sourceUrl": "https://kiro.dev/docs/enterprise-security",
+      "sourceUrl": "https://kiro.dev/docs/enterprise/governance/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }

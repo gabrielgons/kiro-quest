@@ -15,7 +15,7 @@
         { "id": "d", "label": "Permite deploy automático em produção" }
       ],
       "explanation": "Usar Specs antes de implementar garante que requisitos, design e tarefas estejam alinhados, reduzindo retrabalho e garantindo que a implementação atenda às necessidades reais.",
-      "sourceUrl": "https://kiro.dev/docs/workflows",
+      "sourceUrl": "https://kiro.dev/docs/specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -30,7 +30,7 @@
         { "id": "false", "label": "Falso" }
       ],
       "explanation": "O workflow recomendado é executar tarefas incrementalmente com verificação após cada etapa, garantindo que erros sejam detectados cedo e não se propaguem para tarefas subsequentes.",
-      "sourceUrl": "https://kiro.dev/docs/task-execution",
+      "sourceUrl": "https://kiro.dev/docs/specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -47,7 +47,7 @@
         { "id": "step-4", "label": "Verificar que o teste passa com a correção" }
       ],
       "explanation": "O workflow de bugfix com Kiro segue: investigar a causa raiz, escrever um teste de exploração que confirma o bug, implementar a correção, e verificar que o teste agora passa.",
-      "sourceUrl": "https://kiro.dev/docs/bugfix-workflow",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }

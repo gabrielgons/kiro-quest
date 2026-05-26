@@ -15,7 +15,7 @@
         { "id": "d", "label": "Callbacks de ciclo de vida de componentes Vue" }
       ],
       "explanation": "Hooks no Kiro são automações que conectam eventos do IDE (como edição de arquivo, envio de prompt) a ações do agente (askAgent ou runCommand). Quando o evento ocorre, a ação especificada é executada automaticamente.",
-      "sourceUrl": "https://kiro.dev/docs/hooks",
+      "sourceUrl": "https://kiro.dev/docs/hooks/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -30,7 +30,7 @@
         { "id": "false", "label": "Falso" }
       ],
       "explanation": "Hooks suportam o evento 'fileEdited' com filtro por padrão de arquivo (filePatterns). Combinado com a ação 'runCommand', é possível executar lint automaticamente ao editar arquivos .ts.",
-      "sourceUrl": "https://kiro.dev/docs/hooks#file-events",
+      "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -47,7 +47,7 @@
         { "id": "d", "label": "eventType: postToolUse, hookAction: runCommand, command: npm test" }
       ],
       "explanation": "O evento 'preToolUse' com toolTypes 'write' intercepta operações de escrita antes da execução. Combinado com 'askAgent', o Kiro pode revisar e validar a operação antes de prosseguir.",
-      "sourceUrl": "https://kiro.dev/docs/hooks#pre-tool-use",
+      "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -65,7 +65,7 @@
         { "id": "step-5", "label": "postTaskExecution - após completar uma tarefa" }
       ],
       "explanation": "O ciclo de execução segue: prompt do usuário → início da tarefa → uso de ferramenta → resultado da ferramenta → conclusão da tarefa. Cada evento de Hook corresponde a um ponto neste ciclo.",
-      "sourceUrl": "https://kiro.dev/docs/hooks#event-lifecycle",
+      "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }
