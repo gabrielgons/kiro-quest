@@ -15,7 +15,7 @@
         { "id": "d", "label": "Criar uma nova feature que substitui a funcionalidade com bug" }
       ],
       "explanation": "O Bugfix Spec usa a metodologia de condição de bug: primeiro escreve um teste que reproduz o problema (esperado falhar), depois identifica a causa raiz e implementa a correção verificável.",
-      "sourceUrl": "https://kiro.dev/docs/specs/bugfix",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -30,7 +30,7 @@
         { "id": "false", "label": "Falso" }
       ],
       "explanation": "O teste de exploração é projetado para falhar no código com bug. Quando o teste falha, isso confirma que o bug foi reproduzido corretamente. Se o teste passa inesperadamente, significa que o bug pode não estar sendo reproduzido adequadamente.",
-      "sourceUrl": "https://kiro.dev/docs/specs/bugfix#exploration-tests",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -47,7 +47,7 @@
         { "id": "d", "label": "O framework de testes está com defeito" }
       ],
       "explanation": "Quando um teste de exploração passa inesperadamente, significa que o teste não está detectando o bug. Possíveis causas: o código já tem uma correção, a causa raiz está incorreta, ou a lógica do teste precisa ser ajustada.",
-      "sourceUrl": "https://kiro.dev/docs/specs/bugfix#unexpected-pass",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -65,7 +65,7 @@
         { "id": "step-5", "label": "Verificar que o teste agora passa (confirma a correção)" }
       ],
       "explanation": "O fluxo de Bugfix Spec segue: investigar causa raiz → escrever teste de exploração → confirmar falha (bug existe) → implementar correção → confirmar que teste passa (bug corrigido).",
-      "sourceUrl": "https://kiro.dev/docs/specs/bugfix#workflow",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }

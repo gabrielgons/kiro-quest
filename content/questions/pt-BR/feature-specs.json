@@ -15,7 +15,7 @@
         { "id": "d", "label": "Não há diferença, são nomes alternativos para o mesmo fluxo" }
       ],
       "explanation": "No fluxo Requirements-First, você define requisitos e critérios de aceitação antes do design. No Design-First, você começa pela arquitetura técnica e depois deriva os requisitos a partir dela.",
-      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -30,7 +30,7 @@
         { "id": "false", "label": "Falso" }
       ],
       "explanation": "O design.md de um Feature Spec inclui propriedades de corretude que definem comportamentos universais do sistema. Essas propriedades servem como ponte entre especificações legíveis e garantias verificáveis por máquina.",
-      "sourceUrl": "https://kiro.dev/docs/specs/design",
+      "sourceUrl": "https://kiro.dev/docs/specs/correctness/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -47,7 +47,7 @@
         { "id": "d", "label": "O Kiro para completamente e exige que você reescreva tudo" }
       ],
       "explanation": "Quando o Kiro detecta ambiguidades nos requisitos, ele usa o serviço de raciocínio para apresentar perguntas clarificadoras. Itens auto-resolvíveis são incluídos com respostas recomendadas, enquanto questões restantes são apresentadas ao usuário.",
-      "sourceUrl": "https://kiro.dev/docs/specs/requirements-analysis",
+      "sourceUrl": "https://kiro.dev/docs/specs/analyze-requirements/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -65,7 +65,7 @@
         { "id": "step-5", "label": "Propriedades de corretude" }
       ],
       "explanation": "O design.md segue uma estrutura progressiva: começa com overview e decisões, passa pela arquitetura, detalha componentes e interfaces, define modelos de dados, e finaliza com propriedades de corretude verificáveis.",
-      "sourceUrl": "https://kiro.dev/docs/specs/design",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/tech-design-first/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }

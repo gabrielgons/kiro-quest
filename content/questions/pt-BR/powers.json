@@ -15,7 +15,7 @@
         { "id": "d", "label": "Scripts de automação para deploy em produção" }
       ],
       "explanation": "Powers são pacotes que combinam documentação, guias de workflow (steering files) e opcionalmente servidores MCP, fornecendo capacidades expandidas ao Kiro de forma modular.",
-      "sourceUrl": "https://kiro.dev/docs/powers",
+      "sourceUrl": "https://kiro.dev/docs/powers/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -30,7 +30,7 @@
         { "id": "false", "label": "Falso" }
       ],
       "explanation": "Antes de usar as ferramentas de um Power, é necessário ativá-lo para obter a documentação completa, schemas de ferramentas e guias de workflow disponíveis.",
-      "sourceUrl": "https://kiro.dev/docs/powers-usage",
+      "sourceUrl": "https://kiro.dev/docs/powers/installation/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -47,7 +47,7 @@
         { "id": "step-4", "label": "Executar a ferramenta com os argumentos corretos" }
       ],
       "explanation": "O fluxo correto para usar um Power é: listar os disponíveis, ativar o desejado para obter documentação e schemas, revisar as ferramentas disponíveis, e então executar com os parâmetros adequados.",
-      "sourceUrl": "https://kiro.dev/docs/powers-workflow",
+      "sourceUrl": "https://kiro.dev/docs/powers/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }
