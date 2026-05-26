@@ -30,7 +30,7 @@
         { "id": "false", "label": "Falso" }
       ],
       "explanation": "Specs no Kiro seguem uma estrutura de três documentos: requirements.md para critérios de aceitação, design.md para arquitetura e decisões técnicas, e tasks.md para o plano de implementação.",
-      "sourceUrl": "https://kiro.dev/docs/specs/structure",
+      "sourceUrl": "https://kiro.dev/docs/specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -64,7 +64,7 @@
         { "id": "step-5", "label": "Executar tarefas com verificação" }
       ],
       "explanation": "O fluxo Requirements-First segue a progressão: definir requisitos → analisar ambiguidades → criar design → gerar tarefas → executar com verificação. Cada etapa informa a próxima.",
-      "sourceUrl": "https://kiro.dev/docs/specs/workflows",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/requirements-first/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }
