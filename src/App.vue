@@ -1,8 +1,11 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useQuizStore } from '@/stores/quizStore';
+import { useTheme } from '@/composables/useTheme';
+import ThemeToggle from '@/components/ThemeToggle.vue';
 
 const quizStore = useQuizStore();
+useTheme();
 const showRecoveryError = ref(false);
 
 onMounted(() => {
@@ -26,6 +29,7 @@ function dismissError() {
     <button @click="dismissError()">Fechar</button>
   </div>
 
+  <ThemeToggle />
   <router-view />
 </template>
 
