@@ -56,7 +56,7 @@
       "category": "Conceitos Fundamentais",
       "difficulty": "avançado",
       "type": "ordering",
-      "text": "Organize as etapas do fluxo de trabalho típico com Kiro na ordem correta:",
+      "text": "Você precisa desenvolver uma feature que envolve regras de negócio complexas. Organize as etapas do fluxo de trabalho com Kiro na ordem correta:",
       "options": [
         { "id": "step-1", "label": "Definir requisitos e critérios de aceitação" },
         { "id": "step-2", "label": "Criar o documento de design com arquitetura" },
