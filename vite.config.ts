@@ -5,7 +5,7 @@ import { resolve } from 'path'
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [vue()],
-  base: '/kiro-quest/',
+  base: '/',
   resolve: {
     alias: {
       '@': resolve(__dirname, 'src'),
