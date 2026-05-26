@@ -47,7 +47,7 @@ export function useLocale() {
 
     // Try active locale first
     if (currentMessages && key in currentMessages) {
-      return currentMessages[key]
+      return currentMessages[key] ?? key
     }
 
     // Fallback to pt-BR
@@ -58,7 +58,7 @@ export function useLocale() {
           `[i18n] Missing key "${key}" in locale "${currentLocale}", falling back to pt-BR`
         )
       }
-      return fallbackMessages[key]
+      return fallbackMessages[key] ?? key
     }
 
     // Key not found in any locale

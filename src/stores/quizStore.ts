@@ -16,9 +16,7 @@ import {
   calculatePercentage,
   calculatePerformanceLevel,
   canShowFinalPerformance,
-  getNextStageInOrder,
   getRecommendedNextStage,
-  STAGE_ORDER,
 } from '@/engine/quizEngine';
 import { randomizeOptions, randomizeOrderingItems } from '@/engine/randomizer';
 import { questionStore } from '@/data/questionStore';

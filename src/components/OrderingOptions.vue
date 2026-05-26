@@ -13,14 +13,22 @@ const emit = defineEmits<{
 function moveUp(index: number) {
   if (index <= 0 || props.disabled) return;
   const newOrder = props.items.map((i) => i.id);
-  [newOrder[index], newOrder[index - 1]] = [newOrder[index - 1], newOrder[index]];
+  const current = newOrder[index];
+  const target = newOrder[index - 1];
+  if (!current || !target) return;
+  newOrder[index] = target;
+  newOrder[index - 1] = current;
   emit('reorder', newOrder);
 }
 
 function moveDown(index: number) {
   if (index >= props.items.length - 1 || props.disabled) return;
   const newOrder = props.items.map((i) => i.id);
-  [newOrder[index], newOrder[index + 1]] = [newOrder[index + 1], newOrder[index]];
+  const current = newOrder[index];
+  const target = newOrder[index + 1];
+  if (!current || !target) return;
+  newOrder[index] = target;
+  newOrder[index + 1] = current;
   emit('reorder', newOrder);
 }
 </script>
