@@ -63,11 +63,6 @@ function selectOption(optionId: string) {
   selectedAnswer.value = optionId;
 }
 
-function handleReorder(orderedIds: string[]) {
-  if (quizStore.quizPhase !== 'answering') return;
-  selectedAnswer.value = orderedIds;
-}
-
 function moveItem(index: number, direction: 'up' | 'down') {
   if (quizStore.quizPhase !== 'answering') return;
   if (!Array.isArray(selectedAnswer.value)) return;
@@ -76,7 +71,10 @@ function moveItem(index: number, direction: 'up' | 'down') {
   const swapIndex = direction === 'up' ? index - 1 : index + 1;
   if (swapIndex < 0 || swapIndex >= newOrder.length) return;
 
-  [newOrder[index], newOrder[swapIndex]] = [newOrder[swapIndex], newOrder[index]];
+  const current = newOrder[index]!;
+  const target = newOrder[swapIndex]!;
+  newOrder[index] = target;
+  newOrder[swapIndex] = current;
   selectedAnswer.value = newOrder;
 }
 
@@ -278,11 +276,12 @@ function handleNext() {
   border: 2px solid var(--color-border, #e5e7eb);
   border-radius: 8px;
   background: var(--color-surface, #fff);
+  color: var(--color-text, #1f2937);
   cursor: pointer;
   text-align: left;
   font-size: 1rem;
   min-height: 44px;
-  transition: border-color 0.2s ease;
+  transition: border-color 0.2s ease, background-color 0.2s ease;
 }
 
 .options-row .option-button {
@@ -301,7 +300,7 @@ function handleNext() {
 
 .option-button.selected {
   border-color: var(--color-primary, #3b82f6);
-  background: rgba(59, 130, 246, 0.05);
+  background: var(--color-primary-light, #e0e7ff);
 }
 
 .option-button:disabled {
@@ -402,6 +401,7 @@ function handleNext() {
   padding: 0.75rem 2rem;
   font-size: 1rem;
   background: transparent;
+  color: var(--color-text, #1f2937);
   border: 2px solid var(--color-border, #e5e7eb);
   border-radius: 8px;
   cursor: pointer;

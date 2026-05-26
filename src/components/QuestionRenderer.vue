@@ -4,7 +4,7 @@ import MultipleChoiceOptions from './MultipleChoiceOptions.vue';
 import TrueFalseOptions from './TrueFalseOptions.vue';
 import OrderingOptions from './OrderingOptions.vue';
 
-const props = defineProps<{
+defineProps<{
   question: QuestionPresentation;
   disabled: boolean;
   selectedAnswer: string | string[] | null;

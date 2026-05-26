@@ -33,7 +33,9 @@ function seededShuffle<T>(items: T[], rng: () => number): T[] {
   const shuffled = [...items];
   for (let i = shuffled.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
-    [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+    const temp = shuffled[i]!;
+    shuffled[i] = shuffled[j]!;
+    shuffled[j] = temp;
   }
   return shuffled;
 }
@@ -100,6 +102,6 @@ export function randomizeOrderingItems<T>(
   }
 
   // Fallback: rotate by 1 position (always different for 3+ items)
-  const rotated = [...items.slice(1), items[0]];
+  const rotated = [...items.slice(1), items[0]] as T[];
   return { items: rotated };
 }

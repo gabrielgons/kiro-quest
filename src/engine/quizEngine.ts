@@ -123,7 +123,7 @@ export function getNextStageInOrder(currentStage: LearningStage): LearningStage 
   if (currentIndex === -1 || currentIndex >= STAGE_ORDER.length - 1) {
     return null;
   }
-  return STAGE_ORDER[currentIndex + 1];
+  return STAGE_ORDER[currentIndex + 1] ?? null;
 }
 
 /**

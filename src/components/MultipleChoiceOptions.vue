@@ -28,7 +28,10 @@ function handleKeydown(event: KeyboardEvent, options: AnswerOption[], currentInd
   }
 
   if (nextIndex >= 0) {
-    emit('select', options[nextIndex].id);
+    const nextOption = options[nextIndex];
+    if (nextOption) {
+      emit('select', nextOption.id);
+    }
     const el = document.querySelector(`[data-option-index="${nextIndex}"]`) as HTMLElement;
     el?.focus();
   }
