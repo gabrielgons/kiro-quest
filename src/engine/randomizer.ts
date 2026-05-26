@@ -102,6 +102,8 @@ export function randomizeOrderingItems<T>(
   }
 
   // Fallback: rotate by 1 position (always different for 3+ items)
-  const rotated = [...items.slice(1), items[0]] as T[];
+  const first = items[0];
+  if (!first) return { items: [...items] };
+  const rotated = [...items.slice(1), first];
   return { items: rotated };
 }

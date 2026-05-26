@@ -18,6 +18,10 @@ coverage/
 
 # TypeScript build info
 *.tsbuildinfo
+vite.config.d.ts
+vite.config.d.ts.map
+vitest.config.d.ts
+vitest.config.d.ts.map
 
 # Environment variables
 .env

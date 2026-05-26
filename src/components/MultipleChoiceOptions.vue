@@ -31,9 +31,9 @@ function handleKeydown(event: KeyboardEvent, options: AnswerOption[], currentInd
     const nextOption = options[nextIndex];
     if (nextOption) {
       emit('select', nextOption.id);
+      const el = document.querySelector(`[data-option-index="${nextIndex}"]`) as HTMLElement;
+      el?.focus();
     }
-    const el = document.querySelector(`[data-option-index="${nextIndex}"]`) as HTMLElement;
-    el?.focus();
   }
 }
 </script>
