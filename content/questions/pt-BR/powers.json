@@ -24,12 +24,12 @@
       "category": "Powers",
       "difficulty": "intermediário",
       "type": "true-false",
-      "text": "Powers no Kiro ativam automaticamente quando keywords relevantes são mencionadas na conversa, sem necessidade de ativação manual.",
+      "text": "Do ponto de vista do usuário, Powers no Kiro são carregados automaticamente quando o Kiro detecta keywords relevantes, sem que o usuário precise ativá-los manualmente.",
       "options": [
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "Powers ativam dinamicamente quando Kiro detecta keywords relevantes na conversa ou tarefa. Após instalado, o Kiro automaticamente lê a descrição da tarefa, avalia os powers instalados e carrega apenas os relevantes no contexto, sem necessidade de ativação manual.",
+      "explanation": "Do ponto de vista do usuário, Powers ativam de forma transparente quando Kiro detecta keywords relevantes na conversa ou tarefa. Internamente, o agente executa um processo de ativação (activate) antes de usar as ferramentas do Power, mas isso ocorre automaticamente sem intervenção do usuário. O fluxo visível é: instalar o Power e então usá-lo naturalmente nas conversas.",
       "sourceUrl": "https://kiro.dev/docs/powers/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
@@ -46,7 +46,7 @@
         { "id": "step-3", "label": "Kiro carrega automaticamente contexto e ferramentas do Power" },
         { "id": "step-4", "label": "Utilizar as ferramentas disponibilizadas na interação" }
       ],
-      "explanation": "O fluxo de uso de um Power é: instalar via marketplace/GitHub/local, depois ao mencionar keywords relevantes na conversa, o Kiro automaticamente avalia os powers instalados, carrega o contexto e ferramentas do Power relevante, e então as ferramentas ficam disponíveis para uso na interação.",
+      "explanation": "Do ponto de vista do usuário, o fluxo é: instalar o Power, mencionar keywords relevantes na conversa, o Kiro avalia e carrega automaticamente o Power relevante (executando internamente a ativação), e então as ferramentas ficam disponíveis para uso na interação.",
       "sourceUrl": "https://kiro.dev/docs/powers/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
