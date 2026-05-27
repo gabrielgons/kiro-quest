@@ -29,7 +29,7 @@
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "Hooks suportam o evento `fileSaved` (exibido como 'File Save' na UI) com filtro por padrão de arquivo (filePatterns). Combinado com a ação 'Shell Command' (runCommand), é possível executar lint automaticamente ao salvar arquivos .ts.",
+      "explanation": "Hooks suportam o evento `fileEdited` (exibido como 'File Save' na UI) com filtro por padrão de arquivo (filePatterns). Combinado com a ação 'Shell Command' (runCommand), é possível executar lint automaticamente ao salvar arquivos .ts.",
       "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
