@@ -29,7 +29,7 @@
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "O design.md de um Feature Spec inclui propriedades de corretude que definem comportamentos universais do sistema. Essas propriedades servem como ponte entre especificações legíveis e garantias verificáveis por máquina.",
+      "explanation": "Durante a fase de design de um Feature Spec, Kiro extrai propriedades de corretude dos requisitos EARS. Essas propriedades definem comportamentos universais verificáveis por testes baseados em propriedades (property-based testing), servindo como ponte entre especificações legíveis e garantias testáveis por máquina.",
       "sourceUrl": "https://kiro.dev/docs/specs/correctness/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
@@ -56,16 +56,15 @@
       "category": "Feature Specs",
       "difficulty": "avançado",
       "type": "ordering",
-      "text": "Organize os componentes de um documento de design (design.md) na ordem em que aparecem:",
+      "text": "Organize as etapas do workflow de um Feature Spec na ordem em que ocorrem:",
       "options": [
-        { "id": "step-1", "label": "Overview e decisões de design" },
-        { "id": "step-2", "label": "Arquitetura e diagramas" },
-        { "id": "step-3", "label": "Componentes e interfaces" },
-        { "id": "step-4", "label": "Modelos de dados" },
-        { "id": "step-5", "label": "Propriedades de corretude" }
+        { "id": "step-1", "label": "Definir requisitos com user stories e critérios de aceitação" },
+        { "id": "step-2", "label": "Criar documento de design com arquitetura e componentes" },
+        { "id": "step-3", "label": "Gerar plano de tarefas discretas e rastreáveis" },
+        { "id": "step-4", "label": "Executar tarefas individualmente ou em paralelo" }
       ],
-      "explanation": "O design.md segue uma estrutura progressiva: começa com overview e decisões, passa pela arquitetura, detalha componentes e interfaces, define modelos de dados, e finaliza com propriedades de corretude verificáveis.",
-      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/tech-design-first/",
+      "explanation": "O workflow de um Feature Spec segue três fases documentadas: Requirements (definir requisitos e critérios de aceitação), Design (criar arquitetura e decisões técnicas em design.md), e Tasks (gerar tarefas discretas em tasks.md). A execução das tarefas encerra o ciclo com implementação verificável.",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }

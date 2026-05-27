@@ -58,11 +58,12 @@
       "type": "ordering",
       "text": "Organize os tipos de inclusão de Steering do mais automático ao mais manual:",
       "options": [
-        { "id": "step-1", "label": "Inclusão automática (inclusion: auto) - carregado sempre" },
-        { "id": "step-2", "label": "Inclusão por ativação (Skills) - carregado sob demanda" },
-        { "id": "step-3", "label": "Referência manual no prompt pelo usuário" }
+        { "id": "step-1", "label": "Inclusão always - carregado em toda interação automaticamente" },
+        { "id": "step-2", "label": "Inclusão auto - carregado sob demanda quando Kiro detecta relevância pela descrição" },
+        { "id": "step-3", "label": "Inclusão fileMatch - carregado quando padrões de arquivo correspondem" },
+        { "id": "step-4", "label": "Inclusão manual - carregado via referência #nome pelo usuário" }
       ],
-      "explanation": "Steering files com 'inclusion: auto' são carregados automaticamente em toda interação. Skills são ativados sob demanda quando relevantes. Referências manuais requerem que o usuário mencione explicitamente.",
+      "explanation": "Steering files no Kiro possuem quatro modos de inclusão, do mais automático ao mais manual: 'always' é carregado em toda interação (padrão); 'auto' usa name/description para Kiro ativar automaticamente quando relevante; 'fileMatch' carrega quando arquivos correspondentes a padrões são abertos; e 'manual' requer referência explícita com #nome pelo usuário.",
       "sourceUrl": "https://kiro.dev/docs/steering/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"

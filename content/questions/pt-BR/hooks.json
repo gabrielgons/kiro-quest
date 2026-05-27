@@ -24,12 +24,12 @@
       "category": "Hooks",
       "difficulty": "iniciante",
       "type": "true-false",
-      "text": "Um Hook no Kiro pode ser configurado para executar automaticamente um comando de lint sempre que um arquivo TypeScript é editado.",
+      "text": "Um Hook no Kiro pode ser configurado para executar automaticamente um comando de lint sempre que um arquivo TypeScript é salvo.",
       "options": [
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "Hooks suportam o evento 'fileEdited' com filtro por padrão de arquivo (filePatterns). Combinado com a ação 'runCommand', é possível executar lint automaticamente ao editar arquivos .ts.",
+      "explanation": "Hooks suportam o evento `fileEdited` (exibido como 'File Save' na UI) com filtro por padrão de arquivo (filePatterns). Combinado com a ação 'Shell Command' (runCommand), é possível executar lint automaticamente ao salvar arquivos .ts.",
       "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
@@ -58,13 +58,13 @@
       "type": "ordering",
       "text": "Organize os tipos de evento de Hook do mais precoce ao mais tardio no ciclo de execução:",
       "options": [
-        { "id": "step-1", "label": "promptSubmit - quando o usuário envia um prompt" },
-        { "id": "step-2", "label": "preTaskExecution - antes de iniciar uma tarefa" },
-        { "id": "step-3", "label": "preToolUse - antes de usar uma ferramenta" },
-        { "id": "step-4", "label": "postToolUse - após usar uma ferramenta" },
-        { "id": "step-5", "label": "postTaskExecution - após completar uma tarefa" }
+        { "id": "step-1", "label": "promptSubmit (Prompt Submit) - quando o usuário envia um prompt" },
+        { "id": "step-2", "label": "preTaskExecution (Pre Task Execution) - antes de iniciar uma tarefa de spec" },
+        { "id": "step-3", "label": "preToolUse (Pre Tool Use) - antes de usar uma ferramenta" },
+        { "id": "step-4", "label": "postToolUse (Post Tool Use) - após usar uma ferramenta" },
+        { "id": "step-5", "label": "postTaskExecution (Post Task Execution) - após completar uma tarefa de spec" }
       ],
-      "explanation": "O ciclo de execução segue: prompt do usuário → início da tarefa → uso de ferramenta → resultado da ferramenta → conclusão da tarefa. Cada evento de Hook corresponde a um ponto neste ciclo.",
+      "explanation": "O ciclo de execução dos hooks segue: o usuário submete um prompt (`promptSubmit`), uma tarefa de spec inicia (`preTaskExecution`), ferramentas são invocadas (`preToolUse` / `postToolUse`), e a tarefa completa (`postTaskExecution`). Cada evento permite automatizar ações em pontos específicos do ciclo.",
       "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
