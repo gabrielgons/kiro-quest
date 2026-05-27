@@ -175,7 +175,7 @@ function toggleMistakes() {
 }
 
 .congratulations {
-  color: #16a34a;
+  color: var(--color-success, #16a34a);
   font-weight: 600;
   margin-top: 0.5rem;
 }

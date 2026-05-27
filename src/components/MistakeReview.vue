@@ -61,12 +61,12 @@ defineProps<{
 }
 
 .mistake-user-answer {
-  color: #dc2626;
+  color: var(--color-error, #dc2626);
   margin-bottom: 0.25rem;
 }
 
 .mistake-correct-answer {
-  color: #16a34a;
+  color: var(--color-success, #16a34a);
   margin-bottom: 0.5rem;
 }
 

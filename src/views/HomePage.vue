@@ -172,7 +172,7 @@ function cancelRestart() {
 .btn-danger {
   padding: 0.75rem 2rem;
   font-size: 1rem;
-  background-color: #ef4444;
+  background-color: var(--color-error, #ef4444);
   color: #fff;
   border: none;
   border-radius: 8px;

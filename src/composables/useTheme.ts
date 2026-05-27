@@ -1,4 +1,4 @@
-import { ref, computed, readonly, onScopeDispose } from 'vue'
+import { ref, computed, readonly } from 'vue'
 import type { Ref, ComputedRef } from 'vue'
 
 export type Theme = 'light' | 'dark'
@@ -45,56 +45,45 @@ export function initializeTheme(): Theme {
  * on `document.documentElement`.
  */
 export function applyTheme(theme: Theme): void {
-  document.documentElement.setAttribute('data-theme', theme)
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', theme)
+  }
+}
+
+// Module-level singleton state (created once, shared across all useTheme() calls)
+const theme = ref<Theme>(initializeTheme())
+const isDark = computed(() => theme.value === 'dark')
+
+// Track whether user has a saved preference or has toggled manually
+let hasUserPreference = false
+try {
+  const saved = localStorage.getItem(THEME_STORAGE_KEY)
+  hasUserPreference = saved === 'light' || saved === 'dark'
+} catch {
+  // localStorage unavailable
+}
+
+// Apply initial theme to DOM synchronously
+applyTheme(theme.value)
+
+// Listen for system preference changes (only react when no user preference)
+if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  mediaQuery.addEventListener('change', (e: MediaQueryListEvent) => {
+    if (hasUserPreference) return
+    const newTheme: Theme = e.matches ? 'dark' : 'light'
+    theme.value = newTheme
+    applyTheme(newTheme)
+  })
 }
 
 /**
  * Composable that manages theme state, DOM synchronization, and toggle logic.
  *
- * - Initializes theme from localStorage or system preference
- * - Applies theme to DOM synchronously on execution
- * - Provides reactive `theme` ref and `isDark` computed
- * - `toggleTheme()` flips theme, syncs DOM, and persists to localStorage
- * - Listens for system preference changes when no user preference exists
- * - Cleans up event listener via onScopeDispose
+ * Uses module-level singleton state so all calls to useTheme() share
+ * the same reactive references.
  */
 export function useTheme(): UseThemeReturn {
-  const theme = ref<Theme>(initializeTheme())
-  const isDark = computed(() => theme.value === 'dark')
-
-  // Apply initial theme to DOM synchronously
-  applyTheme(theme.value)
-
-  // Track whether user has a saved preference or has toggled manually
-  let hasUserPreference = false
-  try {
-    const saved = localStorage.getItem(THEME_STORAGE_KEY)
-    hasUserPreference = saved === 'light' || saved === 'dark'
-  } catch {
-    // localStorage unavailable — treat as no user preference
-  }
-
-  // Listen for system preference changes (only react when no user preference)
-  let mediaQuery: MediaQueryList | null = null
-  const handler = (e: MediaQueryListEvent) => {
-    if (hasUserPreference) return
-    const newTheme: Theme = e.matches ? 'dark' : 'light'
-    theme.value = newTheme
-    applyTheme(newTheme)
-  }
-
-  if (typeof window !== 'undefined' && typeof window.matchMedia === 'function') {
-    mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-    mediaQuery.addEventListener('change', handler)
-  }
-
-  // Cleanup listener when reactive scope is disposed
-  onScopeDispose(() => {
-    if (mediaQuery) {
-      mediaQuery.removeEventListener('change', handler)
-    }
-  })
-
   function toggleTheme(): void {
     const newTheme: Theme = theme.value === 'dark' ? 'light' : 'dark'
     theme.value = newTheme
