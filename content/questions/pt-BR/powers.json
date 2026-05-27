@@ -24,13 +24,13 @@
       "category": "Powers",
       "difficulty": "intermediário",
       "type": "true-false",
-      "text": "Para usar as ferramentas de um Power, é necessário primeiro ativá-lo com a ação 'activate'.",
+      "text": "Powers no Kiro ativam automaticamente quando keywords relevantes são mencionadas na conversa, sem necessidade de ativação manual.",
       "options": [
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "Antes de usar as ferramentas de um Power, é necessário ativá-lo para obter a documentação completa, schemas de ferramentas e guias de workflow disponíveis.",
-      "sourceUrl": "https://kiro.dev/docs/powers/installation/",
+      "explanation": "Powers ativam dinamicamente quando Kiro detecta keywords relevantes na conversa ou tarefa. Após instalado, o Kiro automaticamente lê a descrição da tarefa, avalia os powers instalados e carrega apenas os relevantes no contexto, sem necessidade de ativação manual.",
+      "sourceUrl": "https://kiro.dev/docs/powers/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     },
@@ -41,12 +41,12 @@
       "type": "ordering",
       "text": "Organize as etapas para usar um Power no Kiro na ordem correta:",
       "options": [
-        { "id": "step-1", "label": "Listar os Powers instalados" },
-        { "id": "step-2", "label": "Ativar o Power desejado" },
-        { "id": "step-3", "label": "Revisar as ferramentas e schemas disponíveis" },
-        { "id": "step-4", "label": "Executar a ferramenta com os argumentos corretos" }
+        { "id": "step-1", "label": "Instalar o Power desejado (marketplace, GitHub ou local)" },
+        { "id": "step-2", "label": "Mencionar keywords relevantes na conversa ou tarefa" },
+        { "id": "step-3", "label": "Kiro carrega automaticamente contexto e ferramentas do Power" },
+        { "id": "step-4", "label": "Utilizar as ferramentas disponibilizadas na interação" }
       ],
-      "explanation": "O fluxo correto para usar um Power é: listar os disponíveis, ativar o desejado para obter documentação e schemas, revisar as ferramentas disponíveis, e então executar com os parâmetros adequados.",
+      "explanation": "O fluxo de uso de um Power é: instalar via marketplace/GitHub/local, depois ao mencionar keywords relevantes na conversa, o Kiro automaticamente avalia os powers instalados, carrega o contexto e ferramentas do Power relevante, e então as ferramentas ficam disponíveis para uso na interação.",
       "sourceUrl": "https://kiro.dev/docs/powers/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"

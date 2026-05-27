@@ -47,7 +47,7 @@
         { "id": "d", "label": "Revisão manual de cada pull request por um especialista em segurança" }
       ],
       "explanation": "A combinação de Steering files (definindo regras de segurança) com Hooks (validando automaticamente antes de escritas) garante enforcement contínuo e automático dos padrões de segurança em toda a equipe.",
-      "sourceUrl": "https://kiro.dev/docs/enterprise/governance/",
+      "sourceUrl": "https://kiro.dev/docs/hooks/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-01-15"
     }
