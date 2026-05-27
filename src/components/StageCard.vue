@@ -92,13 +92,13 @@ const statusKeys: Record<StageStatus, string> = {
 }
 
 .status-completed .status-badge {
-  background: var(--color-success-light);
-  color: var(--color-success-dark);
+  background: var(--color-success-light, #dcfce7);
+  color: var(--color-success-dark, #065f46);
 }
 
 .status-in-progress .status-badge {
-  background: var(--color-warning-light);
-  color: var(--color-warning-dark);
+  background: var(--color-warning-light, #fef3c7);
+  color: var(--color-warning-dark, #92400e);
 }
 
 .recommended-badge {

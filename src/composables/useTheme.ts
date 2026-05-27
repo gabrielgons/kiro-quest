@@ -45,7 +45,9 @@ export function initializeTheme(): Theme {
  * on `document.documentElement`.
  */
 export function applyTheme(theme: Theme): void {
-  document.documentElement.setAttribute('data-theme', theme)
+  if (typeof document !== 'undefined') {
+    document.documentElement.setAttribute('data-theme', theme)
+  }
 }
 
 // Module-level singleton state (created once, shared across all useTheme() calls)
