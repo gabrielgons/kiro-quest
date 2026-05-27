@@ -93,7 +93,7 @@ const statusKeys: Record<StageStatus, string> = {
 
 .status-completed .status-badge {
   background: var(--color-success-light);
-  color: #065f46;
+  color: var(--color-success-dark);
 }
 
 .status-in-progress .status-badge {

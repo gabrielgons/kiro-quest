@@ -8,6 +8,7 @@
 
   --color-success: #22c55e;
   --color-success-light: #dcfce7;
+  --color-success-dark: #065f46;
   --color-error: #ef4444;
   --color-error-light: #fee2e2;
   --color-warning: #f59e0b;
@@ -133,6 +134,7 @@ body {
 
   --color-primary-light: #312e81;
   --color-success-light: #064e3b;
+  --color-success-dark: #6ee7b7;
   --color-error-light: #7f1d1d;
   --color-warning-light: #78350f;
 

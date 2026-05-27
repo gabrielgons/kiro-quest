@@ -52,18 +52,18 @@ defineProps<{
 }
 
 .difficulty-iniciante {
-  background: #d1fae5;
-  color: #065f46;
+  background: var(--color-success-light);
+  color: var(--color-success-dark);
 }
 
 .difficulty-intermediário {
-  background: #fef3c7;
-  color: #92400e;
+  background: var(--color-warning-light);
+  color: var(--color-warning-dark);
 }
 
 .difficulty-avançado {
-  background: #fee2e2;
-  color: #991b1b;
+  background: var(--color-error-light);
+  color: var(--color-error-dark);
 }
 
 .progress-indicator {
