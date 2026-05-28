@@ -44,6 +44,7 @@ const statusKeys: Record<StageStatus, string> = {
   border: 2px solid var(--color-border);
   border-radius: var(--radius-lg);
   background: var(--color-surface);
+  color: var(--color-text);
   cursor: pointer;
   text-align: left;
   transition: border-color var(--transition-fast), box-shadow var(--transition-fast);

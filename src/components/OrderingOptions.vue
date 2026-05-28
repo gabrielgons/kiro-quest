@@ -104,6 +104,7 @@ function moveDown(index: number) {
   border: 1px solid var(--color-border, #e5e7eb);
   border-radius: 4px;
   background: var(--color-surface, #fff);
+  color: var(--color-text);
   cursor: pointer;
   display: flex;
   align-items: center;
