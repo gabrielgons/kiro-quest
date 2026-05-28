@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+  <defs>
+    <linearGradient id="fav-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+      <stop offset="0" stop-color="#6366f1"/>
+      <stop offset="1" stop-color="#10b981"/>
+    </linearGradient>
+  </defs>
+  <!-- Shield (thicker so it reads at 16px) -->
+  <path
+    d="M5 3 L27 3 Q29 3 29 5 L29 17 Q29 25 16 30 Q3 25 3 17 L3 5 Q3 3 5 3 Z"
+    fill="url(#fav-grad)"
+  />
+  <!-- Bold K -->
+  <g stroke="#ffffff" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" fill="none">
+    <line x1="12" y1="9" x2="12" y2="23"/>
+    <line x1="12" y1="16" x2="20" y2="9"/>
+    <line x1="12" y1="16" x2="21" y2="23"/>
+  </g>
+</svg>
