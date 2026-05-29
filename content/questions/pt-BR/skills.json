@@ -10,9 +10,9 @@
       "text": "O que são Skills no Kiro?",
       "options": [
         { "id": "a", "label": "Instruções reutilizáveis que podem ser ativadas para carregar contexto específico" },
-        { "id": "b", "label": "Certificações que o desenvolvedor obtém ao completar cursos" },
-        { "id": "c", "label": "Métricas de performance do código gerado" },
-        { "id": "d", "label": "Templates de projeto pré-configurados" }
+        { "id": "b", "label": "Guias em markdown carregados automaticamente em toda interação para direcionar o agente" },
+        { "id": "c", "label": "Pacotes instaláveis que combinam documentação e servidores MCP" },
+        { "id": "d", "label": "Automações que disparam ações do agente em resposta a eventos do IDE" }
       ],
       "explanation": "Skills no Kiro são instruções reutilizáveis que podem ser ativadas para carregar contexto e instruções específicas, permitindo comportamentos especializados sob demanda.",
       "sourceUrl": "https://kiro.dev/docs/skills/",

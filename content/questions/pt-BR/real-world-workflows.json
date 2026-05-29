@@ -10,9 +10,9 @@
       "text": "Qual é a vantagem principal de usar Specs antes de implementar uma feature?",
       "options": [
         { "id": "a", "label": "Garante alinhamento entre requisitos, design e implementação antes de escrever código" },
-        { "id": "b", "label": "Gera automaticamente toda a documentação do projeto" },
-        { "id": "c", "label": "Elimina a necessidade de testes automatizados" },
-        { "id": "d", "label": "Permite deploy automático em produção" }
+        { "id": "b", "label": "Permite pular a fase de design, já que os requisitos contêm todos os detalhes técnicos" },
+        { "id": "c", "label": "Dispensa testes automatizados, porque o Spec já valida todo o comportamento" },
+        { "id": "d", "label": "Garante que a implementação não precisará de revisão de código" }
       ],
       "explanation": "Usar Specs antes de implementar garante que requisitos, design e tarefas estejam alinhados, reduzindo retrabalho e garantindo que a implementação atenda às necessidades reais.",
       "sourceUrl": "https://kiro.dev/docs/specs/",

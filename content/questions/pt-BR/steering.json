@@ -10,9 +10,9 @@
       "text": "O que são arquivos de Steering no Kiro?",
       "options": [
         { "id": "a", "label": "Guias de fluxo de trabalho que direcionam o comportamento do agente para tarefas específicas" },
-        { "id": "b", "label": "Arquivos de configuração do servidor web" },
-        { "id": "c", "label": "Scripts de automação de deploy" },
-        { "id": "d", "label": "Templates de código para geração automática" }
+        { "id": "b", "label": "Automações que disparam ações do agente quando ocorrem eventos do IDE, como salvar um arquivo" },
+        { "id": "c", "label": "Pacotes instaláveis que empacotam documentação e servidores MCP para expandir o Kiro" },
+        { "id": "d", "label": "Documentos de especificação que definem requisitos, design e tarefas de uma feature" }
       ],
       "explanation": "Arquivos de Steering são documentos markdown que fornecem instruções detalhadas ao Kiro sobre como executar fluxos de trabalho específicos. Eles direcionam o comportamento do agente para padrões e práticas desejadas.",
       "sourceUrl": "https://kiro.dev/docs/steering/",
@@ -42,9 +42,9 @@
       "text": "Sua equipe quer que o Kiro sempre siga um padrão específico ao criar componentes React. Qual abordagem é mais adequada?",
       "options": [
         { "id": "a", "label": "Criar um arquivo de Steering no workspace com as convenções de componentes da equipe" },
-        { "id": "b", "label": "Repetir as instruções manualmente em cada prompt" },
-        { "id": "c", "label": "Modificar o código-fonte do Kiro" },
-        { "id": "d", "label": "Criar um arquivo README com as convenções e esperar que o Kiro leia" }
+        { "id": "b", "label": "Criar uma Skill com as convenções e pedir que cada desenvolvedor a ative manualmente antes de criar componentes" },
+        { "id": "c", "label": "Configurar um Hook que, a cada arquivo salvo, peça ao agente para reescrever o componente no padrão" },
+        { "id": "d", "label": "Documentar as convenções em um README na raiz e confiar que o Kiro o leia automaticamente em toda tarefa" }
       ],
       "explanation": "Arquivos de Steering no workspace (.kiro/steering/) são a forma ideal de definir convenções de equipe. Eles são carregados automaticamente e garantem consistência sem necessidade de repetir instruções.",
       "sourceUrl": "https://kiro.dev/docs/steering/",

@@ -11,7 +11,7 @@
       "options": [
         { "id": "a", "label": "Requirements-First começa pelos requisitos; Design-First começa pela arquitetura técnica" },
         { "id": "b", "label": "Requirements-First é para projetos pequenos; Design-First é para projetos grandes" },
-        { "id": "c", "label": "Requirements-First usa TypeScript; Design-First usa JavaScript" },
+        { "id": "c", "label": "Requirements-First gera os testes antes do código; Design-First gera o código antes dos testes" },
         { "id": "d", "label": "Não há diferença, são nomes alternativos para o mesmo fluxo" }
       ],
       "explanation": "No fluxo Requirements-First, você define requisitos e critérios de aceitação antes do design. No Design-First, você começa pela arquitetura técnica e depois deriva os requisitos a partir dela.",
@@ -42,9 +42,9 @@
       "text": "Você está criando um Feature Spec e o Kiro detectou ambiguidades nos requisitos. O que acontece?",
       "options": [
         { "id": "a", "label": "O Kiro apresenta perguntas clarificadoras e sugere resoluções automáticas quando possível" },
-        { "id": "b", "label": "O Kiro ignora as ambiguidades e prossegue com a implementação" },
-        { "id": "c", "label": "O Kiro deleta os requisitos ambíguos automaticamente" },
-        { "id": "d", "label": "O Kiro para completamente e exige que você reescreva tudo" }
+        { "id": "b", "label": "O Kiro resolve todas as ambiguidades sozinho, assumindo suposições, e segue para o design sem avisar" },
+        { "id": "c", "label": "O Kiro marca os requisitos ambíguos como concluídos e os exclui do design final" },
+        { "id": "d", "label": "O Kiro bloqueia o spec até que você reescreva manualmente todos os requisitos do zero" }
       ],
       "explanation": "Quando o Kiro detecta ambiguidades nos requisitos, ele usa o serviço de raciocínio para apresentar perguntas clarificadoras. Itens auto-resolvíveis são incluídos com respostas recomendadas, enquanto questões restantes são apresentadas ao usuário.",
       "sourceUrl": "https://kiro.dev/docs/specs/analyze-requirements/",

@@ -10,9 +10,9 @@
       "text": "O que são Hooks no Kiro?",
       "options": [
         { "id": "a", "label": "Automações que mapeiam eventos do IDE para ações do agente" },
-        { "id": "b", "label": "Funções JavaScript que executam no navegador" },
-        { "id": "c", "label": "Plugins de terceiros para extensão do editor" },
-        { "id": "d", "label": "Callbacks de ciclo de vida de componentes Vue" }
+        { "id": "b", "label": "Guias em markdown que direcionam o comportamento do agente em toda interação" },
+        { "id": "c", "label": "Instruções reutilizáveis ativadas sob demanda para carregar contexto específico" },
+        { "id": "d", "label": "Conexões com ferramentas e serviços externos por meio de um protocolo padronizado" }
       ],
       "explanation": "Hooks no Kiro são automações que conectam eventos do IDE (como edição de arquivo, envio de prompt) a ações do agente (askAgent ou runCommand). Quando o evento ocorre, a ação especificada é executada automaticamente.",
       "sourceUrl": "https://kiro.dev/docs/hooks/",
