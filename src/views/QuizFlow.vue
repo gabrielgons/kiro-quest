@@ -25,7 +25,11 @@ onMounted(() => {
   initializeAnswer();
 });
 
-const currentQuestion = computed(() => quizStore.currentQuestion);
+// Use the randomized-options getter so answer choices are shuffled before
+// display. Correctness is checked by option id (not position), so shuffling
+// the presentation order is safe and prevents the correct answer from always
+// appearing first.
+const currentQuestion = computed(() => quizStore.currentQuestionWithRandomizedOptions);
 const isLastQuestion = computed(() => quizStore.currentQuestionIndex >= quizStore.questions.length - 1);
 
 const submitLabel = computed(() => {
@@ -50,7 +54,7 @@ watch(
 );
 
 function initializeAnswer() {
-  const q = quizStore.currentQuestionWithRandomizedOptions;
+  const q = currentQuestion.value;
   if (q?.type === 'ordering') {
     selectedAnswer.value = (q.options as OrderingItem[]).map((o) => o.id);
   } else {
