@@ -10,7 +10,7 @@
       "text": "Qual benefício principal o Kiro oferece para equipes enterprise?",
       "options": [
         { "id": "a", "label": "Padronização de workflows de desenvolvimento através de Specs e Steering compartilhados" },
-        { "id": "b", "label": "Substituição completa de todos os desenvolvedores da equipe" },
+        { "id": "b", "label": "Geração de relatórios de produtividade individual de cada desenvolvedor da equipe" },
         { "id": "c", "label": "Gerenciamento automático de infraestrutura em produção" },
         { "id": "d", "label": "Eliminação da necessidade de code review" }
       ],
@@ -42,7 +42,7 @@
       "text": "Uma equipe de 20 desenvolvedores precisa garantir que todos sigam padrões de segurança ao criar APIs. Qual combinação de recursos do Kiro é mais eficaz?",
       "options": [
         { "id": "a", "label": "Steering files com regras de segurança + Hooks que validam antes de cada escrita de código" },
-        { "id": "b", "label": "Apenas documentação interna no wiki da empresa" },
+        { "id": "b", "label": "Definir as regras de segurança apenas em uma Skill que cada desenvolvedor ativa manualmente ao criar APIs" },
         { "id": "c", "label": "Treinamento presencial mensal sobre segurança" },
         { "id": "d", "label": "Revisão manual de cada pull request por um especialista em segurança" }
       ],

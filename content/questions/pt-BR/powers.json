@@ -10,9 +10,9 @@
       "text": "O que são Powers no Kiro?",
       "options": [
         { "id": "a", "label": "Pacotes que combinam documentação, guias de workflow e opcionalmente servidores MCP" },
-        { "id": "b", "label": "Plugins de terceiros para adicionar linguagens de programação" },
-        { "id": "c", "label": "Extensões visuais para personalizar a interface do Kiro" },
-        { "id": "d", "label": "Scripts de automação para deploy em produção" }
+        { "id": "b", "label": "Automações que conectam eventos do IDE a ações do agente" },
+        { "id": "c", "label": "Guias em markdown que direcionam o comportamento do agente em toda interação" },
+        { "id": "d", "label": "Instruções reutilizáveis que o usuário ativa para carregar contexto específico sob demanda" }
       ],
       "explanation": "Powers são pacotes que combinam documentação, guias de workflow (steering files) e opcionalmente servidores MCP, fornecendo capacidades expandidas ao Kiro de forma modular.",
       "sourceUrl": "https://kiro.dev/docs/powers/",

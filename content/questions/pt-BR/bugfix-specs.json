@@ -10,9 +10,9 @@
       "text": "Qual é o objetivo principal de um Bugfix Spec no Kiro?",
       "options": [
         { "id": "a", "label": "Reproduzir o bug com um teste de exploração, identificar a causa raiz e implementar a correção" },
-        { "id": "b", "label": "Deletar o código com bug e reescrever do zero" },
-        { "id": "c", "label": "Documentar o bug sem corrigi-lo" },
-        { "id": "d", "label": "Criar uma nova feature que substitui a funcionalidade com bug" }
+        { "id": "b", "label": "Aplicar a correção mais rápida possível e seguir em frente, sem antes reproduzir o bug com um teste" },
+        { "id": "c", "label": "Adicionar logs temporários ao redor do erro para monitorá-lo em produção antes de agir" },
+        { "id": "d", "label": "Escrever testes de regressão para todo o módulo afetado antes de localizar a causa do bug" }
       ],
       "explanation": "O Bugfix Spec usa a metodologia de condição de bug: primeiro escreve um teste que reproduz o problema (esperado falhar), depois identifica a causa raiz e implementa a correção verificável.",
       "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
@@ -42,9 +42,9 @@
       "text": "Você escreveu um teste de exploração para um Bugfix Spec, mas o teste passou inesperadamente. O que isso indica?",
       "options": [
         { "id": "a", "label": "O teste não está reproduzindo o bug corretamente ou o código já foi corrigido" },
-        { "id": "b", "label": "O bug foi corrigido automaticamente pelo Kiro" },
-        { "id": "c", "label": "O teste está correto e o bug não existe" },
-        { "id": "d", "label": "O framework de testes está com defeito" }
+        { "id": "b", "label": "Você pode prosseguir e implementar a correção, pois o teste verde já valida o spec" },
+        { "id": "c", "label": "Significa que o bug nunca existiu e o relato do problema estava equivocado" },
+        { "id": "d", "label": "O ambiente de testes está desatualizado e precisa ser recriado do zero" }
       ],
       "explanation": "Quando um teste de exploração passa inesperadamente, significa que o teste não está detectando o bug. Possíveis causas: o código já tem uma correção, a causa raiz está incorreta, ou a lógica do teste precisa ser ajustada.",
       "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",

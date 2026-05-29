@@ -10,9 +10,9 @@
       "text": "O que é o MCP (Model Context Protocol) no contexto do Kiro?",
       "options": [
         { "id": "a", "label": "Um protocolo que permite ao Kiro se conectar a ferramentas e serviços externos" },
-        { "id": "b", "label": "Um formato de arquivo para armazenar modelos de machine learning" },
-        { "id": "c", "label": "Um protocolo de rede para comunicação entre microserviços" },
-        { "id": "d", "label": "Um sistema de cache para acelerar compilações" }
+        { "id": "b", "label": "Um mecanismo interno que gerencia o contexto da janela de conversa entre as mensagens do modelo" },
+        { "id": "c", "label": "Um padrão para sincronizar o histórico de prompts entre diferentes sessões do Kiro" },
+        { "id": "d", "label": "Um pacote que empacota documentação e steering em um único módulo instalável" }
       ],
       "explanation": "MCP (Model Context Protocol) é um protocolo que permite ao Kiro se conectar a ferramentas e serviços externos, expandindo suas capacidades além do ambiente local de desenvolvimento.",
       "sourceUrl": "https://kiro.dev/docs/mcp/",
@@ -42,9 +42,9 @@
       "text": "Sua equipe precisa que o Kiro acesse uma API interna de documentação. Qual é a melhor abordagem?",
       "options": [
         { "id": "a", "label": "Criar um servidor MCP personalizado que expõe a API como ferramentas acessíveis pelo Kiro" },
-        { "id": "b", "label": "Copiar toda a documentação para arquivos locais no projeto" },
+        { "id": "b", "label": "Copiar periodicamente a documentação para arquivos de Steering no repositório para o Kiro consultar" },
         { "id": "c", "label": "Pedir ao Kiro para acessar a API diretamente via HTTP" },
-        { "id": "d", "label": "Desistir da integração e consultar a documentação manualmente" }
+        { "id": "d", "label": "Instalar um Power genérico de documentação e esperar que ele acesse a API interna automaticamente" }
       ],
       "explanation": "A abordagem recomendada é criar um servidor MCP personalizado que expõe a API interna como ferramentas. Isso permite ao Kiro acessar a documentação de forma estruturada e segura através do protocolo MCP.",
       "sourceUrl": "https://kiro.dev/docs/mcp/configuration/",
