@@ -7,6 +7,7 @@ import { getNextStageInOrder } from '@/engine/quizEngine';
 import type { LearningStage } from '@/engine/types';
 import type { MistakeItem } from '@/components/types';
 import MistakeReview from '@/components/MistakeReview.vue';
+import ShareBadgeButton from '@/components/ShareBadgeButton.vue';
 import { questionStore } from '@/data/questionStore';
 
 const router = useRouter();
@@ -109,6 +110,16 @@ function toggleMistakes() {
       </div>
     </div>
 
+    <!-- Shareable badge -->
+    <div v-if="stageResult" class="share-section">
+      <ShareBadgeButton
+        type="badge"
+        :stage="stage"
+        :score="{ correct: stageResult.correctCount, total: stageResult.totalCount }"
+        :performance-level="quizStore.performanceLevel"
+      />
+    </div>
+
     <!-- Actions -->
     <div class="actions">
       <button v-if="hasMoreStages" class="btn-primary" @click="handleNextStage">
@@ -203,6 +214,12 @@ function toggleMistakes() {
   flex-direction: column;
   align-items: center;
   gap: 0.75rem;
+  margin-bottom: 2rem;
+}
+
+.share-section {
+  display: flex;
+  justify-content: center;
   margin-bottom: 2rem;
 }
 
