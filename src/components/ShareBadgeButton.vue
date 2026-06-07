@@ -175,10 +175,10 @@ const shareUrl = computed(() =>
  * Share the generated image to the given social platform (Requirements 5.1,
  * 5.2).
  *
- * For LinkedIn, opens the "Add to Profile" (Certification) form pre-filled
- * with badge/certificate data. For Twitter, opens the standard share dialog.
+ * LinkedIn opens the "Add to Profile" (Certification) form pre-filled with
+ * badge/certificate data. Twitter opens the tweet intent share dialog.
  *
- * @param platform - The target platform ('linkedin' or 'twitter').
+ * @param platform - 'twitter' opens the tweet intent share dialog.
  */
 async function handleShare(platform: 'linkedin' | 'twitter'): Promise<void> {
   if (!generatedBlob.value) {
@@ -187,8 +187,8 @@ async function handleShare(platform: 'linkedin' | 'twitter'): Promise<void> {
 
   if (platform === 'linkedin') {
     const url = props.type === 'badge' && props.stage
-      ? buildLinkedInAddToProfileUrl({ type: 'badge', stage: props.stage })
-      : buildLinkedInAddToProfileUrl({ type: 'certificate' });
+      ? buildLinkedInAddToProfileUrl({ type: 'badge', stage: props.stage, issueDate: new Date() })
+      : buildLinkedInAddToProfileUrl({ type: 'certificate', issueDate: new Date() });
     window.open(url, '_blank', 'noopener,noreferrer');
     return;
   }

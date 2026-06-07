@@ -8,8 +8,8 @@ import { SITE_ORIGIN } from '@/config/siteOrigin';
  *
  * This module extends the text-only sharing in `@/sharing/shareGenerator` with
  * image/blob support: downloading PNGs to disk, sharing image files via the
- * native Web Share API (mobile), and opening URL-based share dialogs for
- * LinkedIn and Twitter/X.
+ * native Web Share API (mobile), opening a URL-based share dialog for
+ * Twitter/X, and building LinkedIn "Add to Profile" (Certification) URLs.
  *
  * Security (see design "Security Considerations"):
  * - Download filenames are stripped of path separator characters so a stage
@@ -374,9 +374,6 @@ export function buildLinkedInAddToProfileUrl(options: LinkedInAddToProfileOption
 
   if (type === 'badge') {
     const { stage } = options;
-    if (!stage) {
-      throw new Error('stage is required when type is "badge"');
-    }
     const { displayName } = BADGE_DESIGNS[stage];
     name = `Kiro Quest - ${displayName}`;
     certUrl = buildBadgeShareUrl(stage);
