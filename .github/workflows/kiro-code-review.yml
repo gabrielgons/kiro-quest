@@ -21,10 +21,10 @@ jobs:
           node-version: '22'
 
       - name: Install Kiro CLI
-        run: npm install -g @anthropic-ai/kiro-cli
+        run: curl -fsSL https://cli.kiro.dev/install | bash
 
       # TODO: Quando o power kiro-code-review for aprovado no registry da AWS,
-      # substituir este step por: kiro power install kiro-code-review
+      # substituir este step por: kiro-cli power install kiro-code-review
       - name: Install kiro-code-review power
         run: git clone https://github.com/gabrielgons/kiro-code-review.git ~/.kiro/powers/kiro-code-review
 
@@ -33,5 +33,5 @@ jobs:
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          kiro --no-interactive --trust-all-tools --require-mcp-startup \
-            --prompt "Review the pull request #${{ github.event.pull_request.number }} in the repository ${{ github.repository }}. Use the kiro-code-review power to analyze the changes and post a native GitHub PR review with inline comments on the changed files."
+          kiro-cli chat --no-interactive --trust-all-tools --require-mcp-startup \
+            "Review the pull request #${{ github.event.pull_request.number }} in the repository ${{ github.repository }}. Use the kiro-code-review power to analyze the changes and post a native GitHub PR review with inline comments on the changed files."
