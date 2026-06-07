@@ -329,7 +329,12 @@ function openShareWindow(
 export async function shareToSocial(options: ImageShareOptions): Promise<boolean> {
   const { blob, fileName, shareText, platform, shareUrl } = options;
 
-  if (platform === 'linkedin' || platform === 'twitter') {
+  if (platform === 'linkedin') {
+    openShareWindow(platform, shareText, shareUrl);
+    return true;
+  }
+
+  if (platform === 'twitter') {
     openShareWindow(platform, shareText, shareUrl);
     return true;
   }
@@ -344,6 +349,65 @@ export async function shareToSocial(options: ImageShareOptions): Promise<boolean
   }
 
   return copyToClipboard(shareText);
+}
+
+/** LinkedIn "Add to Profile" base URL (Certification). */
+const LINKEDIN_ADD_TO_PROFILE_URL = 'https://www.linkedin.com/profile/add';
+
+/**
+ * Options for building a LinkedIn "Add to Profile" URL.
+ */
+export interface LinkedInAddToProfileOptions {
+  /** The type of artifact: badge or certificate. */
+  type: 'badge' | 'certificate';
+  /** The learning stage. Required when `type` is 'badge'. */
+  stage?: LearningStage;
+  /** The issue date. Defaults to the current date when omitted. */
+  issueDate?: Date;
+}
+
+/**
+ * Build a LinkedIn "Add to Profile" (Certification) URL that opens a
+ * pre-filled form for the user to add the certification to their profile.
+ *
+ * For badges the certification name is "Kiro Quest - {displayName}" and the
+ * certUrl points to the crawlable badge share page. For the certificate, the
+ * name is "Kiro Quest - Certificado de Conclusao" and certUrl points to the
+ * certificate share page.
+ *
+ * All query parameter values are URL-encoded via `encodeURIComponent`.
+ *
+ * @param options - Configuration specifying type, stage, and optional date.
+ * @returns The fully-qualified LinkedIn Add to Profile URL.
+ */
+export function buildLinkedInAddToProfileUrl(options: LinkedInAddToProfileOptions): string {
+  const { type, stage, issueDate } = options;
+  const date = issueDate ?? new Date();
+  const issueYear = date.getFullYear().toString();
+  const issueMonth = (date.getMonth() + 1).toString();
+
+  let name: string;
+  let certUrl: string;
+
+  if (type === 'badge' && stage) {
+    const { displayName } = BADGE_DESIGNS[stage];
+    name = `Kiro Quest - ${displayName}`;
+    certUrl = buildBadgeShareUrl(stage);
+  } else {
+    name = 'Kiro Quest - Certificado de Conclusao';
+    certUrl = buildCertificateShareUrl();
+  }
+
+  const params = new URLSearchParams({
+    startTask: 'CERTIFICATION_NAME',
+    name,
+    organizationName: 'Kiro Quest',
+    issueYear,
+    issueMonth,
+    certUrl,
+  });
+
+  return `${LINKEDIN_ADD_TO_PROFILE_URL}?${params.toString()}`;
 }
 
 /**

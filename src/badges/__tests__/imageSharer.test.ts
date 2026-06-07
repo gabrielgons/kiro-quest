@@ -38,6 +38,7 @@ import {
   shareToSocial,
   buildBadgeShareUrl,
   buildCertificateShareUrl,
+  buildLinkedInAddToProfileUrl,
 } from '../imageSharer';
 import { BADGE_DESIGNS } from '../badgeDesigns';
 import { STAGE_ORDER } from '@/engine/quizEngine';
@@ -497,4 +498,99 @@ describe('Property 7: Client URL builders produce same-origin /s/... paths', () 
       expect(buildCertificateShareUrl()).toBe(`${origin}/s/certificate`);
     },
   );
+});
+
+// ---------------------------------------------------------------------------
+// buildLinkedInAddToProfileUrl tests
+// ---------------------------------------------------------------------------
+
+describe('buildLinkedInAddToProfileUrl', () => {
+  const LINKEDIN_BASE = 'https://www.linkedin.com/profile/add';
+
+  it('builds a badge URL with the correct certification name and stage share URL', () => {
+    const fixedDate = new Date(2024, 5, 15); // June 2024
+    const url = buildLinkedInAddToProfileUrl({
+      type: 'badge',
+      stage: 'kiro-basics',
+      issueDate: fixedDate,
+    });
+
+    expect(url).toContain(LINKEDIN_BASE);
+    expect(url).toContain('startTask=CERTIFICATION_NAME');
+    // URLSearchParams encodes spaces as `+`
+    expect(url).toContain('name=Kiro+Quest+-+Fundamentos+do+Kiro');
+    expect(url).toContain('organizationName=Kiro+Quest');
+    expect(url).toContain('issueYear=2024');
+    expect(url).toContain('issueMonth=6');
+    // certUrl is encoded by URLSearchParams (uses + for spaces, %XX for others)
+    const expectedCertUrl = buildBadgeShareUrl('kiro-basics');
+    expect(decodeURIComponent(url)).toContain(expectedCertUrl);
+  });
+
+  it('builds a certificate URL with the correct certification name', () => {
+    const fixedDate = new Date(2025, 0, 1); // January 2025
+    const url = buildLinkedInAddToProfileUrl({
+      type: 'certificate',
+      issueDate: fixedDate,
+    });
+
+    expect(url).toContain(LINKEDIN_BASE);
+    expect(url).toContain('startTask=CERTIFICATION_NAME');
+    // URLSearchParams encodes spaces as `+`
+    expect(url).toContain('name=Kiro+Quest+-+Certificado+de+Conclusao');
+    expect(url).toContain('organizationName=Kiro+Quest');
+    expect(url).toContain('issueYear=2025');
+    expect(url).toContain('issueMonth=1');
+    const expectedCertUrl = buildCertificateShareUrl();
+    expect(decodeURIComponent(url)).toContain(expectedCertUrl);
+  });
+
+  it('defaults to the current date when issueDate is not provided', () => {
+    const now = new Date();
+    const url = buildLinkedInAddToProfileUrl({
+      type: 'certificate',
+    });
+
+    expect(url).toContain(`issueYear=${now.getFullYear()}`);
+    expect(url).toContain(`issueMonth=${now.getMonth() + 1}`);
+  });
+
+  fcTest.prop([stageArb])(
+    'builds a valid URL for every stage with URL-encoded values',
+    (stage) => {
+      const url = buildLinkedInAddToProfileUrl({
+        type: 'badge',
+        stage,
+        issueDate: new Date(2024, 11, 25),
+      });
+
+      expect(url).toContain(LINKEDIN_BASE);
+      expect(url).toContain('startTask=CERTIFICATION_NAME');
+      expect(url).toContain('organizationName=Kiro+Quest');
+      expect(url).toContain('issueYear=2024');
+      expect(url).toContain('issueMonth=12');
+
+      const { displayName } = BADGE_DESIGNS[stage];
+      const expectedName = `Kiro Quest - ${displayName}`;
+      // Decode the URL and check that the name is present
+      const decoded = decodeURIComponent(url.replace(/\+/g, ' '));
+      expect(decoded).toContain(expectedName);
+
+      const expectedCertUrl = buildBadgeShareUrl(stage);
+      expect(decoded).toContain(expectedCertUrl);
+    },
+  );
+
+  it('certificate type ignores stage param and uses certificate URL', () => {
+    const url = buildLinkedInAddToProfileUrl({
+      type: 'certificate',
+      stage: 'mcp', // should be ignored
+      issueDate: new Date(2024, 3, 10),
+    });
+
+    expect(url).toContain('name=Kiro+Quest+-+Certificado+de+Conclusao');
+    const decoded = decodeURIComponent(url.replace(/\+/g, ' '));
+    expect(decoded).toContain(buildCertificateShareUrl());
+    expect(decoded).not.toContain(buildBadgeShareUrl('mcp'));
+  });
 });

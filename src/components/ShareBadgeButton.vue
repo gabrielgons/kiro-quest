@@ -24,6 +24,7 @@ import {
   shareToSocial,
   buildBadgeShareUrl,
   buildCertificateShareUrl,
+  buildLinkedInAddToProfileUrl,
 } from '@/badges';
 import type {
   CertificateRendererOptions,
@@ -174,12 +175,25 @@ const shareUrl = computed(() =>
  * Share the generated image to the given social platform (Requirements 5.1,
  * 5.2).
  *
+ * For LinkedIn, opens the "Add to Profile" (Certification) form pre-filled
+ * with badge/certificate data. For Twitter, opens the standard share dialog.
+ *
  * @param platform - The target platform ('linkedin' or 'twitter').
  */
 async function handleShare(platform: 'linkedin' | 'twitter'): Promise<void> {
   if (!generatedBlob.value) {
     return;
   }
+
+  if (platform === 'linkedin') {
+    const url = buildLinkedInAddToProfileUrl({
+      type: props.type,
+      stage: props.stage,
+    });
+    window.open(url, '_blank', 'noopener,noreferrer');
+    return;
+  }
+
   await shareToSocial({
     blob: generatedBlob.value,
     fileName: fileName.value,
@@ -242,7 +256,7 @@ async function handleNativeShare(): Promise<void> {
           type="button"
           @click="handleShare('linkedin')"
         >
-          LinkedIn
+          Adicionar ao LinkedIn
         </button>
         <button
           class="action-button twitter"

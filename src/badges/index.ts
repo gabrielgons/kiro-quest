@@ -46,10 +46,11 @@ export {
   sanitizeFileName,
   buildBadgeShareUrl,
   buildCertificateShareUrl,
+  buildLinkedInAddToProfileUrl,
   imageSharer,
   MAX_SHARE_TEXT_LENGTH,
 } from './imageSharer';
-export type { ImageSharer } from './imageSharer';
+export type { ImageSharer, LinkedInAddToProfileOptions } from './imageSharer';
 
 // --- Canvas utilities -------------------------------------------------------
 export {
