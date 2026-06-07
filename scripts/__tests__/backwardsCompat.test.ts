@@ -46,12 +46,11 @@ afterEach(() => {
 describe('Backwards-compatibility floor preserved (Property 8) — Validates Requirements 7.1, 7.2, 7.3, 7.4', () => {
   // ---------------------------------------------------------------------------
   // Requirement 7.4 — the static index.html root remains the generic fallback
-  // preview. NOTE: the repo's index.html is the SPA shell and does NOT declare
-  // any per-stage Open Graph card; this feature must keep it that way (the root
-  // stays the *generic* fallback — per-module cards live only under /s/*). We
-  // assert the genuine, file-grounded backward-compat floor here. (We do not
-  // assert og:title/og:description/og:image on the root because the actual repo
-  // index.html declares none, and this task must not modify source/templates.)
+  // preview. The repo's index.html is the SPA shell and now declares a GENERIC,
+  // site-level Open Graph + Twitter Card fallback (NOT a per-module card). This
+  // feature must keep it that way: the root stays the *generic* fallback —
+  // per-module cards live only under /s/*. We assert both the generic OG/Twitter
+  // fallback is present AND that no per-stage card is inlined into the root.
   // ---------------------------------------------------------------------------
   describe('static index.html root fallback (Req 7.4)', () => {
     const indexHtml = readRepoFile('index.html');
@@ -64,6 +63,15 @@ describe('Backwards-compatibility floor preserved (Property 8) — Validates Req
       // SPA shell still mounts the app — index.html is the fallback document.
       expect(indexHtml).toContain('id="app"');
       expect(indexHtml).toContain('/src/main.ts');
+    });
+
+    it('declares the generic site-level Open Graph + Twitter Card fallback', () => {
+      // The generic root OG fallback card is present (Req 7.4).
+      expect(indexHtml).toContain('<meta property="og:title"');
+      expect(indexHtml).toContain('<meta property="og:description"');
+      expect(indexHtml).toContain('<meta property="og:image"');
+      // Twitter Card mirror of the generic fallback.
+      expect(indexHtml).toContain('<meta name="twitter:card"');
     });
 
     it('keeps the root generic — it references NO per-stage /og/badge-*.png card', () => {
