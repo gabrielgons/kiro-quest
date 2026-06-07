@@ -40,12 +40,15 @@ const mistakes = computed<MistakeItem[]>(() => {
 
     if (question) {
       if (question.type === 'ordering') {
+        const items = question.options as { id: string; label: string }[];
+        const toLabel = (id: string) => items.find((i) => i.id === id)?.label ?? id;
+
         userAnswerLabel = Array.isArray(answer.selectedOptionId)
-          ? answer.selectedOptionId.join(', ')
+          ? answer.selectedOptionId.map(toLabel).join(', ')
           : String(answer.selectedOptionId);
         try {
           const answerKey = questionStore.getAnswerKey(answer.questionId);
-          correctAnswerLabel = (answerKey.correctOrder ?? []).join(', ');
+          correctAnswerLabel = (answerKey.correctOrder ?? []).map(toLabel).join(', ');
         } catch {
           correctAnswerLabel = '';
         }
