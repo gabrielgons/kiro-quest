@@ -11,10 +11,11 @@
  *
  * _Requirements: 1.4, 2.5, 4.1, 4.2, 5.1, 5.2_
  */
-import { computed, ref } from 'vue';
+import { computed, ref, watch } from 'vue';
 
 import {
   useBadgeCanvas,
+  canUseWebShareAPI,
   downloadImage,
   generateBadgeShareText,
   generateCertificateShareText,
@@ -52,12 +53,36 @@ const emit = defineEmits<{
   generated: [blob: Blob];
 }>();
 
-const { isGenerating, previewUrl, error, generateBadge, generateCertificate } =
-  useBadgeCanvas();
+const {
+  isGenerating,
+  previewUrl,
+  error,
+  generateBadge,
+  generateCertificate,
+  cleanup,
+} = useBadgeCanvas();
 const { isDark } = useTheme();
 
 /** The most recently generated blob, retained for download/share actions. */
 const generatedBlob = ref<Blob | null>(null);
+
+/**
+ * One-time capability check for the native Web Share API. When true, the UI
+ * exposes a "Compartilhar" action that shares the generated PNG file natively
+ * (typically on mobile).
+ */
+const canShare = canUseWebShareAPI();
+
+/**
+ * Invalidate the cached preview when the theme changes so a subsequent
+ * generation re-renders with the new colors. Resetting `previewUrl` (via
+ * `cleanup()`) brings the generate button back, and clearing the retained blob
+ * forces a fresh render.
+ */
+watch(isDark, () => {
+  cleanup();
+  generatedBlob.value = null;
+});
 
 /** Default Portuguese label depending on the artifact type. */
 const buttonLabel = computed(
@@ -153,6 +178,20 @@ async function handleShare(platform: 'linkedin' | 'twitter'): Promise<void> {
     platform,
   });
 }
+
+/**
+ * Share the generated image file natively via the Web Share API
+ * (`platform: 'generic'`). Only reachable when {@link canShare} is true.
+ */
+async function handleNativeShare(): Promise<void> {
+  if (!generatedBlob.value) return;
+  await shareToSocial({
+    blob: generatedBlob.value,
+    fileName: fileName.value,
+    shareText: shareText.value,
+    platform: 'generic',
+  });
+}
 </script>
 
 <template>
@@ -177,6 +216,14 @@ async function handleShare(platform: 'linkedin' | 'twitter'): Promise<void> {
       <img :src="previewUrl" :alt="previewAlt" class="preview-image" />
 
       <div class="actions">
+        <button
+          v-if="canShare"
+          class="action-button"
+          type="button"
+          @click="handleNativeShare"
+        >
+          Compartilhar
+        </button>
         <button class="action-button download" type="button" @click="handleDownload">
           Baixar
         </button>

@@ -158,7 +158,11 @@ export function renderCertificate(
   );
 
   // Step 9: Draw completion date formatted in pt-BR locale.
-  const dateStr = completionDate.toLocaleDateString('pt-BR', {
+  // Enforce the design precondition that `completionDate` must not be in the
+  // future: if a future date slips in from an external source, clamp it to now.
+  const effectiveDate =
+    completionDate.getTime() > Date.now() ? new Date() : completionDate;
+  const dateStr = effectiveDate.toLocaleDateString('pt-BR', {
     day: '2-digit',
     month: 'long',
     year: 'numeric',

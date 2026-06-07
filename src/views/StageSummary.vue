@@ -3,7 +3,7 @@ import { ref, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { useLocale } from '@/i18n/useLocale';
 import { useQuizStore } from '@/stores/quizStore';
-import { getNextStageInOrder } from '@/engine/quizEngine';
+import { getNextStageInOrder, calculatePerformanceLevel } from '@/engine/quizEngine';
 import type { LearningStage } from '@/engine/types';
 import type { MistakeItem } from '@/components/types';
 import MistakeReview from '@/components/MistakeReview.vue';
@@ -22,6 +22,12 @@ const stageResult = computed(() => quizStore.stageResults[stage]);
 const nextStage = computed(() => getNextStageInOrder(stage));
 const hasMoreStages = computed(() => nextStage.value !== null);
 const allCorrect = computed(() => stageResult.value?.correctCount === stageResult.value?.totalCount);
+
+const stagePerformanceLevel = computed(() =>
+  stageResult.value
+    ? calculatePerformanceLevel(stageResult.value.correctCount, stageResult.value.totalCount)
+    : quizStore.performanceLevel
+);
 
 const mistakes = computed<MistakeItem[]>(() => {
   const stageAnswers = quizStore.userAnswersByStage[stage] ?? [];
@@ -116,7 +122,7 @@ function toggleMistakes() {
         type="badge"
         :stage="stage"
         :score="{ correct: stageResult.correctCount, total: stageResult.totalCount }"
-        :performance-level="quizStore.performanceLevel"
+        :performance-level="stagePerformanceLevel"
       />
     </div>
 

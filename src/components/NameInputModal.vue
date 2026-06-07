@@ -16,6 +16,7 @@ const MAX_LENGTH = 60
 const name = ref('')
 const inputRef = ref<HTMLInputElement | null>(null)
 const modalRef = ref<HTMLElement | null>(null)
+const previouslyFocused = ref<HTMLElement | null>(null)
 
 const titleId = 'name-input-modal-title'
 const descriptionId = 'name-input-modal-description'
@@ -34,8 +35,15 @@ watch(
   () => props.visible,
   (isVisible) => {
     if (isVisible) {
+      previouslyFocused.value =
+        document.activeElement instanceof HTMLElement ? document.activeElement : null
       name.value = ''
       focusInput()
+    } else {
+      const target = previouslyFocused.value
+      if (target) {
+        void nextTick(() => target.focus())
+      }
     }
   },
 )
