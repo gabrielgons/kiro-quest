@@ -1,142 +1,172 @@
-# Design Document: Dynamic Social Share Preview
+# Design Document: Static Social Share Preview (Build-Time, Per-Module)
 
 ## Overview
 
 Today, when a Kiro Quest user shares a link to LinkedIn, Twitter/X, or WhatsApp, the
 crawler that builds the link preview sees only the static Open Graph tags in
-`index.html` (`og:image` points at `/logo.svg`). The personalized badge/certificate the
-user generated lives only as a client-side PNG `Blob` produced by
-`src/badges/badgeRenderer.ts` / `certificateRenderer.ts` (HTML5 Canvas) — crawlers can
-never fetch it, and the share URL is a hash route (`/#/summary/kiro-basics`) whose
-fragment is stripped by crawlers anyway.
+`index.html` (`og:image` points at `/logo.svg`). Two structural facts defeat a richer
+preview:
 
-This feature adds a **personalized, crawlable social preview** rendered **at the
-Cloudflare edge**. We extend the existing Cloudflare Workers deployment (which currently
-just serves Vite static assets via `wrangler.jsonc` `assets.directory: ./dist`) with a
-Worker `fetch` handler that adds two new families of routes:
+1. The personalized badge/certificate the user generated lives only as a client-side PNG
+   `Blob` (HTML5 Canvas). Crawlers never run that code and cannot fetch the blob.
+2. Share URLs are SPA **hash routes** (e.g. `/#/summary/kiro-basics`). Crawlers strip the
+   `#` fragment, so every shared link looks identical to them.
 
-1. **Share routes** (`/s/badge/:stage`, `/s/certificate`) — return tiny, crawlable HTML
-   carrying per-request Open Graph + Twitter meta tags, then bounce real browsers into
-   the SPA hash route.
-2. **Dynamic image routes** (`/og/badge/:stage.png`, `/og/certificate.png`) — render a
-   1200×630 PNG on the fly from validated URL params, using an edge-compatible image
-   library (**`workers-og`** = Satori + resvg compiled to WASM), because the Workers
-   runtime has **no DOM and no Canvas API**.
+**Approach pivot (no new runtime cost).** A previous revision of this document proposed an
+**edge-rendered** solution: a Cloudflare Worker that rendered a personalized 1200×630 PNG
+on every request via Satori + resvg WASM. After a cost review, that approach was rejected
+because runtime image rendering on Cloudflare requires moving off the Workers Free plan
+(the Free plan's 10ms CPU and bundle-size limits make on-the-fly rasterization impractical),
+i.e. it implies a **Workers Paid plan**. This document replaces that approach with a
+**static, build-time** design that costs nothing extra to run.
 
-The achievement is encoded entirely in URL query params (stage, correct, total, optional
-name). The performance level is **never trusted from the client** — it is recomputed at
-the edge with the exact same `calculatePerformanceLevel` logic the SPA uses, so a forged
-`?level=Mestre%20em%20Kiro` cannot produce an inconsistent card. `BADGE_DESIGNS`
-(colors/icons/displayName), the `LearningStage` union, and the pt-BR copy are reused as
-the single source of truth, shared between the SPA bundle and the Worker bundle. All
-user-facing copy remains pt-BR.
+### What this design does
+
+- **Generic-per-module previews.** At **build time** we generate one static 1200×630 PNG
+  per learning module (11 modules) plus one generic certificate PNG, and one tiny static
+  crawlable HTML "share page" per module (plus one for the certificate). Each share page
+  carries per-module Open Graph + Twitter tags whose `og:image` points at the matching
+  static PNG. Crawlers read the tags and show a recognizable card; real browsers are
+  redirected into the SPA hash route.
+- **Zero runtime rendering.** Cloudflare serves static assets for free and unlimited.
+  There is **no runtime image generation**, so the Workers Free-plan CPU/size limits are
+  irrelevant. **No Workers Paid plan, no `main` Worker entry, no KV/R2/D1/Durable
+  Objects** are introduced. `wrangler.jsonc` keeps serving `./dist` exactly as today.
+
+### Accepted trade-off (personalization)
+
+The crawlable preview card is **generic per module** — it shows the module's badge design
+and pt-BR title, but **NOT** the individual user's score or name. This is the explicit
+trade-off the user accepted in exchange for zero new cost. The user's **actual
+personalized** badge/certificate is still produced and shared through the **existing
+download + native Web Share (image blob)** paths, which remain **completely unchanged**.
+So personalization is preserved where it already worked (direct share/download); only the
+link-unfurl preview is generic.
+
+### Single source of truth
+
+The build reuses the existing design tokens and copy so the preview never drifts from the
+in-app badges:
+
+- `src/badges/badgeDesigns.ts` → `BADGE_DESIGNS` (`icon`, `primaryColor`,
+  `secondaryColor`, `displayName`) and the pt-BR copy.
+- `src/engine/types.ts` → the `LearningStage` union.
+- `src/engine/quizEngine.ts` → `STAGE_ORDER` (the canonical 11-stage list).
+
+All user-facing copy remains in Brazilian Portuguese (pt-BR).
 
 This document covers both the **high-level** view (architecture, sequence diagrams,
-component/interface contracts, data models) and the **low-level** view (the
-param-validation algorithm with pre/postconditions, edge-render and OG-HTML-injection
-pseudocode, and correctness properties).
+component/interface contracts, data models) and the **low-level** view (pure template
+builders and the build script, each with pre/postconditions and correctness properties).
 
 ---
 
 ## Architecture
 
+Everything personalized-to-the-module is computed **at build time** and emitted as plain
+files into `public/` (Vite copies `public/` verbatim into `dist/`). At **runtime** there
+is only Cloudflare's static-asset CDN — no code executes per request.
+
 ```mermaid
 graph TD
-    subgraph Client["Browser SPA (Vue 3 + Vite)"]
-        SS[StageSummary.vue]
-        FA[FinalAchievement.vue]
-        SBB[ShareBadgeButton.vue]
-        IS["imageSharer.ts<br/>(buildShareUrl)"]
-        SS --> SBB
-        FA --> SBB
-        SBB --> IS
+    subgraph Build["Build time (npm run build, Node)"]
+        GEN["scripts/generate-social-assets.ts<br/>(build orchestrator)"]
+        SVGB["svgTemplate.ts<br/>buildBadgeSvg / buildCertificateSvg"]
+        HTMLB["shareHtmlTemplate.ts<br/>buildBadgeShareHtml / buildCertificateShareHtml"]
+        RASTER["@resvg/resvg-js (devDependency)<br/>SVG → PNG rasterizer"]
+        GEN --> SVGB
+        GEN --> HTMLB
+        SVGB --> RASTER
     end
 
-    subgraph CF["Cloudflare Worker (entry: worker/index.ts)"]
-        FETCH{{"fetch() handler<br/>route dispatch"}}
-        SHARE["Share route handlers<br/>/s/badge/:stage, /s/certificate"]
-        OG["Image route handlers<br/>/og/badge/:stage.png, /og/certificate.png"]
-        VALID["shareParams.ts<br/>(parse + validate + sanitize)"]
-        RENDER["ogImage.ts<br/>(workers-og / Satori + resvg)"]
-        LAYOUT["layouts/*.ts<br/>(badge & certificate JSX-for-Satori)"]
-        ASSETS[(Static Assets binding<br/>env.ASSETS → ./dist)]
-        CACHE[(Cloudflare Cache API)]
-
-        FETCH -->|"/s/*"| SHARE
-        FETCH -->|"/og/*"| OG
-        FETCH -->|"everything else"| ASSETS
-        SHARE --> VALID
-        OG --> VALID
-        OG --> RENDER
-        RENDER --> LAYOUT
-        OG <--> CACHE
-    end
-
-    subgraph Shared["Shared modules (imported by SPA AND Worker)"]
+    subgraph SharedSrc["Shared source of truth (imported by the build script)"]
         BD["src/badges/badgeDesigns.ts<br/>BADGE_DESIGNS"]
-        QE["src/engine/quizEngine.ts<br/>calculatePerformanceLevel, STAGE_ORDER"]
-        TY["src/engine/types.ts<br/>LearningStage, PerformanceLevel"]
+        TY["src/engine/types.ts<br/>LearningStage"]
+        QE["src/engine/quizEngine.ts<br/>STAGE_ORDER"]
     end
+
+    subgraph Out["Emitted static assets (public/ → dist/)"]
+        PNG[("public/og/badge-&lt;stage&gt;.png (×11)<br/>public/og/certificate.png")]
+        SH[("public/s/badge/&lt;stage&gt;.html (×11)<br/>public/s/certificate.html")]
+    end
+
+    subgraph CF["Cloudflare (static assets only — NO Worker main)"]
+        CDN[(Static Assets / CDN cache<br/>wrangler assets.directory = ./dist)]
+    end
+
+    SVGB --> BD
+    HTMLB --> BD
+    GEN --> TY
+    GEN --> QE
+    RASTER --> PNG
+    HTMLB --> SH
+    PNG --> CDN
+    SH --> CDN
 
     Crawler["Social crawler<br/>(LinkedInBot, Twitterbot, WhatsApp)"]
     UserBrowser["Real user browser"]
+    SPA["SPA hash route<br/>(#/summary/&lt;stage&gt;)"]
 
-    IS -. "share URL /s/badge/<stage>?..." .-> Crawler
-    IS -. "share URL" .-> UserBrowser
-    Crawler -->|"GET /s/badge/:stage"| FETCH
-    Crawler -->|"GET og:image → /og/badge/:stage.png"| FETCH
-    UserBrowser -->|"GET /s/badge/:stage"| FETCH
+    CDN -->|"GET /s/badge/&lt;stage&gt; → &lt;stage&gt;.html"| Crawler
+    CDN -->|"GET og:image → /og/badge-&lt;stage&gt;.png"| Crawler
+    CDN -->|"GET /s/badge/&lt;stage&gt;"| UserBrowser
+    UserBrowser -->|"JS location.replace / meta refresh"| SPA
 
-    VALID --> BD
-    VALID --> QE
-    VALID --> TY
-    LAYOUT --> BD
+    subgraph Client["Browser SPA (unchanged share plumbing)"]
+        IS["src/badges/imageSharer.ts<br/>buildBadgeShareUrl / buildCertificateShareUrl"]
+    end
+    IS -. "share URL /s/badge/&lt;stage&gt;" .-> Crawler
+    IS -. "share URL /s/badge/&lt;stage&gt;" .-> UserBrowser
 ```
 
 ### Deployment model (grounded in the repo)
 
-- `wrangler.jsonc` currently declares only `assets.directory: "./dist"`. Cloudflare
-  Workers Static Assets supports adding a **Worker script that runs in front of the
-  assets** via a `main` entry plus an `assets.binding` (e.g. `ASSETS`). The Worker
-  inspects the request: `/s/*` and `/og/*` are handled in code; everything else is
-  delegated to `env.ASSETS.fetch(request)` so the SPA, `logo.svg`, etc. are served
-  exactly as today.
-- `package.json` `build` is `vue-tsc -b && vite build` producing `./dist`. The Worker
-  bundle is compiled by Wrangler (esbuild) from `worker/index.ts` at deploy time; no
-  change to the Vite SPA build is required beyond sharing TypeScript modules.
-- Preview deployments (per-PR) continue to work unchanged — the Worker is deployed with
-  the same config.
+- `wrangler.jsonc` currently declares only `assets.directory: "./dist"`. **It stays that
+  way.** No `main` entry, no `assets.binding`, no compatibility flags for WASM are added.
+  The generated `public/og/*.png` and `public/s/**/*.html` are ordinary files under
+  `dist/` and are served directly by Cloudflare Static Assets.
+- `package.json` `build` is `vue-tsc -b && vite build`. We add a build step that runs the
+  generator **before** `vite build` (so the files exist in `public/` when Vite copies it),
+  or as a Vite plugin hook. The rasterizer is a **devDependency only** — it never ships in
+  the SPA bundle and never runs at request time.
 
-### Required `wrangler.jsonc` changes
+### Static routing detail: `/s/badge/<stage>` → `<stage>.html`
+
+Cloudflare Static Assets resolves "pretty" paths to `.html` files via its
+`html_handling` behavior (auto-trailing-slash / drop `.html`), so a request to
+`/s/badge/kiro-basics` is served from `public/s/badge/kiro-basics.html`. Because a **real
+file exists** at that path, it takes precedence over the SPA fallback
+(`not_found_handling: single-page-application`) — the SPA fallback only fires for paths
+that have **no** matching asset. To make this robust regardless of project-wide
+`html_handling` configuration, the generator MAY additionally emit a directory-style file
+(`public/s/badge/<stage>/index.html`); the recommended configuration is documented below.
 
 ```jsonc
+// wrangler.jsonc — recommended (NO Worker main, NO bindings)
 {
   "name": "kiro-quest",
   "compatibility_date": "2025-04-01",
-  "compatibility_flags": ["nodejs_compat"], // workers-og / resvg-wasm friendliness
-  "main": "worker/index.ts",                // NEW: Worker entry in front of assets
   "assets": {
     "directory": "./dist",
-    "binding": "ASSETS",                     // NEW: lets the Worker fall through to SPA
-    "html_handling": "auto-trailing-slash",
-    "not_found_handling": "single-page-application" // keep SPA deep-link behavior
+    "html_handling": "auto-trailing-slash",          // serves /s/badge/x from x.html
+    "not_found_handling": "single-page-application"   // SPA fallback for unknown paths only
   }
 }
 ```
 
 ### Crawler vs. user handling (design decision)
 
-We **do not** rely on User-Agent sniffing as the primary mechanism (bot UA lists are
-incomplete and spoofable). Instead the `/s/*` route **always returns the same OG HTML**
-for everyone. That HTML contains:
+We **do not** use User-Agent sniffing (bot UA lists are incomplete and spoofable, and we
+have no server to sniff with — these are static files). Each `/s/*` HTML file is identical
+for everyone and contains:
 
-- The per-request OG/Twitter meta tags (crawlers read these and stop).
-- A `<script>` client-side redirect + a `<meta http-equiv="refresh">` fallback + a
-  visible pt-BR "Abrir Kiro Quest" link, which sends a **real browser** into the SPA hash
-  route (e.g. `/#/summary/kiro-basics`). Crawlers don't execute the script, so they keep
-  the preview; humans land in the app.
+- Per-module OG/Twitter meta tags (crawlers read these and stop — they don't run JS).
+- A `<script>location.replace('#/summary/<stage>')</script>` redirect, a
+  `<meta http-equiv="refresh">` no-JS fallback, and a visible pt-BR interstitial link, all
+  pointing at a **same-origin SPA hash route**. Real browsers execute the redirect and land
+  in the app; crawlers keep the preview.
 
-This is more robust than UA sniffing and degrades gracefully when JS is disabled.
+This degrades gracefully (works with JS disabled) and needs no runtime code.
 
 ---
 
@@ -147,29 +177,14 @@ This is more robust than UA sniffing and degrades gracefully when JS is disabled
 ```mermaid
 sequenceDiagram
     participant Bot as Social Crawler
-    participant W as Worker fetch()
-    participant V as shareParams.validate
-    participant R as ogImage (Satori+resvg)
-    participant C as Cache API
+    participant CDN as Cloudflare Static Assets
 
-    Bot->>W: GET /s/badge/kiro-basics?correct=9&total=10&name=Ana
-    W->>V: parseAndValidate(stage, query)
-    V-->>W: ValidatedBadgeParams { stage, correct, total, level*, name }
-    Note over V: level recomputed via calculatePerformanceLevel
-    W-->>Bot: 200 text/html + og:image=/og/badge/kiro-basics.png?correct=9&total=10&name=Ana
-    Bot->>W: GET /og/badge/kiro-basics.png?correct=9&total=10&name=Ana
-    W->>C: cache.match(normalizedKey)
-    alt cache hit
-        C-->>W: cached PNG
-    else cache miss
-        W->>V: parseAndValidate(...)
-        V-->>W: ValidatedBadgeParams
-        W->>R: renderBadgePng(params)
-        R-->>W: PNG bytes (1200x630)
-        W->>C: cache.put(normalizedKey, response, Cache-Control)
-    end
-    W-->>Bot: 200 image/png + Cache-Control
-    Note over Bot: Renders personalized preview card
+    Bot->>CDN: GET /s/badge/kiro-basics
+    CDN-->>Bot: 200 text/html  (static s/badge/kiro-basics.html)
+    Note over Bot: Reads og:title/og:description (pt-BR) +<br/>og:image = /og/badge-kiro-basics.png
+    Bot->>CDN: GET /og/badge-kiro-basics.png
+    CDN-->>Bot: 200 image/png (static, CDN-cached)
+    Note over Bot: Renders generic-per-module preview card<br/>(no per-user score/name)
 ```
 
 ### Flow 2 — Real user clicks the shared link
@@ -177,393 +192,281 @@ sequenceDiagram
 ```mermaid
 sequenceDiagram
     participant U as User Browser
-    participant W as Worker fetch()
-    participant A as env.ASSETS (SPA)
+    participant CDN as Cloudflare Static Assets
+    participant SPA as Vue SPA (index.html)
 
-    U->>W: GET /s/badge/kiro-basics?correct=9&total=10&name=Ana
-    W-->>U: 200 text/html (OG tags + redirect script + interstitial)
-    U->>U: JS runs → location.replace('/#/summary/kiro-basics')
-    U->>W: GET / (SPA shell)
-    W->>A: env.ASSETS.fetch('/')
-    A-->>U: index.html (Vue app boots, hash route resolves)
-    Note over U: App opens at StageSummary for kiro-basics
+    U->>CDN: GET /s/badge/kiro-basics
+    CDN-->>U: 200 text/html (OG tags + redirect script + interstitial)
+    U->>U: JS runs → location.replace('#/summary/kiro-basics')
+    Note over U: No-JS fallback: <meta refresh> + visible pt-BR link
+    U->>CDN: GET / (SPA shell)
+    CDN-->>U: index.html → Vue boots, hash route resolves
+    Note over U,SPA: App opens at StageSummary for kiro-basics
 ```
 
-### Flow 3 — Client builds the share URL
+### Flow 3 — Client builds the share URL (in the SPA)
 
 ```mermaid
 sequenceDiagram
-    participant SBB as ShareBadgeButton.vue
-    participant IS as imageSharer.buildShareUrl
+    participant Btn as Share button (SPA)
+    participant IS as imageSharer.buildBadgeShareUrl
     participant Soc as Social platform
 
-    SBB->>IS: buildBadgeShareUrl(stage, {correct, total}, name)
-    IS-->>SBB: https://host/s/badge/kiro-basics?correct=9&total=10&name=Ana
-    SBB->>Soc: openShareWindow(linkedin/twitter, shareUrl)
-    Note over Soc: Crawler later fetches /s/... (Flow 1)
+    Btn->>IS: buildBadgeShareUrl('kiro-basics')
+    IS-->>Btn: https://host/s/badge/kiro-basics
+    Btn->>Soc: openShareWindow('linkedin', shareUrl)
+    Note over Soc: Crawler later fetches the static /s/ page (Flow 1)
+    Note over Btn: Download + native Web Share (image blob) paths unchanged
+```
+
+### Flow 4 — Build-time asset generation
+
+```mermaid
+sequenceDiagram
+    participant Build as npm run build
+    participant Gen as generate-social-assets.ts
+    participant Tpl as svg/html template builders
+    participant Rsvg as @resvg/resvg-js
+    participant FS as public/ filesystem
+
+    Build->>Gen: run before vite build
+    loop for each stage in STAGE_ORDER (11)
+        Gen->>Tpl: buildBadgeSvg(stage, BADGE_DESIGNS[stage])
+        Tpl-->>Gen: svgString
+        Gen->>Rsvg: rasterize(svgString, 1200x630)
+        Rsvg-->>Gen: pngBytes
+        Gen->>FS: write public/og/badge-<stage>.png
+        Gen->>Tpl: buildBadgeShareHtml(stage, BADGE_DESIGNS[stage])
+        Tpl-->>Gen: htmlString
+        Gen->>FS: write public/s/badge/<stage>.html
+    end
+    Gen->>Tpl: buildCertificateSvg() / buildCertificateShareHtml()
+    Gen->>Rsvg: rasterize certificate SVG
+    Gen->>FS: write public/og/certificate.png + public/s/certificate.html
+    Note over Gen: Vite then copies public/ → dist/
 ```
 
 ---
 
 ## Components and Interfaces
 
-### Component 1: Worker entry — `worker/index.ts`
+### Component 1: SVG template builder — `scripts/templates/svgTemplate.ts`
 
-**Purpose**: The `fetch` handler that dispatches requests to share-route handlers,
-image-route handlers, or the static-asset binding.
+**Purpose**: Pure functions that turn a stage (and its `BADGE_DESIGNS` entry) into a
+1200×630 SVG string using a shared visual template. No I/O; trivially unit/property
+testable.
 
 **Interface**:
 ```typescript
-export interface Env {
-  ASSETS: Fetcher; // Static Assets binding → ./dist
-}
+import type { LearningStage } from '@/engine/types';
+import type { BadgeDesign } from '@/badges/badgeDesigns';
 
-export default {
-  fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response>;
-};
+export const OG_WIDTH = 1200;
+export const OG_HEIGHT = 630;
+
+/** Build the social-card SVG for a single module badge. Pure. */
+export function buildBadgeSvg(stage: LearningStage, design: BadgeDesign): string;
+
+/** Build the generic certificate social-card SVG. Pure. */
+export function buildCertificateSvg(): string;
 ```
 
 **Responsibilities**:
-- Parse the URL pathname and route: `/s/badge/:stage`, `/s/certificate`,
-  `/og/badge/:stage.png`, `/og/certificate.png`, else delegate to `env.ASSETS.fetch`.
-- Translate thrown `ShareParamError` into the right HTTP status (400) with a safe body.
-- Never throw an unhandled error to the runtime (wrap handlers in try/catch).
+- Lay out icon, `displayName`, and pt-BR tagline using `design.primaryColor` /
+  `design.secondaryColor` (e.g. a gradient background) at exactly 1200×630.
+- XML-escape any interpolated text (values come from our own `BADGE_DESIGNS`/copy, not
+  user input — see Security).
+- Contain no per-user data (generic per module).
 
-### Component 2: Share-route handlers — `worker/routes/shareHtml.ts`
+### Component 2: HTML share-page builder — `scripts/templates/shareHtmlTemplate.ts`
 
-**Purpose**: Produce the crawlable OG HTML for `/s/*` routes.
+**Purpose**: Pure functions that produce the tiny crawlable HTML document for each share
+page (OG/Twitter tags + redirect + no-JS fallback + interstitial).
 
 **Interface**:
 ```typescript
-export function handleBadgeShare(req: Request, env: Env): Response;        // /s/badge/:stage
-export function handleCertificateShare(req: Request, env: Env): Response;  // /s/certificate
-
-export interface OgMeta {
+export interface ShareMeta {
   title: string;        // pt-BR
   description: string;  // pt-BR
-  imageUrl: string;     // absolute URL to /og/...png with same params
-  pageUrl: string;      // absolute canonical URL of this /s/... route
+  imageUrl: string;     // absolute URL to the matching static PNG
+  pageUrl: string;      // absolute canonical URL of this /s/ page
   redirectHash: string; // SPA hash route, e.g. '#/summary/kiro-basics'
 }
 
-export function renderOgHtml(meta: OgMeta): string; // returns full HTML document string
+/** Assemble the full crawlable HTML document. Pure. */
+export function renderShareHtml(meta: ShareMeta): string;
+
+/** Convenience builders that derive ShareMeta from a stage / certificate. */
+export function buildBadgeShareHtml(
+  stage: LearningStage, design: BadgeDesign, siteOrigin: string,
+): string;
+export function buildCertificateShareHtml(siteOrigin: string): string;
 ```
 
 **Responsibilities**:
-- Validate params (delegates to `shareParams`).
-- Build absolute `og:image` URL pointing at the matching `/og/...png` with the SAME
-  normalized params.
-- Emit OG + Twitter tags, redirect script, `<noscript>`/`<meta refresh>` fallback, and a
-  pt-BR interstitial link.
+- Emit exactly one of each required OG/Twitter tag (`og:type`, `og:site_name`, `og:title`,
+  `og:description`, `og:image`, `og:image:width`=1200, `og:image:height`=630, `og:url`,
+  `og:locale`=`pt_BR`, `twitter:card`=`summary_large_image`, `twitter:title`,
+  `twitter:description`, `twitter:image`).
+- Set `og:image` to the **absolute** URL of the matching static PNG.
+- Emit a `<script>location.replace(redirectHash)</script>`, a `<meta http-equiv="refresh">`
+  fallback, and a visible pt-BR interstitial link — all pointing at the same-origin hash
+  route (`redirectHash` MUST begin with `#/`).
 - HTML-escape every interpolated value.
 
-### Component 3: Image-route handlers — `worker/routes/ogImage.ts`
+### Component 3: Build orchestrator — `scripts/generate-social-assets.ts`
 
-**Purpose**: Render and return the dynamic PNG.
-
-**Interface**:
-```typescript
-export function handleBadgeImage(req: Request, env: Env, ctx: ExecutionContext): Promise<Response>;
-export function handleCertificateImage(req: Request, env: Env, ctx: ExecutionContext): Promise<Response>;
-
-export interface OgImageRenderer {
-  renderBadgePng(params: ValidatedBadgeParams, fonts: FontSet): Promise<Uint8Array>;
-  renderCertificatePng(params: ValidatedCertificateParams, fonts: FontSet): Promise<Uint8Array>;
-}
-```
-
-**Responsibilities**:
-- Validate params; on failure return 400.
-- Check the Cache API first; on miss, render via `workers-og` and `cache.put` using
-  `ctx.waitUntil`.
-- Set `Content-Type: image/png` and `Cache-Control` headers.
-
-### Component 4: Param validation — `worker/shareParams.ts`
-
-**Purpose**: The single, shared, strict parser/validator/sanitizer for all share params.
-Importable by both `/s/*` and `/og/*` handlers, and unit-testable under vitest with no
-Worker runtime.
+**Purpose**: The Node build script that wires the templates + rasterizer together and
+writes all outputs into `public/`. Runs as part of `npm run build`.
 
 **Interface**:
 ```typescript
-export const MAX_TOTAL = 100;       // upper bound on question count
-export const MAX_NAME_LENGTH = 40;  // cap printed name length
-
-export interface ValidatedBadgeParams {
-  stage: LearningStage;          // allowlisted
-  correct: number;               // 0 <= correct <= total
-  total: number;                 // 1 <= total <= MAX_TOTAL
-  level: PerformanceLevel;       // RECOMPUTED, never trusted from input
-  name: string;                  // sanitized plain text, length-capped ('' if absent)
+export interface GenerateOptions {
+  outDir: string;        // defaults to <repo>/public
+  siteOrigin: string;    // canonical origin for absolute og:image/og:url
+  rasterize: (svg: string, width: number, height: number) => Uint8Array; // injectable (testable)
 }
 
-export interface ValidatedCertificateParams {
-  totalCorrect: number;
-  totalQuestions: number;        // 1..(MAX_TOTAL * 11)
-  percentage: number;            // derived
-  level: PerformanceLevel;       // RECOMPUTED
-  name: string;                  // sanitized
+export interface GenerateResult {
+  pngFiles: string[];    // 12 paths: 11 badges + 1 certificate
+  htmlFiles: string[];   // 12 paths: 11 badges + 1 certificate
 }
 
-export class ShareParamError extends Error {
-  constructor(public readonly reason: string) { super(reason); }
-}
-
-export function parseBadgeParams(stageSegment: string, query: URLSearchParams): ValidatedBadgeParams;
-export function parseCertificateParams(query: URLSearchParams): ValidatedCertificateParams;
-
-export function sanitizeName(raw: string | null): string;     // escape + cap
-export function buildNormalizedQuery(p: ValidatedBadgeParams | ValidatedCertificateParams): string;
+export async function generateSocialAssets(opts: GenerateOptions): Promise<GenerateResult>;
 ```
 
 **Responsibilities**:
-- Reject non-allowlisted stage (must be in `STAGE_ORDER` / `LearningStage`).
-- Parse `correct`/`total` as bounded non-negative integers; reject NaN, negatives,
-  `correct > total`, `total > MAX_TOTAL`, `total < 1`.
-- **Recompute `level`** via `calculatePerformanceLevel(correct, total)`; ignore any
-  client-supplied `level`.
-- Sanitize `name`: trim, strip control chars, HTML-escape, cap at `MAX_NAME_LENGTH`.
-- Produce a normalized query string so the cache key is stable.
+- Iterate `STAGE_ORDER`; for each stage build the SVG, rasterize it to PNG, write
+  `public/og/badge-<stage>.png`, build the share HTML, write `public/s/badge/<stage>.html`.
+- Generate the certificate PNG + HTML once.
+- Create `public/og/` and `public/s/badge/` directories as needed.
+- Default `rasterize` is `@resvg/resvg-js`; it is **injected** so unit tests can pass a
+  mock (avoiding heavy PNG work) and assert it is called once per stage.
+- Fail the build (non-zero exit) on any template or write error (see Error Handling).
 
-### Component 5: OG layouts — `worker/layouts/badgeLayout.ts`, `certificateLayout.ts`
+### Component 4: Client share-URL builder — `src/badges/imageSharer.ts` (extended)
 
-**Purpose**: Express the 1200×630 visual layouts as Satori-compatible element trees
-(HTML/JSX subset + inline CSS), reusing `BADGE_DESIGNS` and pt-BR copy.
+**Purpose**: Build the crawlable, non-hash `/s/...` share URL (generic per module — no
+per-user query params needed).
 
 **Interface**:
 ```typescript
-// Returns a Satori "element" (React-element-shaped object). We use the JSX-free
-// object form to avoid adding a JSX toolchain to the Worker bundle.
-export function badgeElement(p: ValidatedBadgeParams): SatoriNode;
-export function certificateElement(p: ValidatedCertificateParams): SatoriNode;
+import type { LearningStage } from '@/engine/types';
+
+/** -> `${origin}/s/badge/${stage}` */
+export function buildBadgeShareUrl(stage: LearningStage): string;
+
+/** -> `${origin}/s/certificate` */
+export function buildCertificateShareUrl(): string;
 ```
 
 **Responsibilities**:
-- Map `p.stage` → `BADGE_DESIGNS[p.stage]` for `primaryColor`, `secondaryColor`, `icon`,
-  `displayName`.
-- Lay out icon, displayName, `correct/total`, level label, branding, and (certificate)
-  name + stats using the CSS subset Satori supports (flexbox only).
-- All literal copy in pt-BR.
+- Build absolute URLs from `window.location.origin` (with a documented production-origin
+  fallback when `origin` is unavailable), plus the new `/s/...` path. No per-user params.
+- Update `openShareWindow` / `shareToSocial` to pass the `/s/...` URL so crawlers fetch the
+  module card.
+- **Keep the existing download + native Web Share (image blob) paths and the static
+  `index.html` root OG fallback untouched.**
 
-### Component 6: Font loading — `worker/fonts.ts`
+### Rasterizer choice (dev/build-time only)
 
-**Purpose**: Provide font buffers to Satori (the Workers runtime has no system fonts).
-
-**Interface**:
-```typescript
-export interface FontSet { regular: ArrayBuffer; bold: ArrayBuffer; }
-export function loadFonts(): Promise<FontSet>;
-```
-
-**Responsibilities**:
-- Load a bundled woff/ttf (e.g. Inter or Noto Sans, which covers pt-BR diacritics)
-  imported as a binary asset at build time — **not** fetched from a user-controlled URL
-  (SSRF guard).
-- Memoize across invocations within an isolate.
-- Document emoji handling: badge `icon` glyphs (emoji) require either an emoji font in
-  the `FontSet` or Satori's `graphemeImages`/`loadAdditionalAsset` callback bound to a
-  **fixed, bundled** emoji set (no remote fetch on user input).
-
-### Component 7: Client share-URL builder — `src/badges/imageSharer.ts` (extended)
-
-**Purpose**: Build the crawlable, non-hash share URL instead of `window.location.origin`.
-
-**Interface**:
-```typescript
-export function buildBadgeShareUrl(
-  stage: LearningStage,
-  score: { correct: number; total: number },
-  name?: string,
-): string; // -> `${origin}/s/badge/${stage}?correct=..&total=..&name=..`
-
-export function buildCertificateShareUrl(
-  stats: { totalCorrect: number; totalQuestions: number },
-  name?: string,
-): string; // -> `${origin}/s/certificate?correct=..&total=..&name=..`
-```
-
-**Responsibilities**:
-- Build absolute URLs from `window.location.origin` + the new `/s/...` path.
-- `encodeURIComponent` every param value (existing escaping discipline preserved).
-- Keep the existing download + native Web Share (image blob) paths untouched;
-  `openShareWindow` now passes the `/s/...` URL instead of the bare origin so LinkedIn/X
-  crawl the personalized card.
+We recommend **`@resvg/resvg-js`** as a devDependency: it is a fast, dependency-light
+SVG→PNG rasterizer with no headless-browser requirement, runs in plain Node at build time,
+and renders our flexbox-free SVG template cleanly. **`sharp`** is a viable alternative
+(also supports SVG→PNG) if the project already needs image processing. Either way the
+rasterizer:
+- runs **only** during `npm run build` (no Workers CPU/size limits apply),
+- ships in **neither** the SPA bundle **nor** any Worker (there is no Worker),
+- is fully replaceable via the injected `rasterize` function for testing.
 
 ---
 
 ## Data Models
 
-### Model 1: Raw query input (untrusted)
+### Model 1: `BadgeDesign` (existing, reused — read-only source of truth)
 
 ```typescript
-// As received from URLSearchParams — every field is `string | null` and UNTRUSTED.
-interface RawShareQuery {
-  correct: string | null;
-  total: string | null;
-  name: string | null;
-  level: string | null; // present but IGNORED (recomputed)
+// from src/badges/badgeDesigns.ts (existing)
+export interface BadgeDesign {
+  icon: string;            // emoji / glyph
+  primaryColor: string;    // hex
+  secondaryColor: string;  // hex
+  displayName: string;     // pt-BR module name
 }
+export const BADGE_DESIGNS: Record<LearningStage, BadgeDesign>;
 ```
 
-**Validation Rules**:
-- `stage` (path segment) MUST be a member of `STAGE_ORDER`.
-- `correct`, `total` MUST parse to integers via a strict integer regex (`^\d+$`).
-- `name` is optional; absence → `''`.
-- `level` is read for nothing; never used to drive output.
+**Invariants used by this feature**:
+- `BADGE_DESIGNS` has an entry for every member of `STAGE_ORDER` (11 entries).
+- Values are author-controlled constants (not user input).
 
-### Model 2: `ValidatedBadgeParams` / `ValidatedCertificateParams`
+### Model 2: `ShareMeta` (build-time, internal)
 
-(Shown in Component 4.) **Invariants** (post-validation):
-- `0 <= correct <= total <= MAX_TOTAL` (badge); `1 <= total`.
-- `level === calculatePerformanceLevel(correct, total)`.
-- `name.length <= MAX_NAME_LENGTH` and contains no `<`, `>`, `&`, `"`, `'`, or control
-  chars (escaped/stripped).
-- `percentage === Math.round((totalCorrect / totalQuestions) * 100)` (certificate).
+(Shown in Component 2.) **Invariants** (post-construction):
+- All string fields are pt-BR and HTML-escaped before injection.
+- `imageUrl` and `pageUrl` are absolute, same-origin URLs.
+- `redirectHash` begins with `#/` (same-origin SPA route — no open redirect).
 
-### Model 3: `OgMeta`
+### Model 3: Emitted file layout (the contract crawlers/CDN rely on)
 
-(Shown in Component 2.) All string fields are pt-BR and HTML-escaped before injection.
-`imageUrl` and `pageUrl` are absolute, same-origin URLs.
+```text
+public/
+  og/
+    badge-kiro-basics.png        # 1200×630
+    badge-specs.png
+    ... (one per STAGE_ORDER entry, 11 total)
+    certificate.png              # generic certificate card
+  s/
+    badge/
+      kiro-basics.html           # OG tags → /og/badge-kiro-basics.png
+      specs.html
+      ... (11 total)
+    certificate.html             # OG tags → /og/certificate.png
+```
 
-### Cache key model
-
-The cache key is the **canonicalized image request URL**: scheme+host+path +
-`buildNormalizedQuery(params)` (params sorted, name URL-encoded, level OMITTED since it's
-derived). This guarantees `?total=10&correct=9` and `?correct=9&total=10` hit the same
-cache entry.
+**Naming contract**: for every `stage ∈ STAGE_ORDER` there is exactly one
+`og/badge-<stage>.png` and one `s/badge/<stage>.html`, and the HTML's `og:image` resolves
+to that PNG's absolute URL.
 
 ---
 
 ## Algorithmic Pseudocode (Low-Level Design)
 
-### Algorithm: `parseBadgeParams` (param validation, with formal spec)
-
-```typescript
-function parseBadgeParams(stageSegment: string, query: URLSearchParams): ValidatedBadgeParams
-```
+### Algorithm: `buildBadgeShareHtml` (pure template builder, with formal spec)
 
 **Preconditions**:
-- `stageSegment` is the raw `:stage` path segment (may be `"kiro-basics.png"` for image
-  routes; caller strips the extension before calling, or this fn strips a trailing
-  `.png`).
-- `query` is a `URLSearchParams` (possibly empty); all values untrusted.
+- `stage ∈ STAGE_ORDER`; `design === BADGE_DESIGNS[stage]`.
+- `siteOrigin` is an absolute origin string (e.g. `https://kiro-quest.example`).
 
 **Postconditions**:
-- Returns a `ValidatedBadgeParams` satisfying ALL invariants in Model 2, OR throws
-  `ShareParamError` (never returns a partially-valid object).
-- The returned `level` is independent of any input `level` param.
-- No exception other than `ShareParamError` escapes.
+- Returns a complete HTML document string containing **exactly one** of each required
+  OG/Twitter tag listed in Component 2.
+- `og:image` equals `siteOrigin + "/og/badge-" + stage + ".png"`.
+- The redirect target begins with `#/` and is same-origin (no absolute external URL).
+- Every interpolated text value is HTML-escaped.
+- No per-user data is present.
 
-**Loop invariants**: N/A (no unbounded loops).
-
-```pascal
-ALGORITHM parseBadgeParams(stageSegment, query)
-BEGIN
-  // 1. Normalize + allowlist the stage
-  stage ← stripSuffix(stageSegment, ".png")
-  IF stage NOT IN STAGE_ORDER THEN
-    THROW ShareParamError("invalid_stage")
-  END IF
-
-  // 2. Strict integer parse of correct/total
-  correct ← parseBoundedInt(query.get("correct"), min := 0, max := MAX_TOTAL)
-  total   ← parseBoundedInt(query.get("total"),   min := 1, max := MAX_TOTAL)
-
-  // 3. Cross-field bound
-  IF correct > total THEN
-    THROW ShareParamError("correct_exceeds_total")
-  END IF
-
-  // 4. RECOMPUTE level — never trust client input
-  level ← calculatePerformanceLevel(correct, total)
-
-  // 5. Sanitize optional name
-  name ← sanitizeName(query.get("name"))
-
-  RETURN { stage, correct, total, level, name }
-END
-
-ALGORITHM parseBoundedInt(raw, min, max)
-BEGIN
-  IF raw = NULL OR NOT matches(raw, /^[0-9]{1,4}$/) THEN
-    THROW ShareParamError("invalid_integer")
-  END IF
-  n ← toInteger(raw)
-  IF n < min OR n > max THEN
-    THROW ShareParamError("out_of_range")
-  END IF
-  RETURN n
-END
-
-ALGORITHM sanitizeName(raw)
-BEGIN
-  IF raw = NULL THEN RETURN ""
-  s ← trim(raw)
-  s ← removeControlChars(s)             // strip U+0000..U+001F, U+007F
-  IF length(s) > MAX_NAME_LENGTH THEN
-    s ← substring(s, 0, MAX_NAME_LENGTH)
-  END IF
-  RETURN htmlEscape(s)                  // & < > " '  →  entities
-END
-```
-
-### Algorithm: `handleBadgeImage` (edge render + cache)
-
-**Preconditions**: `request` is a GET to `/og/badge/:stage.png`; `env`, `ctx` valid.
-
-**Postconditions**: Returns 200 `image/png` with `Cache-Control` on success, or 400 on
-`ShareParamError`, or 500 on unexpected render failure (with a safe body). On cache miss,
-the rendered response is stored asynchronously via `ctx.waitUntil`.
+**Loop invariants**: N/A (no loops).
 
 ```pascal
-ALGORITHM handleBadgeImage(request, env, ctx)
+ALGORITHM buildBadgeShareHtml(stage, design, siteOrigin)
 BEGIN
-  url ← new URL(request.url)
+  title       ← htmlEscape("Conquista " + design.displayName + " — Kiro Quest")
+  description ← htmlEscape("Veja a trilha " + design.displayName +
+                           " no Kiro Quest e teste seus conhecimentos sobre o Kiro.")
+  imageUrl    ← siteOrigin + "/og/badge-" + stage + ".png"
+  pageUrl     ← siteOrigin + "/s/badge/" + stage
+  redirectHash← "#/summary/" + stage           // same-origin SPA route
 
-  // 1. Validate (may throw ShareParamError → caught by entry handler → 400)
-  params ← parseBadgeParams(lastPathSegment(url.pathname), url.searchParams)
-
-  // 2. Build a STABLE cache key from normalized params
-  cacheKey ← url.origin + url.pathname + "?" + buildNormalizedQuery(params)
-  cache ← caches.default
-  cached ← cache.match(cacheKey)
-  IF cached ≠ NULL THEN
-    RETURN cached
-  END IF
-
-  // 3. Cold render
-  fonts ← loadFonts()                          // memoized
-  element ← badgeElement(params)               // uses BADGE_DESIGNS
-  pngBytes ← satoriRenderToPng(element, {
-                 width := 1200, height := 630, fonts := fonts })
-
-  // 4. Build response with cache headers
-  response ← new Response(pngBytes, {
-      headers := {
-        "Content-Type": "image/png",
-        "Cache-Control": "public, max-age=86400, s-maxage=604800, immutable"
-      }
-  })
-
-  // 5. Populate edge cache without blocking the response
-  ctx.waitUntil(cache.put(cacheKey, response.clone()))
-  RETURN response
+  meta ← { title, description, imageUrl, pageUrl, redirectHash }
+  RETURN renderShareHtml(meta)
 END
-```
 
-### Algorithm: OG HTML injection (`renderOgHtml`)
-
-**Preconditions**: `meta` fields are already HTML-escaped pt-BR strings; `imageUrl`,
-`pageUrl` are absolute same-origin URLs; `redirectHash` begins with `#/`.
-
-**Postconditions**: Returns a complete, valid HTML document string containing exactly one
-of each required OG/Twitter tag, a JS redirect, a no-JS fallback, and no unescaped
-interpolation.
-
-```pascal
-ALGORITHM renderOgHtml(meta)
+ALGORITHM renderShareHtml(meta)
 BEGIN
-  // All ${...} values are pre-escaped by the caller (see sanitizeName / htmlEscape).
+  // meta.title / meta.description are already HTML-escaped.
+  // meta.imageUrl / meta.pageUrl are absolute same-origin URLs.
+  // ASSERT startsWith(meta.redirectHash, "#/")
   RETURN concat(
     "<!DOCTYPE html><html lang=\"pt-BR\"><head>",
     "<meta charset=\"UTF-8\"/>",
@@ -581,30 +484,103 @@ BEGIN
     "<meta name=\"twitter:title\" content=\"", meta.title, "\"/>",
     "<meta name=\"twitter:description\" content=\"", meta.description, "\"/>",
     "<meta name=\"twitter:image\" content=\"", meta.imageUrl, "\"/>",
-    // No-JS fallback for the human visitor:
-    "<meta http-equiv=\"refresh\" content=\"0; url=/", meta.redirectHash, "\"/>",
+    "<meta http-equiv=\"refresh\" content=\"0; url=", meta.redirectHash, "\"/>",
     "</head><body>",
     "<p>Abrindo o Kiro Quest… ",
-    "<a href=\"/", meta.redirectHash, "\">Clique aqui se nada acontecer.</a></p>",
-    // JS redirect (crawlers don't execute this; humans do):
-    "<script>location.replace('/", meta.redirectHash, "');</script>",
+    "<a href=\"", meta.redirectHash, "\">Clique aqui se nada acontecer.</a></p>",
+    "<script>location.replace(", jsonQuote(meta.redirectHash), ");</script>",
     "</body></html>"
   )
+END
+```
+
+### Algorithm: `buildBadgeSvg` (pure template builder)
+
+**Preconditions**: `stage ∈ STAGE_ORDER`; `design === BADGE_DESIGNS[stage]`.
+
+**Postconditions**: returns an SVG string of declared size `1200×630` that references
+`design.displayName`, `design.icon`, `design.primaryColor`, and `design.secondaryColor`;
+all interpolated text is XML-escaped; output is deterministic for a given input.
+
+```pascal
+ALGORITHM buildBadgeSvg(stage, design)
+BEGIN
+  name ← xmlEscape(design.displayName)
+  icon ← xmlEscape(design.icon)
+  RETURN concat(
+    "<svg xmlns=\"http://www.w3.org/2000/svg\" width=\"1200\" height=\"630\" ",
+        "viewBox=\"0 0 1200 630\">",
+    "<defs><linearGradient id=\"bg\" x1=\"0\" y1=\"0\" x2=\"1\" y2=\"1\">",
+      "<stop offset=\"0\" stop-color=\"", design.primaryColor, "\"/>",
+      "<stop offset=\"1\" stop-color=\"", design.secondaryColor, "\"/>",
+    "</linearGradient></defs>",
+    "<rect width=\"1200\" height=\"630\" fill=\"url(#bg)\"/>",
+    "<text x=\"600\" y=\"300\" text-anchor=\"middle\" font-size=\"180\">", icon, "</text>",
+    "<text x=\"600\" y=\"430\" text-anchor=\"middle\" font-size=\"64\" ",
+        "fill=\"#ffffff\" font-family=\"sans-serif\">", name, "</text>",
+    "<text x=\"600\" y=\"500\" text-anchor=\"middle\" font-size=\"34\" ",
+        "fill=\"#ffffff\" font-family=\"sans-serif\">Kiro Quest</text>",
+    "</svg>"
+  )
+END
+```
+
+### Algorithm: `generateSocialAssets` (build orchestrator)
+
+**Preconditions**: `opts.outDir` writable; `opts.siteOrigin` absolute; `opts.rasterize`
+provided; `BADGE_DESIGNS` has an entry for every `stage ∈ STAGE_ORDER`.
+
+**Postconditions**: on success, exactly `|STAGE_ORDER| + 1` PNGs and
+`|STAGE_ORDER| + 1` HTML files exist under `outDir`, following the Model 3 naming
+contract; returns their paths. On any error, throws (build fails) and does not silently
+emit a partial/empty set.
+
+**Loop invariant**: after processing the k-th stage, `pngFiles` and `htmlFiles` each
+contain exactly `k` badge entries and every written badge PNG/HTML corresponds to a
+distinct `STAGE_ORDER[0..k-1]` stage.
+
+```pascal
+ALGORITHM generateSocialAssets(opts)
+BEGIN
+  ensureDir(opts.outDir + "/og")
+  ensureDir(opts.outDir + "/s/badge")
+  pngFiles ← []; htmlFiles ← []
+
+  FOR EACH stage IN STAGE_ORDER DO
+    design ← BADGE_DESIGNS[stage]
+    IF design = NULL THEN THROW BuildError("missing_design:" + stage) END IF
+
+    svg ← buildBadgeSvg(stage, design)
+    png ← opts.rasterize(svg, OG_WIDTH, OG_HEIGHT)        // may throw → build fails
+    pngPath ← opts.outDir + "/og/badge-" + stage + ".png"
+    writeFile(pngPath, png)
+    pngFiles.append(pngPath)
+
+    html ← buildBadgeShareHtml(stage, design, opts.siteOrigin)
+    htmlPath ← opts.outDir + "/s/badge/" + stage + ".html"
+    writeFile(htmlPath, html)
+    htmlFiles.append(htmlPath)
+  END FOR
+
+  // Certificate (generic)
+  certPng ← opts.rasterize(buildCertificateSvg(), OG_WIDTH, OG_HEIGHT)
+  writeFile(opts.outDir + "/og/certificate.png", certPng)
+  pngFiles.append(opts.outDir + "/og/certificate.png")
+  writeFile(opts.outDir + "/s/certificate.html",
+            buildCertificateShareHtml(opts.siteOrigin))
+  htmlFiles.append(opts.outDir + "/s/certificate.html")
+
+  RETURN { pngFiles, htmlFiles }
 END
 ```
 
 ### Client: `buildBadgeShareUrl`
 
 ```pascal
-ALGORITHM buildBadgeShareUrl(stage, score, name)
+ALGORITHM buildBadgeShareUrl(stage)
 BEGIN
-  origin ← (window.location.origin OR "https://kiro-quest.trilha.workers.dev")
-  q ← "correct=" + encodeURIComponent(score.correct)
-       + "&total=" + encodeURIComponent(score.total)
-  IF name AND length(trim(name)) > 0 THEN
-    q ← q + "&name=" + encodeURIComponent(name)
-  END IF
-  RETURN origin + "/s/badge/" + stage + "?" + q
+  origin ← (window.location.origin OR "https://kiro-quest.example")
+  RETURN origin + "/s/badge/" + stage      // generic per module; no per-user params
 END
 ```
 
@@ -613,213 +589,238 @@ END
 ## Example Usage
 
 ```typescript
-// --- Client (StageSummary.vue → ShareBadgeButton → imageSharer) ---
-const shareUrl = buildBadgeShareUrl('kiro-basics', { correct: 9, total: 10 }, 'Ana');
-// => "https://kiro-quest.trilha.workers.dev/s/badge/kiro-basics?correct=9&total=10&name=Ana"
-openShareWindow('linkedin', shareUrl); // LinkedIn crawls /s/badge/... and shows the card
+// --- Build wiring (package.json) ---
+// "build": "node --import tsx scripts/generate-social-assets.ts && vue-tsc -b && vite build"
+// (or call generateSocialAssets() from a Vite buildStart hook)
 
-// --- Worker entry dispatch (worker/index.ts) ---
-export default {
-  async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
-    const { pathname } = new URL(request.url);
-    try {
-      if (pathname.startsWith('/s/badge/'))        return handleBadgeShare(request, env);
-      if (pathname === '/s/certificate')           return handleCertificateShare(request, env);
-      if (pathname.startsWith('/og/badge/'))       return await handleBadgeImage(request, env, ctx);
-      if (pathname === '/og/certificate.png')      return await handleCertificateImage(request, env, ctx);
-      return env.ASSETS.fetch(request); // SPA + static assets, unchanged
-    } catch (err) {
-      if (err instanceof ShareParamError) return new Response('Parâmetros inválidos', { status: 400 });
-      return new Response('Erro interno', { status: 500 });
-    }
-  },
-};
+// --- scripts/generate-social-assets.ts (entry) ---
+import { Resvg } from '@resvg/resvg-js';
+import { generateSocialAssets } from './generateSocialAssets';
+
+await generateSocialAssets({
+  outDir: new URL('../public', import.meta.url).pathname,
+  siteOrigin: process.env.SITE_ORIGIN ?? 'https://kiro-quest.example',
+  rasterize: (svg, w, h) =>
+    new Resvg(svg, { fitTo: { mode: 'width', value: w } }).render().asPng(),
+});
+
+// --- Client (SPA) ---
+const shareUrl = buildBadgeShareUrl('kiro-basics');
+// => "https://kiro-quest.example/s/badge/kiro-basics"
+openShareWindow('linkedin', shareUrl); // LinkedIn crawls the static /s/ page and shows the card
+
+// Download + native Web Share (image blob) — UNCHANGED, still personalized.
 ```
 
 ---
 
 ## Correctness Properties
 
-These are stated as universally-quantified properties and map directly to the
-property-based tests below (fast-check is already a project dependency).
+*A property is a characteristic or behavior that should hold true across all valid
+executions of a system — a formal statement about what the system should do.*
 
-1. **Stage allowlist**: ∀ raw stage segment `s`. If `s ∉ STAGE_ORDER`, then
-   `parseBadgeParams(s, q)` throws `ShareParamError` for every `q`.
-2. **Score bounds**: ∀ integers `c, t`. `parseBadgeParams` returns successfully **iff**
-   `0 ≤ c ≤ t ≤ MAX_TOTAL ∧ t ≥ 1`; otherwise it throws.
-3. **Level is recomputed & consistent**: ∀ valid `(c, t)` and ∀ arbitrary `level` query
-   value `L`. `parseBadgeParams(...).level === calculatePerformanceLevel(c, t)`
-   regardless of `L` (forged level is ignored).
-4. **Name is bounded & escaped**: ∀ strings `n`. `sanitizeName(n).length ≤ MAX_NAME_LENGTH`
-   ∧ `sanitizeName(n)` contains none of `< > & " '` unescaped ∧ no control chars.
-5. **Normalization is order-insensitive**: ∀ valid param sets `p`. `buildNormalizedQuery`
-   produces the same string for any input query-param ordering ⇒ stable cache key.
-6. **Render contract**: ∀ valid params. `handleBadgeImage` resolves to a `Response` with
-   status 200, `Content-Type: image/png`, and a `Cache-Control` header.
-7. **No open redirect**: ∀ inputs. `meta.redirectHash` is always a same-origin SPA hash
-   route (begins with `#/`); the OG HTML never emits an absolute external redirect.
-8. **Fallback preserved**: a request to `/` or any `/s|/og` URL **without** params still
-   yields a valid response (SPA root keeps its static `index.html` OG card).
+These are universally-quantified and map directly to the property-based tests below
+(fast-check is already a project dependency).
+
+### Property 1: Every stage gets a complete, well-formed share page
+
+For all `stage ∈ STAGE_ORDER`, `buildBadgeShareHtml(stage, BADGE_DESIGNS[stage], origin)`
+returns an HTML document that contains every required OG tag (`og:title`,
+`og:description`, `og:image`, `og:image:width`, `og:image:height`, `og:url`, `og:type`,
+`og:locale`) and Twitter tag (`twitter:card`, `twitter:title`, `twitter:description`,
+`twitter:image`), each exactly once.
+
+**Validates: Requirements 1.1, 1.2, 1.4, 9.1, 9.4**
+
+### Property 2: `og:image` references the matching static PNG for that stage
+
+For all `stage ∈ STAGE_ORDER`, the `og:image` content emitted by
+`buildBadgeShareHtml(stage, …, origin)` equals `origin + "/og/badge-" + stage + ".png"`,
+and the generator emits a PNG at that exact path.
+
+**Validates: Requirements 1.3, 2.1, 2.3**
+
+### Property 3: Redirect target is always a same-origin SPA hash route
+
+For all `stage ∈ STAGE_ORDER`, every redirect target in the generated HTML (the
+`location.replace` argument, the `<meta refresh>` URL, and the visible link `href`)
+begins with `#/` and is never an absolute external URL.
+
+**Validates: Requirements 1.5, 1.6, 7.5, 8.3**
+
+### Property 4: Escaping holds for all interpolated text
+
+For all strings `s` drawn from the design tokens / copy, `htmlEscape(s)` (HTML) and
+`xmlEscape(s)` (SVG) contain none of `< > & " '` in raw form, and the generated documents
+contain no unescaped interpolation. (Inputs are author-controlled, but escaping is still
+enforced and tested.)
+
+**Validates: Requirements 4.5, 4.7**
+
+### Property 5: Generator emits the exact expected file set
+
+`generateSocialAssets` (with a mock rasterizer) emits exactly `|STAGE_ORDER|` badge PNGs +
+1 certificate PNG, and `|STAGE_ORDER|` badge HTML files + 1 certificate HTML file, and the
+mock rasterizer is invoked exactly once per stage plus once for the certificate.
+
+**Validates: Requirements 2.1, 2.2**
+
+### Property 6: Determinism
+
+For all `stage ∈ STAGE_ORDER`, `buildBadgeSvg` and `buildBadgeShareHtml` are pure: calling
+them twice with the same inputs yields byte-identical strings (stable, cache-friendly
+output).
+
+**Validates: Requirements 5 (stable, CDN-cacheable static assets)**
+
+### Property 7: Client URL builders produce same-origin `/s/...` paths
+
+For all `stage ∈ STAGE_ORDER`, `buildBadgeShareUrl(stage)` equals
+`${origin}/s/badge/${stage}` and `buildCertificateShareUrl()` equals
+`${origin}/s/certificate`, using the resolved origin (or the documented fallback).
+
+**Validates: Requirements 6.1, 6.2, 6.6**
+
+### Property 8: Backwards-compatibility floor preserved
+
+The static `index.html` root OG card and the download + native Web Share (image blob)
+paths are unchanged; any path without a generated share/image file still resolves through
+the existing SPA fallback.
+
+**Validates: Requirements 7.1, 7.2, 7.3, 7.4**
 
 ---
 
 ## Error Handling
 
-### Scenario 1: Invalid / missing params
-**Condition**: non-allowlisted stage, non-integer/out-of-range score, `correct > total`.
-**Response**: `/og/*` → `400` `text/plain` "Parâmetros inválidos" (no image render
-attempted). `/s/*` → either `400`, or (preferred for resilience) fall back to the
-**generic static OG card** + redirect to `/#/stages`, so a malformed share link still
-opens the app rather than showing an error.
-**Recovery**: user lands in the SPA; no state is persisted.
+### Scenario 1: Build-time template or write failure
+**Condition**: a template builder throws, a directory cannot be created, or a file write
+fails inside `generateSocialAssets`.
+**Response**: the error propagates and the build process exits non-zero, **failing
+`npm run build`**. No partial deploy is published because the broken build never produces
+a `dist/`.
+**Recovery**: developer fixes the error and re-runs the build. Production keeps serving the
+last good deploy.
 
-### Scenario 2: Image render failure (Satori/resvg throws, font load fails)
-**Condition**: unexpected exception in `satoriRenderToPng` or `loadFonts`.
-**Response**: `500` "Erro interno" for `/og/*`; the `/s/*` HTML still references the image
-URL — crawlers that fail to fetch the image fall back to title/description only.
-**Recovery**: error is caught in the entry handler; the isolate is not torn down.
+### Scenario 2: Rasterizer failure (`@resvg/resvg-js` throws)
+**Condition**: the SVG is malformed or the rasterizer errors for a stage.
+**Response**: same as Scenario 1 — fail the build loudly. We never emit a 0-byte / placeholder
+PNG silently.
+**Recovery**: fix the SVG template / inputs and rebuild. A unit test with a mock rasterizer
+guards the call contract independent of the real library.
 
-### Scenario 3: Crawler ignores the SVG/PNG
-**Condition**: a platform that rejects the image format.
-**Response**: title/description tags still produce a recognized card (current behavior is
-preserved as a floor).
+### Scenario 3: Crawler ignores the image (rejects/skips the PNG)
+**Condition**: a platform fails to fetch or rejects the PNG format.
+**Response**: the `og:title` / `og:description` (pt-BR) still produce a recognizable text
+card — the title/description are an independent floor that does not depend on the image.
+**Recovery**: none needed; degraded but valid preview.
 
-### Scenario 4: Cache write failure
-**Condition**: `cache.put` rejects.
-**Response**: wrapped in `ctx.waitUntil`; failure is non-fatal — the response is already
-returned. Next request simply re-renders.
+### Scenario 4: Missing file (`/s/...` or `/og/...` not generated)
+**Condition**: a request targets a stage that wasn't generated (e.g. a future stage added
+to `STAGE_ORDER` without a rebuild, or a hand-typed URL).
+**Response**: no static file matches, so Cloudflare's `not_found_handling:
+single-page-application` serves `index.html`. The crawler then sees the **static root OG
+card** (existing fallback); a human boots the SPA. Either way no error page is shown. A
+build-time completeness check (Property 5) prevents this for real stages.
+
+### Scenario 5: Open-redirect / injection guard
+**Condition**: any attempt to interpolate untrusted content.
+**Response**: there is **no runtime input** — these are static files generated from our own
+`BADGE_DESIGNS`/copy. Redirect targets are hard-prefixed with `#/` (same-origin); all
+interpolated text is HTML/XML-escaped. No SSRF/DoS/injection surface exists at request time.
 
 ---
 
 ## Testing Strategy
 
-### Unit Testing (vitest, no Worker runtime needed)
-- `shareParams.ts`: stage allowlist, integer parsing, bounds, `correct > total`,
-  name capping/escaping, level recomputation, `buildNormalizedQuery` stability.
-- `imageSharer.buildBadgeShareUrl` / `buildCertificateShareUrl`: correct path, encoding,
-  optional-name omission, origin fallback. (Extends existing `imageSharer.test.ts`.)
-- `renderOgHtml`: snapshot of the emitted HTML for known meta; assert all required
-  OG/Twitter tags present and values escaped.
-- `layouts/*`: assert the returned Satori element tree references the right
-  `BADGE_DESIGNS[stage]` colors/icon/displayName and pt-BR copy (snapshot of the element
-  object — feasible because layouts return plain objects, not pixels).
+All tests run under the existing vitest setup (no `@cloudflare/vitest-pool-workers`, no
+Worker handler tests — **there is no Worker**).
+
+### Unit Testing (vitest)
+- **`svgTemplate.ts`**: for a known stage, the SVG contains the right
+  `BADGE_DESIGNS[stage]` `displayName`, `icon`, `primaryColor`, `secondaryColor`, declares
+  `width="1200" height="630"`, and escaping holds. Snapshot tests are acceptable.
+- **`shareHtmlTemplate.ts`**: for a known stage, the HTML contains all required OG/Twitter
+  tags (each once), the `og:image` points at the correct `/og/badge-<stage>.png` absolute
+  URL, the redirect target begins with `#/`, and copy is pt-BR. Snapshot acceptable.
+- **`imageSharer.ts`**: extend the existing test — `buildBadgeShareUrl(stage)` and
+  `buildCertificateShareUrl()` return the correct path and apply the origin fallback.
 
 ### Property-Based Testing (fast-check, already installed)
-Targets the param validator (the highest-risk, purest surface):
-- **Prop 2 (bounds)**: `fc.integer()` × `fc.integer()` → success iff invariant holds.
-- **Prop 3 (level)**: ∀ valid `(c,t)` and ∀ `fc.string()` as forged `level` →
-  result.level equals `calculatePerformanceLevel(c,t)`.
-- **Prop 4 (name)**: `fc.fullUnicodeString()` → output length ≤ cap, no unescaped
-  metacharacters, no control chars.
-- **Prop 5 (normalization)**: shuffle param order → identical normalized query.
-- **Prop 1 (stage)**: `fc.string()` not in `STAGE_ORDER` → always throws.
+Quantify over **every** `stage ∈ STAGE_ORDER`:
+- **Prop 1**: every stage's share HTML contains all required OG/Twitter tags.
+- **Prop 2**: `og:image` for each stage references `/og/badge-<stage>.png` and the generator
+  emits that file.
+- **Prop 3**: the redirect target is a same-origin `#/...` route for every stage.
+- **Prop 4**: escaping holds (no raw `< > & " '` in interpolated regions).
+- **Prop 6**: builders are deterministic (two calls → identical strings).
+- **Prop 7**: client URL builders produce the expected `/s/...` paths for every stage.
 
-### Worker Handler Testing
-- Use **`@cloudflare/vitest-pool-workers`** (Miniflare-backed) to exercise
-  `worker/index.ts` end-to-end: assert `/og/badge/kiro-basics.png?correct=9&total=10`
-  returns **200 + `image/png` + `Cache-Control`**; assert `/s/badge/...` returns HTML
-  containing the expected `og:image` URL; assert unknown paths fall through to
-  `env.ASSETS`.
-- Satori pixel output is **not** asserted pixel-wise. Tests assert status,
-  content-type, cache headers, and (where feasible) a snapshot of the Satori element
-  tree. A lightweight "smoke" assertion checks the PNG magic bytes (`89 50 4E 47`).
+### Build-script smoke test (vitest, mocked rasterizer)
+- Call `generateSocialAssets` with a **mock** `rasterize` (returns a tiny fixed byte array)
+  and an in-memory/temp `outDir`; assert it emits **11 badge PNGs + 1 certificate PNG** and
+  the **matching 12 HTML files**, and that the mock is invoked once per stage + once for the
+  certificate (**Prop 5**). This avoids heavy real PNG work in unit tests.
 
 ### Integration / Regression
-- Verify the static `index.html` OG card is unchanged (backwards-compat floor).
-- Verify SPA deep links (`/#/summary/...`) still resolve after the `/s/*` redirect.
+- Verify the static `index.html` OG card is unchanged (backwards-compat floor, Req 7.4).
+- Verify SPA deep links (`#/summary/...`) still resolve after the `/s/*` redirect (Req 7.5).
+- **No** Worker handler / Miniflare tests are needed.
 
 ---
 
-## Performance Considerations
+## Performance & Caching
 
-- **Cold vs. warm render**: Satori + resvg WASM has a one-time WASM init cost per isolate
-  (tens–low-hundreds of ms) plus per-render layout/rasterize cost. Warm renders within a
-  live isolate are much cheaper; the **Cache API** makes the common case (a popular shared
-  link) a near-zero-cost cache hit.
-- **Edge caching**: `Cache-Control: public, max-age=86400, s-maxage=604800, immutable`
-  plus the normalized cache key means each unique achievement card is rendered at most
-  once per cache lifetime per PoP. Optionally set `cf: { cacheEverything: true }` on
-  sub-requests.
-- **Size limits**: output is a 1200×630 PNG (typically tens–low-hundreds of KB). Bounded
-  params (`MAX_TOTAL`, `MAX_NAME_LENGTH`) cap the input space, so the number of distinct
-  cacheable cards is finite and small.
-- **Font memoization**: fonts are loaded once per isolate and reused.
-
-## Security Considerations
-
-- **Input validation**: strict allowlist for `stage`; bounded integer parsing; cross-field
-  checks. Invalid input never reaches the renderer.
-- **Output escaping**: `name` is HTML-escaped before HTML injection and is rendered by
-  Satori as text (not markup), preventing XSS in both the `/s/*` HTML and the image.
-- **Level forgery prevention**: `level` is recomputed server-side; a user cannot mint a
-  "Mestre em Kiro" card from a low score.
-- **No open redirect**: redirect targets are always same-origin SPA hash routes built
-  from the validated `stage`; no user-controlled absolute URL is ever used as a redirect.
-- **No SSRF**: fonts and emoji assets are **bundled** (or fetched from a fixed, trusted,
-  hard-coded URL) — never from a user-supplied URL/param. The renderer never fetches a
-  remote image chosen by the client.
-- **Abuse / DoS**: bounded param space + edge caching strongly limit arbitrary
-  image-generation cost; an attacker can only enumerate a small finite set of cards, most
-  of which become cache hits. Consider Cloudflare WAF rate-limiting on `/og/*` if needed.
-- **No PII persistence**: the optional `name` is rendered into a cached image but never
-  written to a database or log; it lives only in the URL and the edge cache entry.
-
----
-
-## Backwards Compatibility / Migration
-
-- The static OG tags in `index.html` (root `og:image = /logo.svg`, title/description)
-  **remain unchanged** and serve as the fallback for the app root and any link without
-  params.
-- Existing client paths — Canvas-based download (`downloadImage`) and native Web Share of
-  the image blob (`shareViaWebAPI`) — are **kept as-is**. Only the social share-window URL
-  changes from `window.location.origin` to the crawlable `/s/...` URL.
-- The Canvas renderers (`badgeRenderer.ts`, `certificateRenderer.ts`) stay for the
-  in-app preview/download; the edge re-expresses the same visual design in Satori. The
-  shared source of truth is `BADGE_DESIGNS` + pt-BR copy, so the two stay visually aligned.
-- No data migration is required (no persistence is added).
+- **Zero per-request compute.** All cards are pre-rendered files; Cloudflare serves them
+  from its global CDN. There is no Satori/resvg at runtime, no WASM init, no CPU budget to
+  exhaust, and therefore no Workers Free-plan 10ms/3MB concern.
+- **Automatic CDN caching.** Static assets are cached by Cloudflare automatically and
+  served with strong caching semantics; popular shared links are effectively free and fast.
+  Because output is deterministic (Property 6), cache entries stay valid until the next
+  deploy.
+- **Tiny footprint.** 12 PNGs (1200×630) + 12 small HTML files add negligible weight to
+  `dist/`. Build time grows by one rasterization pass over 12 SVGs (sub-second to a few
+  seconds in Node), entirely at build time.
+- **Cost.** No Workers Paid plan, no KV/R2/D1/Durable Objects, no new runtime dependency —
+  the rasterizer is a devDependency used only during `npm run build`.
 
 ---
 
 ## File / Module Structure
 
-```
-kiro-quest/
-├── wrangler.jsonc                 # MODIFIED: add main + assets.binding
-├── package.json                   # MODIFIED: add "workers-og" (+ bundled font asset)
-├── worker/                        # NEW: Cloudflare Worker code (bundled by Wrangler)
-│   ├── index.ts                   # fetch() entry + route dispatch
-│   ├── shareParams.ts             # parse/validate/sanitize (shared, vitest-testable)
-│   ├── fonts.ts                   # bundled font/emoji buffers for Satori
-│   ├── routes/
-│   │   ├── shareHtml.ts           # /s/badge/:stage, /s/certificate → OG HTML
-│   │   └── ogImage.ts             # /og/badge/:stage.png, /og/certificate.png → PNG
-│   ├── layouts/
-│   │   ├── badgeLayout.ts         # Satori element tree for the badge (uses BADGE_DESIGNS)
-│   │   └── certificateLayout.ts   # Satori element tree for the certificate
-│   └── __tests__/
-│       ├── shareParams.test.ts            # unit + fast-check property tests
-│       ├── shareParams.property.test.ts
-│       ├── shareHtml.test.ts              # OG HTML snapshot + escaping
-│       └── worker.handler.test.ts         # @cloudflare/vitest-pool-workers
-├── src/
-│   ├── badges/
-│   │   ├── badgeDesigns.ts        # REUSED (single source of truth, imported by worker/)
-│   │   └── imageSharer.ts         # MODIFIED: add buildBadgeShareUrl/buildCertificateShareUrl
-│   └── engine/
-│       ├── quizEngine.ts          # REUSED: calculatePerformanceLevel, STAGE_ORDER
-│       └── types.ts               # REUSED: LearningStage, PerformanceLevel
-└── assets/fonts/                  # NEW: bundled woff/ttf (e.g. Inter / Noto Sans) for Satori
+```text
+scripts/
+  generate-social-assets.ts          # build orchestrator (entry, calls generateSocialAssets)
+  generateSocialAssets.ts            # generateSocialAssets() (testable, injectable rasterize)
+  templates/
+    svgTemplate.ts                   # buildBadgeSvg / buildCertificateSvg (pure)
+    shareHtmlTemplate.ts             # renderShareHtml / buildBadgeShareHtml / buildCertificateShareHtml (pure)
+  __tests__/
+    svgTemplate.test.ts
+    shareHtmlTemplate.test.ts
+    generateSocialAssets.test.ts     # smoke test w/ mock rasterizer
+
+public/                              # Vite copies → dist/ (generated; may be gitignored)
+  og/   badge-<stage>.png (×11), certificate.png
+  s/    badge/<stage>.html (×11), certificate.html
+
+src/badges/
+  imageSharer.ts                     # MODIFIED: add buildBadgeShareUrl / buildCertificateShareUrl
+  badgeDesigns.ts                    # UNCHANGED source of truth (BADGE_DESIGNS)
+
+src/engine/
+  types.ts                           # UNCHANGED (LearningStage)
+  quizEngine.ts                      # UNCHANGED (STAGE_ORDER, calculatePerformanceLevel)
+
+# Explicitly NO worker/ directory. wrangler.jsonc keeps assets.directory: ./dist only
+# (no `main`, no bindings). package.json gains a build step + a devDependency (@resvg/resvg-js).
 ```
 
-**Build wiring**:
-- Add `workers-og` (Satori + resvg-wasm) to `dependencies`. Evaluation: `workers-og` is
-  purpose-built for Cloudflare Workers and bundles the WASM; alternatives `@cf-wasm/og`
-  or raw `satori` + `@resvg/resvg-wasm` are equivalent fallbacks. Trade-off: the visual
-  layout must be re-expressed as Satori HTML/JSX (flexbox CSS subset) rather than reusing
-  the Canvas drawing code — but `BADGE_DESIGNS` colors/icons/labels and pt-BR copy are
-  reused verbatim.
-- The font file is imported as a binary module (Wrangler/esbuild supports importing
-  `.ttf`/`.woff` as `ArrayBuffer`) so no network fetch is needed at request time.
-- `worker/` shares `src/` modules via the existing `@` path alias (mirror it in the
-  Worker's tsconfig/esbuild config).
+### Dependencies
+
+- **devDependency (new)**: `@resvg/resvg-js` (or `sharp`) — SVG→PNG rasterization at build
+  time only. Not shipped to the browser; no runtime/Worker dependency.
+- **Existing, reused**: `fast-check` (property tests), `tsx` (run the TS build script),
+  Vite (copies `public/` → `dist/`).
+- **Removed vs. the prior edge approach**: `workers-og`, Satori/resvg-WASM at runtime, the
+  Worker `main` entry, the `ASSETS` binding, and any Worker handler test tooling.
