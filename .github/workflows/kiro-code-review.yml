@@ -34,90 +34,12 @@ jobs:
 
       - name: Setup MCP configuration for headless mode
         run: |
-          # Create all directories that kiro-cli (and legacy Q CLI) may check
           mkdir -p ~/.kiro/settings
-          mkdir -p ~/.kiro/agents
           mkdir -p ~/.aws/amazonq
-          mkdir -p ~/.aws/amazonq/cli-agents
-
-          # Base MCP config with the GitHub server
-          BASE_MCP='{
-            "mcpServers": {
-              "github": {
-                "command": "npx",
-                "args": ["-y", "@modelcontextprotocol/server-github"],
-                "env": {
-                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
-                }
-              },
-              "aws-docs": {
-                "command": "uvx",
-                "args": ["awslabs.aws-documentation-mcp-server@latest"],
-                "env": {
-                  "FASTMCP_LOG_LEVEL": "ERROR"
-                }
-              }
-            }
-          }'
-
-          # Check if the cloned power has its own mcp.json and merge servers
-          POWER_MCP="$HOME/.kiro/powers/kiro-code-review/mcp.json"
-          if [ -f "$POWER_MCP" ]; then
-            echo "Found power mcp.json, merging MCP server configurations..."
-            # Deep merge: power servers + base config (base wins on conflicts)
-            MERGED_MCP=$(jq -s '.[0].mcpServers as $power | .[1].mcpServers as $base |
-              { mcpServers: ($power + $base) }' \
-              "$POWER_MCP" <(echo "$BASE_MCP"))
-          else
-            echo "No power mcp.json found, using base config only."
-            MERGED_MCP="$BASE_MCP"
-          fi
-
-          # 1. Write to ~/.kiro/settings/mcp.json (Kiro CLI primary path)
-          echo "$MERGED_MCP" > ~/.kiro/settings/mcp.json
-          echo "Created ~/.kiro/settings/mcp.json"
-
-          # 2. Write to ~/.aws/amazonq/mcp.json (legacy Q CLI fallback path)
-          echo "$MERGED_MCP" > ~/.aws/amazonq/mcp.json
-          echo "Created ~/.aws/amazonq/mcp.json"
-
-          # 3. Write workspace-level .kiro/settings/mcp.json (workspace config)
-          mkdir -p .kiro/settings
-          echo "$MERGED_MCP" > .kiro/settings/mcp.json
-          echo "Created .kiro/settings/mcp.json (workspace level)"
-
-          # 4. Write workspace-level .amazonq/mcp.json (legacy workspace config)
-          mkdir -p .amazonq
-          echo "$MERGED_MCP" > .amazonq/mcp.json
-          echo "Created .amazonq/mcp.json (workspace level, legacy)"
-
-          # 5. Create agent config with mcpServers defined directly (most reliable)
-          # The agent config format allows mcpServers inline + useLegacyMcpJson for fallback
-          MCPSERVERS=$(echo "$MERGED_MCP" | jq '.mcpServers')
-          AGENT_CONFIG=$(jq -n \
-            --argjson servers "$MCPSERVERS" \
-            '{
-              "mcpServers": $servers,
-              "useLegacyMcpJson": true,
-              "tools": ["*"],
-              "allowedTools": ["*"]
-            }')
-
-          # Write agent config to Kiro path
-          echo "$AGENT_CONFIG" > ~/.kiro/agents/default.json
-          echo "Created ~/.kiro/agents/default.json"
-
-          # Write agent config to legacy Q CLI path
-          echo "$AGENT_CONFIG" > ~/.aws/amazonq/cli-agents/default.json
-          echo "Created ~/.aws/amazonq/cli-agents/default.json"
-
-          echo ""
-          echo "=== Final MCP configuration ==="
-          echo "~/.kiro/settings/mcp.json:"
+          cp .kiro/settings/mcp.json ~/.kiro/settings/mcp.json
+          cp .kiro/settings/mcp.json ~/.aws/amazonq/mcp.json
+          echo "MCP config copied to global paths:"
           cat ~/.kiro/settings/mcp.json
-          echo ""
-          echo "~/.kiro/agents/default.json:"
-          cat ~/.kiro/agents/default.json
 
       - name: Verify MCP connectivity
         env:
