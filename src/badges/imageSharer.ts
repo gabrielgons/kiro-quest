@@ -29,9 +29,6 @@ import { SITE_ORIGIN } from '@/config/siteOrigin';
 /** Maximum allowed length for any generated share text. */
 export const MAX_SHARE_TEXT_LENGTH = 280;
 
-/** LinkedIn share base URL (offsite sharing dialog). */
-const LINKEDIN_SHARE_URL = 'https://www.linkedin.com/sharing/share-offsite/';
-
 /** Twitter / X "intent" share base URL. */
 const TWITTER_SHARE_URL = 'https://twitter.com/intent/tweet';
 
@@ -274,8 +271,8 @@ export async function shareViaWebAPI(
 }
 
 /**
- * Open a social platform share dialog (LinkedIn / Twitter) in a new window
- * with the given pre-filled text, URL-encoded.
+ * Open a Twitter/X share dialog in a new window with the given pre-filled
+ * text, URL-encoded.
  *
  * When `pageUrl` is provided (e.g. a crawlable `/s/...` share URL from
  * {@link buildBadgeShareUrl} / {@link buildCertificateShareUrl}) it is used as
@@ -283,13 +280,11 @@ export async function shareViaWebAPI(
  * Otherwise it falls back to the current page URL (`window.location.href`),
  * preserving the previous behavior.
  *
- * @param platform - The target platform ('linkedin' or 'twitter').
  * @param text     - The share text to pre-fill.
  * @param pageUrl  - Optional explicit URL to share; defaults to the current
  *                   page URL when omitted.
  */
 function openShareWindow(
-  platform: 'linkedin' | 'twitter',
   text: string,
   pageUrl?: string,
 ): void {
@@ -297,17 +292,9 @@ function openShareWindow(
     pageUrl ??
     (typeof window !== 'undefined' ? window.location.href : PRODUCTION_ORIGIN);
 
-  let shareUrl: string;
-  if (platform === 'linkedin') {
-    // encodeURIComponent applied to all user-provided text (Req 9.3, 10.3).
-    shareUrl =
-      `${LINKEDIN_SHARE_URL}?url=${encodeURIComponent(resolvedPageUrl)}` +
-      `&summary=${encodeURIComponent(text)}`;
-  } else {
-    shareUrl =
-      `${TWITTER_SHARE_URL}?text=${encodeURIComponent(text)}` +
-      `&url=${encodeURIComponent(resolvedPageUrl)}`;
-  }
+  const shareUrl =
+    `${TWITTER_SHARE_URL}?text=${encodeURIComponent(text)}` +
+    `&url=${encodeURIComponent(resolvedPageUrl)}`;
 
   window.open(shareUrl, '_blank', 'noopener,noreferrer');
 }
@@ -316,12 +303,14 @@ function openShareWindow(
  * Share a generated image to a social platform.
  *
  * Behavior by platform (see design "Function: shareToSocial()"):
- * - `'linkedin'` / `'twitter'`: opens the platform share URL in a new window
- *   with URL-encoded, pre-filled text and returns `true` (Requirements 5.1,
- *   5.2).
+ * - `'twitter'`: opens the platform share URL in a new window with
+ *   URL-encoded, pre-filled text and returns `true` (Requirements 5.1, 5.2).
  * - `'generic'`: attempts the native Web Share API with the image file
  *   attached; if unavailable, falls back to copying the share text to the
  *   clipboard (Requirements 5.3, 5.5).
+ *
+ * LinkedIn is handled exclusively via {@link buildLinkedInAddToProfileUrl} in
+ * the component layer.
  *
  * @param options - The blob, filename, share text, and target platform.
  * @returns A promise resolving to whether a share action was initiated.
@@ -329,13 +318,8 @@ function openShareWindow(
 export async function shareToSocial(options: ImageShareOptions): Promise<boolean> {
   const { blob, fileName, shareText, platform, shareUrl } = options;
 
-  if (platform === 'linkedin') {
-    openShareWindow(platform, shareText, shareUrl);
-    return true;
-  }
-
   if (platform === 'twitter') {
-    openShareWindow(platform, shareText, shareUrl);
+    openShareWindow(shareText, shareUrl);
     return true;
   }
 
@@ -356,15 +340,14 @@ const LINKEDIN_ADD_TO_PROFILE_URL = 'https://www.linkedin.com/profile/add';
 
 /**
  * Options for building a LinkedIn "Add to Profile" URL.
+ *
+ * Uses a discriminated union on `type`:
+ * - `'badge'`: requires `stage` (the learning stage the badge was earned for).
+ * - `'certificate'`: `stage` is not applicable.
  */
-export interface LinkedInAddToProfileOptions {
-  /** The type of artifact: badge or certificate. */
-  type: 'badge' | 'certificate';
-  /** The learning stage. Required when `type` is 'badge'. */
-  stage?: LearningStage;
-  /** The issue date. Defaults to the current date when omitted. */
-  issueDate?: Date;
-}
+export type LinkedInAddToProfileOptions =
+  | { type: 'badge'; stage: LearningStage; issueDate?: Date }
+  | { type: 'certificate'; stage?: never; issueDate?: Date };
 
 /**
  * Build a LinkedIn "Add to Profile" (Certification) URL that opens a
@@ -381,7 +364,7 @@ export interface LinkedInAddToProfileOptions {
  * @returns The fully-qualified LinkedIn Add to Profile URL.
  */
 export function buildLinkedInAddToProfileUrl(options: LinkedInAddToProfileOptions): string {
-  const { type, stage, issueDate } = options;
+  const { type, issueDate } = options;
   const date = issueDate ?? new Date();
   const issueYear = date.getFullYear().toString();
   const issueMonth = (date.getMonth() + 1).toString();
@@ -389,7 +372,11 @@ export function buildLinkedInAddToProfileUrl(options: LinkedInAddToProfileOption
   let name: string;
   let certUrl: string;
 
-  if (type === 'badge' && stage) {
+  if (type === 'badge') {
+    const { stage } = options;
+    if (!stage) {
+      throw new Error('stage is required when type is "badge"');
+    }
     const { displayName } = BADGE_DESIGNS[stage];
     name = `Kiro Quest - ${displayName}`;
     certUrl = buildBadgeShareUrl(stage);

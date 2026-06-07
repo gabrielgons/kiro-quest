@@ -176,7 +176,7 @@ describe('Property 15: Share URL Encoding', () => {
 
   const dummyBlob = new Blob(['x'], { type: 'image/png' });
 
-  fcTest.prop([specialTextArb, fc.constantFrom<'linkedin' | 'twitter'>('linkedin', 'twitter')])(
+  fcTest.prop([specialTextArb, fc.constantFrom<'twitter'>('twitter')])(
     'opens a share URL containing the encodeURIComponent-encoded share text',
     async (shareText, platform) => {
       // Validates: Requirements 9.3, 10.3
@@ -198,17 +198,17 @@ describe('Property 15: Share URL Encoding', () => {
     },
   );
 
-  it('encodes text with spaces and ampersands for LinkedIn', async () => {
+  it('encodes text with spaces and ampersands for Twitter', async () => {
     // Validates: Requirements 9.3, 10.3
     const shareText = 'olá mundo & amigos';
     await shareToSocial({
       blob: dummyBlob,
       fileName: 'kiro-quest-certificate.png',
       shareText,
-      platform: 'linkedin',
+      platform: 'twitter',
     });
     const calledUrl = String(openSpy.mock.calls[0]![0]);
-    expect(calledUrl).toContain('summary=ol%C3%A1%20mundo%20%26%20amigos');
+    expect(calledUrl).toContain(`text=${encodeURIComponent(shareText)}`);
     // The unencoded form must not appear in the URL.
     expect(calledUrl).not.toContain('olá mundo & amigos');
   });
@@ -429,7 +429,7 @@ describe('Social share routing uses the crawlable /s/... URL', () => {
 
   const dummyBlob = new Blob(['x'], { type: 'image/png' });
 
-  it('LinkedIn share opens a URL containing the provided /s/badge/<stage> path', async () => {
+  it('Twitter share opens a URL containing the provided /s/badge/<stage> path', async () => {
     // Validates: Requirements 6.4, 6.5
     const shareUrl = buildBadgeShareUrl('mcp');
     await shareToSocial({
@@ -437,7 +437,7 @@ describe('Social share routing uses the crawlable /s/... URL', () => {
       fileName: 'kiro-quest-badge-mcp.png',
       shareText: 'texto',
       shareUrl,
-      platform: 'linkedin',
+      platform: 'twitter',
     });
     const calledUrl = String(openSpy.mock.calls[0]![0]);
     expect(calledUrl).toContain(encodeURIComponent(shareUrl));
@@ -465,7 +465,7 @@ describe('Social share routing uses the crawlable /s/... URL', () => {
       blob: dummyBlob,
       fileName: 'kiro-quest-badge-specs.png',
       shareText: 'texto',
-      platform: 'linkedin',
+      platform: 'twitter',
     });
     const calledUrl = decodeURIComponent(String(openSpy.mock.calls[0]![0]));
     expect(calledUrl).not.toContain('/s/badge/');
@@ -581,10 +581,9 @@ describe('buildLinkedInAddToProfileUrl', () => {
     },
   );
 
-  it('certificate type ignores stage param and uses certificate URL', () => {
+  it('certificate type uses certificate URL', () => {
     const url = buildLinkedInAddToProfileUrl({
       type: 'certificate',
-      stage: 'mcp', // should be ignored
       issueDate: new Date(2024, 3, 10),
     });
 

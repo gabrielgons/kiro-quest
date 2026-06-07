@@ -186,10 +186,9 @@ async function handleShare(platform: 'linkedin' | 'twitter'): Promise<void> {
   }
 
   if (platform === 'linkedin') {
-    const url = buildLinkedInAddToProfileUrl({
-      type: props.type,
-      stage: props.stage,
-    });
+    const url = props.type === 'badge' && props.stage
+      ? buildLinkedInAddToProfileUrl({ type: 'badge', stage: props.stage })
+      : buildLinkedInAddToProfileUrl({ type: 'certificate' });
     window.open(url, '_blank', 'noopener,noreferrer');
     return;
   }
