@@ -172,24 +172,27 @@ const shareUrl = computed(() =>
 );
 
 /**
- * Share the generated image to the given social platform (Requirements 5.1,
- * 5.2).
- *
- * LinkedIn opens the "Add to Profile" (Certification) form pre-filled with
- * badge/certificate data. Twitter opens the tweet intent share dialog.
- *
- * @param platform - 'twitter' opens the tweet intent share dialog.
+ * Open the LinkedIn "Add to Profile" (Certification) form pre-filled with
+ * badge or certificate data (Requirement 5.2).
  */
-async function handleShare(platform: 'linkedin' | 'twitter'): Promise<void> {
+function handleLinkedIn(): void {
   if (!generatedBlob.value) {
     return;
   }
 
-  if (platform === 'linkedin') {
-    const url = props.type === 'badge' && props.stage
-      ? buildLinkedInAddToProfileUrl({ type: 'badge', stage: props.stage, issueDate: new Date() })
-      : buildLinkedInAddToProfileUrl({ type: 'certificate', issueDate: new Date() });
-    window.open(url, '_blank', 'noopener,noreferrer');
+  const issueDate = new Date();
+  const url = props.type === 'badge' && props.stage
+    ? buildLinkedInAddToProfileUrl({ type: 'badge', stage: props.stage, issueDate })
+    : buildLinkedInAddToProfileUrl({ type: 'certificate', issueDate });
+  window.open(url, '_blank', 'noopener,noreferrer');
+}
+
+/**
+ * Share the generated image via the Twitter/X tweet intent dialog
+ * (Requirement 5.1).
+ */
+async function handleTwitter(): Promise<void> {
+  if (!generatedBlob.value) {
     return;
   }
 
@@ -198,7 +201,7 @@ async function handleShare(platform: 'linkedin' | 'twitter'): Promise<void> {
     fileName: fileName.value,
     shareText: shareText.value,
     shareUrl: shareUrl.value,
-    platform,
+    platform: 'twitter',
   });
 }
 
@@ -253,14 +256,14 @@ async function handleNativeShare(): Promise<void> {
         <button
           class="action-button linkedin"
           type="button"
-          @click="handleShare('linkedin')"
+          @click="handleLinkedIn"
         >
           Adicionar ao LinkedIn
         </button>
         <button
           class="action-button twitter"
           type="button"
-          @click="handleShare('twitter')"
+          @click="handleTwitter"
         >
           Twitter/X
         </button>
