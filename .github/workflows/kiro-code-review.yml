@@ -22,7 +22,7 @@ jobs:
 
       - name: Install Kiro CLI
         # TODO: Pin to a specific version when a stable release is available (e.g. @anthropic-ai/kiro-cli@1.0.0)
-        run: npm install -g @anthropic-ai/kiro-cli@latest
+        run: npm install -g @anthropic-ai/kiro-cli
 
       # TODO: Quando o power kiro-code-review for aprovado no registry da AWS,
       # substituir este step por: kiro power install kiro-code-review
