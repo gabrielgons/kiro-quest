@@ -238,4 +238,42 @@ describe('quizStore - retry score accumulation fix', () => {
     // questions should remain empty since load failed
     expect(store.questions).toHaveLength(0);
   });
+
+  it('retryStage clears incomplete data when stage was only partially completed', () => {
+    const store = useQuizStore();
+    store.startStage('kiro-basics');
+
+    // Partially complete: answer only 2 out of 4 questions (without calling completeStage)
+    store.submitAnswer('a'); // q1 = correct
+    store.nextQuestion();
+    store.submitAnswer('b'); // q2 = correct
+    // Do NOT call nextQuestion or completeStage - user abandons mid-stage
+
+    // Verify partial data exists
+    expect(store.userAnswersByStage['kiro-basics']).toHaveLength(2);
+    expect(store.questionsAnswered).toBe(2);
+    expect(store.correctAnswerCount).toBe(2);
+
+    // Retry the stage (user wants a fresh start)
+    store.retryStage('kiro-basics');
+
+    // Verify incomplete data is fully cleared
+    expect(store.userAnswersByStage['kiro-basics']).toBeUndefined();
+    expect(store.stageResults['kiro-basics']).toBeUndefined();
+    expect(store.completedStages).not.toContain('kiro-basics');
+    expect(store.questionsAnswered).toBe(0);
+    expect(store.correctAnswerCount).toBe(0);
+    expect(store.currentQuestionIndex).toBe(0);
+    expect(store.quizPhase).toBe('answering');
+
+    // Now complete the stage fully with new answers
+    answerAllQuestions(store, ['a', 'a', 'c', 'a']); // q1=correct, q2=wrong, q3=correct, q4=correct
+    store.completeStage();
+
+    // Verify score reflects ONLY the new attempt (3 correct, not 5 from accumulated)
+    expect(store.stageResults['kiro-basics']?.correctCount).toBe(3);
+    expect(store.stageResults['kiro-basics']?.totalCount).toBe(4);
+    expect(store.questionsAnswered).toBe(4);
+    expect(store.correctAnswerCount).toBe(3);
+  });
 });
