@@ -12,6 +12,12 @@ dist
 dist-ssr
 *.local
 
+# Build-time generated social-share assets (regenerated on every build into
+# dist/ via scripts/generate-social-assets.ts). Treated as build artifacts —
+# not committed — to keep the repo clean and avoid binary churn.
+public/og/
+public/s/
+
 # Test & coverage
 coverage/
 .vitest/

@@ -5,7 +5,7 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "vue-tsc -b && vite build",
+    "build": "tsx scripts/generate-social-assets.ts && vue-tsc -b && vite build",
     "preview": "vite preview",
     "test": "vitest run",
     "test:properties": "vitest run --grep \"Property\"",
@@ -19,6 +19,7 @@
   "devDependencies": {
     "@fast-check/vitest": "^0.2.0",
     "@pinia/testing": "^0.1.7",
+    "@resvg/resvg-js": "^2.6.2",
     "@types/node": "^25.9.1",
     "@vitejs/plugin-vue": "^5.2.3",
     "@vue/test-utils": "^2.4.6",

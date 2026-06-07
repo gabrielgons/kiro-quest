@@ -22,6 +22,8 @@ import {
   getBadgeFileName,
   getCertificateFileName,
   shareToSocial,
+  buildBadgeShareUrl,
+  buildCertificateShareUrl,
 } from '@/badges';
 import type {
   CertificateRendererOptions,
@@ -161,6 +163,13 @@ function handleDownload(): void {
   }
 }
 
+/** Crawlable `/s/...` share URL for the current artifact (badge or certificate). */
+const shareUrl = computed(() =>
+  props.type === 'badge' && props.stage
+    ? buildBadgeShareUrl(props.stage)
+    : buildCertificateShareUrl(),
+);
+
 /**
  * Share the generated image to the given social platform (Requirements 5.1,
  * 5.2).
@@ -175,6 +184,7 @@ async function handleShare(platform: 'linkedin' | 'twitter'): Promise<void> {
     blob: generatedBlob.value,
     fileName: fileName.value,
     shareText: shareText.value,
+    shareUrl: shareUrl.value,
     platform,
   });
 }

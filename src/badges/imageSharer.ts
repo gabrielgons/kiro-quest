@@ -1,6 +1,7 @@
 import { BADGE_DESIGNS } from './badgeDesigns';
 import type { ImageShareOptions, LearningStage, PerformanceLevel } from './types';
 import { copyToClipboard } from '@/sharing/shareGenerator';
+import { SITE_ORIGIN } from '@/config/siteOrigin';
 
 /**
  * Image sharing and download helpers for generated badge / certificate PNGs.
@@ -33,6 +34,57 @@ const LINKEDIN_SHARE_URL = 'https://www.linkedin.com/sharing/share-offsite/';
 
 /** Twitter / X "intent" share base URL. */
 const TWITTER_SHARE_URL = 'https://twitter.com/intent/tweet';
+
+/**
+ * Documented production origin, used as the fallback when
+ * `window.location.origin` is unavailable (e.g. SSR / non-browser contexts).
+ * Re-exported from the centralized config for DRY compliance.
+ */
+const PRODUCTION_ORIGIN = SITE_ORIGIN;
+
+/**
+ * Resolve the absolute site origin used to build crawlable share URLs.
+ *
+ * Prefers the live `window.location.origin`; falls back to the documented
+ * {@link PRODUCTION_ORIGIN} when `window` (or a usable `origin`) is
+ * unavailable.
+ *
+ * @returns The absolute site origin (no trailing slash).
+ */
+function resolveShareOrigin(): string {
+  if (typeof window !== 'undefined' && window.location?.origin) {
+    return window.location.origin;
+  }
+  return PRODUCTION_ORIGIN;
+}
+
+/**
+ * Build the crawlable, non-hash share URL for a stage badge.
+ *
+ * Returns `${origin}/s/badge/${stage}` — a static, build-time-generated share
+ * page that carries per-module Open Graph / Twitter tags so social crawlers
+ * render a recognizable preview card (see design "Component 4: Client
+ * share-URL builder", Property 7). The URL is generic per module and carries
+ * no per-user query params.
+ *
+ * @param stage - The LearningStage the badge was generated for.
+ * @returns The absolute `/s/badge/<stage>` share URL.
+ */
+export function buildBadgeShareUrl(stage: LearningStage): string {
+  return `${resolveShareOrigin()}/s/badge/${stage}`;
+}
+
+/**
+ * Build the crawlable, non-hash share URL for the completion certificate.
+ *
+ * Returns `${origin}/s/certificate` — the static certificate share page
+ * (Property 7). No per-user query params.
+ *
+ * @returns The absolute `/s/certificate` share URL.
+ */
+export function buildCertificateShareUrl(): string {
+  return `${resolveShareOrigin()}/s/certificate`;
+}
 
 /**
  * Remove path separator characters (`/` and `\`) from a filename so the
@@ -225,23 +277,36 @@ export async function shareViaWebAPI(
  * Open a social platform share dialog (LinkedIn / Twitter) in a new window
  * with the given pre-filled text, URL-encoded.
  *
+ * When `pageUrl` is provided (e.g. a crawlable `/s/...` share URL from
+ * {@link buildBadgeShareUrl} / {@link buildCertificateShareUrl}) it is used as
+ * the shared link so social crawlers fetch the per-module preview card.
+ * Otherwise it falls back to the current page URL (`window.location.href`),
+ * preserving the previous behavior.
+ *
  * @param platform - The target platform ('linkedin' or 'twitter').
  * @param text     - The share text to pre-fill.
+ * @param pageUrl  - Optional explicit URL to share; defaults to the current
+ *                   page URL when omitted.
  */
-function openShareWindow(platform: 'linkedin' | 'twitter', text: string): void {
-  const pageUrl =
-    typeof window !== 'undefined' ? window.location.href : 'https://kiro.dev';
+function openShareWindow(
+  platform: 'linkedin' | 'twitter',
+  text: string,
+  pageUrl?: string,
+): void {
+  const resolvedPageUrl =
+    pageUrl ??
+    (typeof window !== 'undefined' ? window.location.href : PRODUCTION_ORIGIN);
 
   let shareUrl: string;
   if (platform === 'linkedin') {
     // encodeURIComponent applied to all user-provided text (Req 9.3, 10.3).
     shareUrl =
-      `${LINKEDIN_SHARE_URL}?url=${encodeURIComponent(pageUrl)}` +
+      `${LINKEDIN_SHARE_URL}?url=${encodeURIComponent(resolvedPageUrl)}` +
       `&summary=${encodeURIComponent(text)}`;
   } else {
     shareUrl =
       `${TWITTER_SHARE_URL}?text=${encodeURIComponent(text)}` +
-      `&url=${encodeURIComponent(pageUrl)}`;
+      `&url=${encodeURIComponent(resolvedPageUrl)}`;
   }
 
   window.open(shareUrl, '_blank', 'noopener,noreferrer');
@@ -262,10 +327,10 @@ function openShareWindow(platform: 'linkedin' | 'twitter', text: string): void {
  * @returns A promise resolving to whether a share action was initiated.
  */
 export async function shareToSocial(options: ImageShareOptions): Promise<boolean> {
-  const { blob, fileName, shareText, platform } = options;
+  const { blob, fileName, shareText, platform, shareUrl } = options;
 
   if (platform === 'linkedin' || platform === 'twitter') {
-    openShareWindow(platform, shareText);
+    openShareWindow(platform, shareText, shareUrl);
     return true;
   }
 

@@ -36,8 +36,11 @@ import {
   generateCertificateShareText,
   downloadImage,
   shareToSocial,
+  buildBadgeShareUrl,
+  buildCertificateShareUrl,
 } from '../imageSharer';
 import { BADGE_DESIGNS } from '../badgeDesigns';
+import { STAGE_ORDER } from '@/engine/quizEngine';
 import type { LearningStage, PerformanceLevel } from '../types';
 
 // ---------------------------------------------------------------------------
@@ -365,4 +368,133 @@ describe('Property 18: Filename Path Separator Stripping', () => {
     expect(fileName).not.toContain('/');
     expect(fileName).not.toContain('\\');
   });
+});
+
+
+// ---------------------------------------------------------------------------
+// Task 8.3: Crawlable share-URL builders (unit tests)
+// ---------------------------------------------------------------------------
+
+describe('Crawlable share-URL builders', () => {
+  /** The documented production-origin fallback (see imageSharer.ts). */
+  const PRODUCTION_ORIGIN = 'https://kiro-quest.trilha.workers.dev';
+
+  it('buildBadgeShareUrl returns `${origin}/s/badge/<stage>`', () => {
+    // Validates: Requirements 6.1, 6.3
+    const origin = window.location.origin;
+    expect(buildBadgeShareUrl('kiro-basics')).toBe(`${origin}/s/badge/kiro-basics`);
+  });
+
+  it('buildCertificateShareUrl returns `${origin}/s/certificate`', () => {
+    // Validates: Requirements 6.2, 6.3
+    const origin = window.location.origin;
+    expect(buildCertificateShareUrl()).toBe(`${origin}/s/certificate`);
+  });
+
+  it('falls back to the documented production origin when window.location.origin is unavailable', () => {
+    // Validates: Requirement 6.6
+    const originalLocation = Object.getOwnPropertyDescriptor(window, 'location');
+    try {
+      // Simulate a non-browser / origin-less context: location has no origin.
+      Object.defineProperty(window, 'location', {
+        configurable: true,
+        value: { href: '' },
+      });
+
+      expect(buildBadgeShareUrl('specs')).toBe(`${PRODUCTION_ORIGIN}/s/badge/specs`);
+      expect(buildCertificateShareUrl()).toBe(`${PRODUCTION_ORIGIN}/s/certificate`);
+    } finally {
+      if (originalLocation) {
+        Object.defineProperty(window, 'location', originalLocation);
+      }
+    }
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Share routing: the opened social URL uses the crawlable /s/... share URL
+// ---------------------------------------------------------------------------
+
+describe('Social share routing uses the crawlable /s/... URL', () => {
+  let openSpy: MockInstance<typeof window.open>;
+
+  beforeEach(() => {
+    openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
+  });
+
+  afterEach(() => {
+    openSpy.mockRestore();
+  });
+
+  const dummyBlob = new Blob(['x'], { type: 'image/png' });
+
+  it('LinkedIn share opens a URL containing the provided /s/badge/<stage> path', async () => {
+    // Validates: Requirements 6.4, 6.5
+    const shareUrl = buildBadgeShareUrl('mcp');
+    await shareToSocial({
+      blob: dummyBlob,
+      fileName: 'kiro-quest-badge-mcp.png',
+      shareText: 'texto',
+      shareUrl,
+      platform: 'linkedin',
+    });
+    const calledUrl = String(openSpy.mock.calls[0]![0]);
+    expect(calledUrl).toContain(encodeURIComponent(shareUrl));
+    expect(decodeURIComponent(calledUrl)).toContain('/s/badge/mcp');
+  });
+
+  it('Twitter share opens a URL containing the provided /s/certificate path', async () => {
+    // Validates: Requirements 6.4, 6.5
+    const shareUrl = buildCertificateShareUrl();
+    await shareToSocial({
+      blob: dummyBlob,
+      fileName: 'kiro-quest-certificate.png',
+      shareText: 'texto',
+      shareUrl,
+      platform: 'twitter',
+    });
+    const calledUrl = String(openSpy.mock.calls[0]![0]);
+    expect(calledUrl).toContain(encodeURIComponent(shareUrl));
+    expect(decodeURIComponent(calledUrl)).toContain('/s/certificate');
+  });
+
+  it('omitting shareUrl preserves the legacy current-page-URL behavior (no /s/ path)', async () => {
+    // Backward-compatibility: existing callers that pass no shareUrl are unaffected.
+    await shareToSocial({
+      blob: dummyBlob,
+      fileName: 'kiro-quest-badge-specs.png',
+      shareText: 'texto',
+      platform: 'linkedin',
+    });
+    const calledUrl = decodeURIComponent(String(openSpy.mock.calls[0]![0]));
+    expect(calledUrl).not.toContain('/s/badge/');
+    expect(calledUrl).not.toContain('/s/certificate');
+  });
+});
+
+// ---------------------------------------------------------------------------
+// Property 7: Client URL builders produce same-origin /s/... paths
+// Feature: dynamic-social-share-preview, Property 7
+// ---------------------------------------------------------------------------
+
+describe('Property 7: Client URL builders produce same-origin /s/... paths', () => {
+  const stageOrderArb = fc.constantFrom(...STAGE_ORDER);
+
+  fcTest.prop([stageOrderArb], { numRuns: 100 })(
+    'buildBadgeShareUrl(stage) === `${origin}/s/badge/${stage}` for every STAGE_ORDER stage',
+    (stage) => {
+      // Validates: Requirements 6.1, 6.2, 6.6
+      const origin = window.location.origin;
+      expect(buildBadgeShareUrl(stage)).toBe(`${origin}/s/badge/${stage}`);
+    },
+  );
+
+  fcTest.prop([stageOrderArb], { numRuns: 100 })(
+    'buildCertificateShareUrl() === `${origin}/s/certificate` regardless of stage iteration',
+    () => {
+      // Validates: Requirements 6.2, 6.6
+      const origin = window.location.origin;
+      expect(buildCertificateShareUrl()).toBe(`${origin}/s/certificate`);
+    },
+  );
 });

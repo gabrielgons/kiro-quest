@@ -1,7 +1,14 @@
 {
   "name": "kiro-quest",
   "compatibility_date": "2025-04-01",
+  // Static Assets only — NO `main` Worker entry and NO bindings
+  // (no KV / R2 / D1 / Durable Objects). Cloudflare serves ./dist directly.
   "assets": {
-    "directory": "./dist"
+    "directory": "./dist",
+    // Serve "pretty" paths from their .html file, e.g.
+    // /s/badge/<stage> -> s/badge/<stage>.html
+    "html_handling": "auto-trailing-slash",
+    // Unmatched paths fall back to the SPA shell (index.html).
+    "not_found_handling": "single-page-application"
   }
 }
