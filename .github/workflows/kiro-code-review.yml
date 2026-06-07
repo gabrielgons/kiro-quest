@@ -32,6 +32,48 @@ jobs:
       - name: Install kiro-code-review power
         run: git clone https://github.com/gabrielgons/kiro-code-review.git ~/.kiro/powers/kiro-code-review
 
+      - name: Setup MCP settings for headless mode
+        run: |
+          mkdir -p ~/.kiro/settings
+
+          # Base MCP config with the GitHub server (uses env var interpolation by kiro-cli)
+          BASE_CONFIG='{
+            "mcpServers": {
+              "github": {
+                "command": "npx",
+                "args": ["-y", "@modelcontextprotocol/server-github"],
+                "env": {
+                  "GITHUB_PERSONAL_ACCESS_TOKEN": "${GITHUB_TOKEN}"
+                }
+              }
+            }
+          }'
+
+          # Check if the cloned power has its own mcp.json and merge servers
+          POWER_MCP="$HOME/.kiro/powers/kiro-code-review/mcp.json"
+          if [ -f "$POWER_MCP" ]; then
+            echo "Found power mcp.json, merging MCP server configurations..."
+            # Deep merge: power servers first, then base config overrides (base wins on conflicts)
+            jq -s '.[0].mcpServers as $power | .[1].mcpServers as $base |
+              { mcpServers: ($power + $base) }' \
+              "$POWER_MCP" <(echo "$BASE_CONFIG") > ~/.kiro/settings/mcp.json
+          else
+            echo "No power mcp.json found, using base config only."
+            echo "$BASE_CONFIG" > ~/.kiro/settings/mcp.json
+          fi
+
+          echo "Final ~/.kiro/settings/mcp.json:"
+          cat ~/.kiro/settings/mcp.json
+
+      - name: Verify MCP connectivity
+        env:
+          KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          echo "Verifying MCP servers are accessible..."
+          kiro-cli chat --no-interactive --trust-all-tools \
+            "List your available MCP tools" || echo "Warning: MCP verification returned non-zero exit code"
+
       - name: Run Kiro Code Review
         env:
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
