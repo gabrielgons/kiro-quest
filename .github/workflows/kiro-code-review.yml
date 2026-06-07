@@ -8,6 +8,9 @@ permissions:
   contents: read
   pull-requests: write
 
+env:
+  KIRO_CODE_REVIEW_VERSION: 'b946759' # pinned SHA — update after auditing new commits
+
 jobs:
   code-review:
     runs-on: ubuntu-latest
@@ -42,6 +45,7 @@ jobs:
         run: |
           rm -rf .kiro/powers/kiro-code-review
           git clone --depth 1 https://github.com/gabrielgons/kiro-code-review.git .kiro/powers/kiro-code-review
+          cd .kiro/powers/kiro-code-review && git checkout ${{ env.KIRO_CODE_REVIEW_VERSION }}
 
       - name: Run Kiro Code Review
         env:
