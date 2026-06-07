@@ -95,7 +95,7 @@ export interface ImageShareOptions {
   /** Pre-filled share text (<= 280 characters). */
   shareText: string;
   /** The target sharing platform. */
-  platform: 'linkedin' | 'twitter' | 'generic';
+  platform: 'twitter' | 'generic';
   /**
    * Optional crawlable share URL (e.g. `${origin}/s/badge/<stage>` or
    * `${origin}/s/certificate`) used as the shared link for LinkedIn / Twitter

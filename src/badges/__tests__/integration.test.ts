@@ -284,7 +284,7 @@ describe('Integration: badge generation → download flow', () => {
 // ---------------------------------------------------------------------------
 
 describe('Integration: certificate generation → share flow', () => {
-  it('generates a certificate from a name-input result and shares it to LinkedIn', async () => {
+  it('generates a certificate from a name-input result and shares it to Twitter', async () => {
     // Validates: Requirements 2.5, 5.1, 9.3
     const { api, wrapper } = mountComposable();
 
@@ -313,22 +313,22 @@ describe('Integration: certificate generation → share flow', () => {
     expect(getContextSpy).toHaveBeenCalledWith('2d');
     expect(toBlobSpy).toHaveBeenCalledTimes(1);
 
-    // Step 2: share the generated certificate to LinkedIn.
+    // Step 2: share the generated certificate to Twitter.
     const shareText = generateCertificateShareText(PERFORMANCE_LEVEL);
     const result = await shareToSocial({
       blob: blob as Blob,
       fileName: getCertificateFileName(),
       shareText,
-      platform: 'linkedin',
+      platform: 'twitter',
     });
 
     // A share window was opened and the action reported success.
     expect(result).toBe(true);
     expect(openSpy).toHaveBeenCalledTimes(1);
 
-    // The opened URL is a LinkedIn share URL carrying the URL-encoded text.
+    // The opened URL is a Twitter share URL carrying the URL-encoded text.
     const calledUrl = String(openSpy.mock.calls[0]![0]);
-    expect(calledUrl).toContain('linkedin.com');
+    expect(calledUrl).toContain('twitter.com');
     expect(calledUrl).toContain(encodeURIComponent(shareText));
     // The raw (unencoded) performance level must not appear verbatim.
     expect(calledUrl).toContain(encodeURIComponent(PERFORMANCE_LEVEL));

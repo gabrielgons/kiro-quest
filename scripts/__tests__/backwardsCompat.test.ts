@@ -100,7 +100,7 @@ describe('Backwards-compatibility floor preserved (Property 8) — Validates Req
       expect(canUseWebShareAPI.length).toBe(0);
     });
 
-    it('shareToSocial("linkedin") without shareUrl still resolves true (shareUrl is optional)', async () => {
+    it('shareToSocial("twitter") without shareUrl still resolves true (shareUrl is optional)', async () => {
       const openSpy = vi.spyOn(window, 'open').mockImplementation(() => null);
 
       // Note: NO `shareUrl` field — exercising the pre-existing call shape.
@@ -108,14 +108,14 @@ describe('Backwards-compatibility floor preserved (Property 8) — Validates Req
         blob: new Blob(['png-bytes'], { type: 'image/png' }),
         fileName: 'kiro-quest-badge-specs.png',
         shareText: 'Completei a fase no Kiro Quest!',
-        platform: 'linkedin',
+        platform: 'twitter',
       });
 
       expect(result).toBe(true);
       expect(openSpy).toHaveBeenCalledTimes(1);
       // Falls back to the current-page URL when shareUrl is omitted (unchanged).
       const openedUrl = openSpy.mock.calls[0]?.[0] as string;
-      expect(openedUrl).toContain('linkedin.com');
+      expect(openedUrl).toContain('twitter.com');
     });
   });
 
