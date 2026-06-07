@@ -96,6 +96,13 @@ export interface ImageShareOptions {
   shareText: string;
   /** The target sharing platform. */
   platform: 'linkedin' | 'twitter' | 'generic';
+  /**
+   * Optional crawlable share URL (e.g. `${origin}/s/badge/<stage>` or
+   * `${origin}/s/certificate`) used as the shared link for LinkedIn / Twitter
+   * so social crawlers fetch the per-module preview card. When omitted, the
+   * current page URL is used (backward compatible).
+   */
+  shareUrl?: string;
 }
 
 /**

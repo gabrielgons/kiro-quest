@@ -44,6 +44,8 @@ export {
   getBadgeFileName,
   getCertificateFileName,
   sanitizeFileName,
+  buildBadgeShareUrl,
+  buildCertificateShareUrl,
   imageSharer,
   MAX_SHARE_TEXT_LENGTH,
 } from './imageSharer';
