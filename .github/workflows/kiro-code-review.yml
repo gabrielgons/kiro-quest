@@ -21,7 +21,11 @@ jobs:
           node-version: '22'
 
       - name: Install Kiro CLI
-        run: curl -fsSL https://cli.kiro.dev/install | bash
+        run: |
+          curl -fsSL https://cli.kiro.dev/install -o install-kiro.sh
+          # TODO: Pin checksum when available
+          # echo "<expected-sha256>  install-kiro.sh" | sha256sum --check
+          bash install-kiro.sh
 
       # TODO: Quando o power kiro-code-review for aprovado no registry da AWS,
       # substituir este step por: kiro-cli power install kiro-code-review
