@@ -1,0 +1,416 @@
+{
+  "pbtResults": {
+    "1.3 Write property tests for badge design configuration": {
+      "status": "passed",
+      "lastRunTimestamp": 1780763447358
+    },
+    "3.2 Write property tests for certificate renderer": {
+      "status": "passed",
+      "lastRunTimestamp": 1780763534943
+    },
+    "2.3 Write property tests for badge renderer": {
+      "status": "passed",
+      "lastRunTimestamp": 1780763552791
+    },
+    "5.2 Write property tests for image sharer": {
+      "status": "passed",
+      "lastRunTimestamp": 1780763870685
+    },
+    "8.2 Write property test for name input validation": {
+      "status": "passed",
+      "lastRunTimestamp": 1780764183781
+    }
+  },
+  "executionHistory": {
+    "1.1 Create badge types and interfaces": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012780
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763020308
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763111351
+      }
+    ],
+    "1.2 Create badge design configuration": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012785
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763114964
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763255921
+      }
+    ],
+    "2.1 Create shared canvas utilities": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012789
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763115248
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763255382
+      }
+    ],
+    "2.2 Implement badge renderer": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012793
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763262785
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763356713
+      }
+    ],
+    "3.1 Implement certificate renderer": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012798
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763263187
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763357678
+      }
+    ],
+    "4. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012802
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763611517
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763615972
+      }
+    ],
+    "5.1 Implement image sharer module": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012808
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763612326
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763735922
+      }
+    ],
+    "6.1 Create useBadgeCanvas composable": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012810
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763742289
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763891883
+      }
+    ],
+    "7. Checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012812
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764063935
+      }
+    ],
+    "8.1 Create NameInputModal component": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012815
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763898651
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764045946
+      }
+    ],
+    "8.3 Create ShareBadgeButton component": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012818
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763899626
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764047924
+      }
+    ],
+    "9.1 Add share badge button to StageSummary view": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012820
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764065965
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764211038
+      }
+    ],
+    "9.2 Add certificate generation to FinalAchievement view": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012822
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764067019
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764213054
+      }
+    ],
+    "10.1 Create badges module index": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012825
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764218258
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764577059
+      }
+    ],
+    "11. Final checkpoint - Ensure all tests pass": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763012827
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764582450
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764684987
+      }
+    ],
+    "1. Set up badges module structure and core types": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763255923
+      }
+    ],
+    "2. Implement canvas utilities and badge renderer": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763356716
+      }
+    ],
+    "3. Implement certificate renderer": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763357681
+      }
+    ],
+    "1.3 Write property tests for badge design configuration": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763391605
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763585716
+      }
+    ],
+    "2.3 Write property tests for badge renderer": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763392637
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763586708
+      }
+    ],
+    "3.2 Write property tests for certificate renderer": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763393269
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763587142
+      }
+    ],
+    "5. Implement image sharer and share text generation": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763735924
+      }
+    ],
+    "5.2 Write property tests for image sharer": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763741817
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763891471
+      }
+    ],
+    "6. Implement Vue composable for badge canvas lifecycle": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763891885
+      }
+    ],
+    "6.2 Write unit tests for useBadgeCanvas composable": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780763898525
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764048024
+      }
+    ],
+    "8. Implement UI components": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764047927
+      }
+    ],
+    "8.2 Write property test for name input validation": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764064963
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764213193
+      }
+    ],
+    "9. Integrate into existing views": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764213058
+      }
+    ],
+    "10.2 Write integration tests for full badge/certificate flow": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764219209
+      },
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764578060
+      }
+    ],
+    "10. Create module barrel export and final wiring": [
+      {
+        "executionId": "3576744e-6674-4117-9bd3-35dcf86f43ad",
+        "chatSessionId": "268b88b3-edf5-4d8f-a24f-84921074a955",
+        "timestamp": 1780764577062
+      }
+    ]
+  }
+}
