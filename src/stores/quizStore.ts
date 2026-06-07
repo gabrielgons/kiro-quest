@@ -115,6 +115,11 @@ export const useQuizStore = defineStore('quiz', () => {
       return;
     }
 
+    // Clear previous attempt data to prevent score accumulation on retry
+    delete userAnswersByStage.value[stage];
+    delete stageResults.value[stage];
+    completedStages.value = completedStages.value.filter((s) => s !== stage);
+
     currentStage.value = stage;
     currentQuestionIndex.value = 0;
     quizPhase.value = 'answering';
