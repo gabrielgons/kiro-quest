@@ -63,11 +63,11 @@ describe('shareHtmlTemplate - buildBadgeShareHtml (unit)', () => {
     expect(html).toContain('<meta property="og:locale" content="pt_BR"/>');
   });
 
-  it('redirects into the same-origin stage-summary hash route (begins with #/)', () => {
+  it('redirects into the same-origin stage-summary hash route (begins with /#/)', () => {
     const html = buildBadgeShareHtml('mcp', BADGE_DESIGNS['mcp'], ORIGIN);
-    expect(html).toContain('location.replace("#/summary/mcp")');
-    expect(html).toContain('content="0; url=#/summary/mcp"');
-    expect(html).toContain('<a href="#/summary/mcp">');
+    expect(html).toContain('location.replace("/#/summary/mcp")');
+    expect(html).toContain('content="0; url=/#/summary/mcp"');
+    expect(html).toContain('<a href="/#/summary/mcp">');
     // The link href / refresh / script targets are all same-origin hashes.
     expect(html).not.toContain('location.replace("http');
   });
@@ -92,15 +92,15 @@ describe('shareHtmlTemplate - buildCertificateShareHtml (unit)', () => {
     }
   });
 
-  it('sets og:image to <origin>/og/certificate.png and redirects to #/achievement', () => {
+  it('sets og:image to <origin>/og/certificate.png and redirects to /#/achievement', () => {
     const html = buildCertificateShareHtml(ORIGIN);
     const expectedImage = `${ORIGIN}/og/certificate.png`;
     expect(html).toContain(`<meta property="og:image" content="${expectedImage}"/>`);
     expect(html).toContain(`<meta name="twitter:image" content="${expectedImage}"/>`);
     expect(html).toContain(`<meta property="og:url" content="${ORIGIN}/s/certificate"/>`);
-    expect(html).toContain('location.replace("#/achievement")');
-    expect(html).toContain('<a href="#/achievement">');
-    expect(html).toContain('content="0; url=#/achievement"');
+    expect(html).toContain('location.replace("/#/achievement")');
+    expect(html).toContain('<a href="/#/achievement">');
+    expect(html).toContain('content="0; url=/#/achievement"');
   });
 
   it('declares pt-BR document language and og:locale=pt_BR', () => {
@@ -119,7 +119,18 @@ describe('shareHtmlTemplate - renderShareHtml (unit)', () => {
       pageUrl: `${ORIGIN}/s/badge/specs`,
       redirectHash: 'https://evil.example/phish',
     };
-    expect(() => renderShareHtml(meta)).toThrow(/#\//);
+    expect(() => renderShareHtml(meta)).toThrow(/\/#\//);
+  });
+
+  it('throws when the redirect target uses old format without leading /', () => {
+    const meta: ShareMeta = {
+      title: 'x',
+      description: 'y',
+      imageUrl: `${ORIGIN}/og/badge-specs.png`,
+      pageUrl: `${ORIGIN}/s/badge/specs`,
+      redirectHash: '#/summary/specs',
+    };
+    expect(() => renderShareHtml(meta)).toThrow(/\/#\//);
   });
 
   it('HTML-escapes interpolated text passed through ShareMeta', () => {
@@ -128,7 +139,7 @@ describe('shareHtmlTemplate - renderShareHtml (unit)', () => {
       description: 'desc',
       imageUrl: `${ORIGIN}/og/badge-specs.png`,
       pageUrl: `${ORIGIN}/s/badge/specs`,
-      redirectHash: '#/summary/specs',
+      redirectHash: '/#/summary/specs',
     };
     const html = renderShareHtml(meta);
     expect(html).toContain('A &amp; B &lt;c&gt; &quot;d&quot; &apos;e&apos;');
@@ -187,7 +198,7 @@ describe('shareHtmlTemplate - property tests', () => {
     'Feature: dynamic-social-share-preview, Property 3 — every redirect target is a same-origin SPA hash route',
     (stage, origin) => {
       const html = buildBadgeShareHtml(stage, BADGE_DESIGNS[stage], origin);
-      const expectedHash = `#/summary/${stage}`;
+      const expectedHash = `/#/summary/${stage}`;
 
       // location.replace argument
       expect(html).toContain(`location.replace(${JSON.stringify(expectedHash)})`);
@@ -196,8 +207,8 @@ describe('shareHtmlTemplate - property tests', () => {
       // visible interstitial link href
       expect(html).toContain(`<a href="${expectedHash}">`);
 
-      // The redirect target must begin with "#/" and never be an absolute URL.
-      expect(expectedHash.startsWith('#/')).toBe(true);
+      // The redirect target must begin with "/#/" and never be an absolute URL.
+      expect(expectedHash.startsWith('/#/')).toBe(true);
       expect(html).not.toContain('location.replace("http');
       expect(html).not.toContain('url=http');
       expect(html).not.toContain('<a href="http');

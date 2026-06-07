@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { test as fcTest, fc } from '@fast-check/vitest';
-import { buildBadgeSvg, buildCertificateSvg, OG_WIDTH, OG_HEIGHT } from '../templates/svgTemplate';
+import { buildBadgeSvg, buildCertificateSvg, buildHomeSvg, OG_WIDTH, OG_HEIGHT, OG_ICON_LABELS } from '../templates/svgTemplate';
 import { BADGE_DESIGNS } from '@/badges/badgeDesigns';
 import { STAGE_ORDER } from '@/engine/quizEngine';
 import type { BadgeDesign } from '@/badges/types';
@@ -22,13 +22,17 @@ function expectedXmlEscape(s: string): string {
 const METACHARS = ['<', '>', '&', '"', "'"] as const;
 
 describe('svgTemplate - buildBadgeSvg (unit)', () => {
-  it('embeds the BADGE_DESIGNS values for a known stage (kiro-basics)', () => {
+  it('embeds the OG_ICON_LABELS mapped label and BADGE_DESIGNS values for a known stage (kiro-basics)', () => {
     const design = BADGE_DESIGNS['kiro-basics'];
     const svg = buildBadgeSvg('kiro-basics', design);
 
-    // displayName + icon appear as well-delimited text nodes
+    // displayName appears as a well-delimited text node
     expect(svg).toContain('>' + design.displayName + '</text>');
-    expect(svg).toContain('>' + design.icon + '</text>');
+    // icon is mapped to the ASCII label (not the raw emoji)
+    const expectedLabel = OG_ICON_LABELS[design.icon] ?? design.displayName.slice(0, 2).toUpperCase();
+    expect(svg).toContain('>' + expectedLabel + '</text>');
+    // raw emoji should NOT be present in the SVG
+    expect(svg).not.toContain(design.icon);
     // gradient stops use the design colors
     expect(svg).toContain('stop-color="' + design.primaryColor + '"');
     expect(svg).toContain('stop-color="' + design.secondaryColor + '"');
@@ -56,9 +60,14 @@ describe('svgTemplate - buildBadgeSvg (unit)', () => {
     };
     const svg = buildBadgeSvg('kiro-basics', hostile);
 
-    // The escaped forms must be present...
+    // The escaped forms of displayName, primaryColor, secondaryColor must be present...
     expect(svg).toContain(expectedXmlEscape(hostile.displayName));
-    expect(svg).toContain(expectedXmlEscape(hostile.icon));
+    expect(svg).toContain(expectedXmlEscape(hostile.primaryColor));
+    expect(svg).toContain(expectedXmlEscape(hostile.secondaryColor));
+    // The icon is mapped to a fallback label (first 2 chars of displayName uppercased)
+    // since the hostile icon won't be in OG_ICON_LABELS. The label is 'A ' escaped.
+    const fallbackLabel = hostile.displayName.slice(0, 2).toUpperCase();
+    expect(svg).toContain(expectedXmlEscape(fallbackLabel));
     // ...and the raw dangerous strings must NOT appear verbatim.
     expect(svg).not.toContain('<i>&"\'</i>');
     expect(svg).not.toContain('A & B <c>');
@@ -71,9 +80,24 @@ describe('svgTemplate - buildCertificateSvg (unit)', () => {
     const svg = buildCertificateSvg();
     expect(svg).toContain('Certificado de Conclus'); // "Certificado de Conclusão"
     expect(svg).toContain('Kiro Quest');
+    expect(svg).toContain('★'); // ASCII star instead of emoji trophy
+    expect(svg).not.toContain('🏆'); // no emoji in SVG output
     expect(svg).toContain('width="1200"');
     expect(svg).toContain('height="630"');
     expect(svg).toContain('viewBox="0 0 1200 630"');
+  });
+});
+
+describe('svgTemplate - buildHomeSvg (unit)', () => {
+  it('renders a generic 1200x630 site-level OG card with no emoji', () => {
+    const svg = buildHomeSvg();
+    expect(svg).toContain('Kiro Quest');
+    expect(svg).toContain('Trilha de Aprendizado Kiro');
+    expect(svg).toContain('width="1200"');
+    expect(svg).toContain('height="630"');
+    expect(svg).toContain('viewBox="0 0 1200 630"');
+    // No emoji characters in the home SVG
+    expect(svg).not.toMatch(/[\u{1F000}-\u{1FFFF}]/u);
   });
 });
 
@@ -85,16 +109,16 @@ describe('svgTemplate - property tests', () => {
       const design = BADGE_DESIGNS[stage];
       const svg = buildBadgeSvg(stage, design);
 
-      // Every interpolated design value must appear in its XML-escaped form,
-      // sitting inside a well-formed attribute/text region.
-      expect(svg).toContain('>' + expectedXmlEscape(design.icon) + '</text>');
+      // The mapped icon label (not the raw emoji) must appear XML-escaped
+      const iconLabel = OG_ICON_LABELS[design.icon] ?? design.displayName.slice(0, 2).toUpperCase();
+      expect(svg).toContain('>' + expectedXmlEscape(iconLabel) + '</text>');
       expect(svg).toContain('>' + expectedXmlEscape(design.displayName) + '</text>');
       expect(svg).toContain('stop-color="' + expectedXmlEscape(design.primaryColor) + '"');
       expect(svg).toContain('stop-color="' + expectedXmlEscape(design.secondaryColor) + '"');
 
       // No interpolated value reintroduces a raw metacharacter: each raw value
       // that contains a metacharacter must NOT appear verbatim in the output.
-      for (const value of [design.icon, design.displayName, design.primaryColor, design.secondaryColor]) {
+      for (const value of [iconLabel, design.displayName, design.primaryColor, design.secondaryColor]) {
         const hasMeta = METACHARS.some((m) => value.includes(m));
         if (hasMeta) {
           expect(svg).not.toContain(value);

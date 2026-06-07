@@ -2,7 +2,7 @@ import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { STAGE_ORDER } from '@/engine/quizEngine';
 import { BADGE_DESIGNS } from '@/badges/badgeDesigns';
-import { buildBadgeSvg, buildCertificateSvg, OG_WIDTH, OG_HEIGHT } from './templates/svgTemplate';
+import { buildBadgeSvg, buildCertificateSvg, buildHomeSvg, OG_WIDTH, OG_HEIGHT } from './templates/svgTemplate';
 import { buildBadgeShareHtml, buildCertificateShareHtml } from './templates/shareHtmlTemplate';
 
 /**
@@ -26,8 +26,10 @@ export interface GenerateOptions {
  * The set of files {@link generateSocialAssets} wrote on success.
  *
  * For an 11-entry `STAGE_ORDER`, `pngFiles` holds 11 badge PNGs + 1 certificate
- * PNG (12), and `htmlFiles` holds 11 badge share pages + 1 certificate share
- * page (12). All paths are absolute (rooted at `opts.outDir`).
+ * PNG + 1 home PNG (13), and `htmlFiles` holds 11 badge share pages + 11
+ * directory-style badge index.html + 1 certificate share page + 1
+ * directory-style certificate index.html (24). All paths are absolute (rooted
+ * at `opts.outDir`).
  */
 export interface GenerateResult {
   /** Absolute paths of every written PNG (`og/badge-<stage>.png`, `og/certificate.png`). */
@@ -86,6 +88,14 @@ export async function generateSocialAssets(opts: GenerateOptions): Promise<Gener
     const htmlPath = join(badgeHtmlDir, `${stage}.html`);
     await writeFile(htmlPath, html);
     htmlFiles.push(htmlPath);
+
+    // Belt-and-suspenders: also emit directory-style index.html variant so
+    // /s/badge/<stage>/ resolves regardless of html_handling quirks.
+    const badgeIndexDir = join(badgeHtmlDir, stage);
+    await ensureDir(badgeIndexDir);
+    const badgeIndexPath = join(badgeIndexDir, 'index.html');
+    await writeFile(badgeIndexPath, html);
+    htmlFiles.push(badgeIndexPath);
   }
 
   // Certificate (generic — no per-user data).
@@ -99,6 +109,20 @@ export async function generateSocialAssets(opts: GenerateOptions): Promise<Gener
   const certHtmlPath = join(certHtmlDir, 'certificate.html');
   await writeFile(certHtmlPath, certHtml);
   htmlFiles.push(certHtmlPath);
+
+  // Belt-and-suspenders: directory-style variant for certificate.
+  const certIndexDir = join(certHtmlDir, 'certificate');
+  await ensureDir(certIndexDir);
+  const certIndexPath = join(certIndexDir, 'index.html');
+  await writeFile(certIndexPath, certHtml);
+  htmlFiles.push(certIndexPath);
+
+  // Home OG card (generic site-level card for index.html og:image).
+  const homeSvg = buildHomeSvg();
+  const homePng = opts.rasterize(homeSvg, OG_WIDTH, OG_HEIGHT);
+  const homePngPath = join(ogDir, 'home.png');
+  await writeFile(homePngPath, homePng);
+  pngFiles.push(homePngPath);
 
   return { pngFiles, htmlFiles };
 }

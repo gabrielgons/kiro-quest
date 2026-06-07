@@ -41,18 +41,26 @@ describe('generateSocialAssets (smoke) - Feature: dynamic-social-share-preview, 
     for (const stage of STAGE_ORDER) {
       expect(existsSync(join(outDir, 'og', `badge-${stage}.png`)), `PNG for ${stage}`).toBe(true);
       expect(existsSync(join(outDir, 's', 'badge', `${stage}.html`)), `HTML for ${stage}`).toBe(true);
+      // Directory-style variant also exists.
+      expect(existsSync(join(outDir, 's', 'badge', stage, 'index.html')), `index.html for ${stage}`).toBe(true);
     }
 
     // Certificate PNG + share page exist.
     expect(existsSync(join(outDir, 'og', 'certificate.png'))).toBe(true);
     expect(existsSync(join(outDir, 's', 'certificate.html'))).toBe(true);
+    // Directory-style variant for certificate.
+    expect(existsSync(join(outDir, 's', 'certificate', 'index.html'))).toBe(true);
 
-    // Exact counts: 11 stages + 1 certificate = 12 of each.
-    expect(result.pngFiles).toHaveLength(STAGE_ORDER.length + 1);
-    expect(result.htmlFiles).toHaveLength(STAGE_ORDER.length + 1);
+    // Home OG card exists.
+    expect(existsSync(join(outDir, 'og', 'home.png'))).toBe(true);
 
-    // Rasterizer invoked exactly once per stage + once for the certificate.
-    expect(rasterize).toHaveBeenCalledTimes(STAGE_ORDER.length + 1);
+    // Exact counts: 11 stages + 1 certificate + 1 home = 13 PNGs.
+    expect(result.pngFiles).toHaveLength(STAGE_ORDER.length + 2);
+    // HTML: 12 flat + 12 directory-style index.html = 24.
+    expect(result.htmlFiles).toHaveLength((STAGE_ORDER.length + 1) * 2);
+
+    // Rasterizer invoked exactly once per stage + once for the certificate + once for home.
+    expect(rasterize).toHaveBeenCalledTimes(STAGE_ORDER.length + 2);
   });
 
   it('returns paths that all point at files that actually exist', async () => {

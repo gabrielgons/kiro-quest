@@ -149,8 +149,8 @@ describe('SPA deep links still resolve after the /s/* redirect — Validates Req
 
   /** Extract the redirect hash the share page navigates to (location.replace arg). */
   function extractRedirectHash(html: string): string {
-    const match = html.match(/location\.replace\("(#\/[^"]+)"\)/);
-    expect(match, 'share HTML must contain a location.replace("#/...") redirect').not.toBeNull();
+    const match = html.match(/location\.replace\("(\/#\/[^"]+)"\)/);
+    expect(match, 'share HTML must contain a location.replace("/#/...") redirect').not.toBeNull();
     const hash = match![1]!;
     // The same hash must also appear in the no-JS fallbacks (href + meta refresh).
     expect(html).toContain(`href="${hash}"`);
@@ -158,7 +158,7 @@ describe('SPA deep links still resolve after the /s/* redirect — Validates Req
     return hash;
   }
 
-  it('badge share pages redirect to #/summary/<stage>, which maps to the real /summary/:stage route', () => {
+  it('badge share pages redirect to /#/summary/<stage>, which maps to the real /summary/:stage route', () => {
     expect(routerSource).toContain("path: '/summary/:stage'");
 
     // Cover a couple of stages from STAGE_ORDER.
@@ -171,19 +171,19 @@ describe('SPA deep links still resolve after the /s/* redirect — Validates Req
       const html = buildBadgeShareHtml(stage, BADGE_DESIGNS[stage], 'https://kiro-quest.example');
       const hash = extractRedirectHash(html);
 
-      expect(hash).toBe(`#/summary/${stage}`);
-      // The hash route (#/summary/<stage>) corresponds to the declared
+      expect(hash).toBe(`/#/summary/${stage}`);
+      // The hash route (/#/summary/<stage>) corresponds to the declared
       // dynamic route path '/summary/:stage'.
-      expect(hash.startsWith('#/summary/')).toBe(true);
+      expect(hash.startsWith('/#/summary/')).toBe(true);
     }
   });
 
-  it('certificate share page redirects to #/achievement, which maps to the real /achievement route', () => {
+  it('certificate share page redirects to /#/achievement, which maps to the real /achievement route', () => {
     expect(routerSource).toContain("path: '/achievement'");
 
     const html = buildCertificateShareHtml('https://kiro-quest.example');
     const hash = extractRedirectHash(html);
 
-    expect(hash).toBe('#/achievement');
+    expect(hash).toBe('/#/achievement');
   });
 });

@@ -1,6 +1,7 @@
 import { BADGE_DESIGNS } from './badgeDesigns';
 import type { ImageShareOptions, LearningStage, PerformanceLevel } from './types';
 import { copyToClipboard } from '@/sharing/shareGenerator';
+import { SITE_ORIGIN } from '@/config/siteOrigin';
 
 /**
  * Image sharing and download helpers for generated badge / certificate PNGs.
@@ -37,9 +38,9 @@ const TWITTER_SHARE_URL = 'https://twitter.com/intent/tweet';
 /**
  * Documented production origin, used as the fallback when
  * `window.location.origin` is unavailable (e.g. SSR / non-browser contexts).
- * This is the canonical deployed origin for Kiro Quest.
+ * Re-exported from the centralized config for DRY compliance.
  */
-const PRODUCTION_ORIGIN = 'https://kiro-quest.trilha.workers.dev';
+const PRODUCTION_ORIGIN = SITE_ORIGIN;
 
 /**
  * Resolve the absolute site origin used to build crawlable share URLs.

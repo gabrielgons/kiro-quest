@@ -1,6 +1,7 @@
 import { fileURLToPath } from 'node:url';
 import { Resvg } from '@resvg/resvg-js';
 import { generateSocialAssets } from './generateSocialAssets';
+import { SITE_ORIGIN } from '../src/config/siteOrigin';
 
 /**
  * Thin build-time entry that wires the real SVG -> PNG rasterizer
@@ -18,8 +19,8 @@ import { generateSocialAssets } from './generateSocialAssets';
 // Resolve `<repo>/public` relative to this script (works under tsx / ESM).
 const outDir = fileURLToPath(new URL('../public', import.meta.url));
 
-// Canonical production origin; overridable via SITE_ORIGIN for previews.
-const siteOrigin = process.env.SITE_ORIGIN ?? 'https://kiro-quest.trilha.workers.dev';
+// Canonical production origin; overridable via SITE_ORIGIN env var for previews.
+const siteOrigin = process.env.SITE_ORIGIN ?? SITE_ORIGIN;
 
 async function main(): Promise<void> {
   const result = await generateSocialAssets({

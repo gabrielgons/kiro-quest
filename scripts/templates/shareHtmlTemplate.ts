@@ -26,8 +26,8 @@ import type { BadgeDesign } from '@/badges/types';
  * - `title` / `description` are pt-BR copy (escaped by {@link renderShareHtml}).
  * - `imageUrl` is the absolute same-origin URL of the matching static PNG.
  * - `pageUrl` is the absolute canonical URL of this `/s/` page.
- * - `redirectHash` is the same-origin SPA hash route, e.g. `#/summary/specs`.
- *   It MUST begin with `#/` (enforced by {@link renderShareHtml}).
+ * - `redirectHash` is the same-origin SPA hash route, e.g. `/#/summary/specs`.
+ *   It MUST begin with `/#/` (enforced by {@link renderShareHtml}).
  */
 export interface ShareMeta {
   /** pt-BR document/OG/Twitter title. */
@@ -38,7 +38,7 @@ export interface ShareMeta {
   imageUrl: string;
   /** Absolute canonical URL of this `/s/` share page. */
   pageUrl: string;
-  /** Same-origin SPA hash route beginning with `#/`. */
+  /** Same-origin SPA hash route beginning with `/#/`. */
   redirectHash: string;
 }
 
@@ -67,13 +67,13 @@ function htmlEscape(s: string): string {
  * Every interpolated value is HTML-escaped; the redirect target is also
  * JS-quoted via `JSON.stringify` for the inline script.
  *
- * @throws if `meta.redirectHash` does not begin with `#/` (guards against
+ * @throws if `meta.redirectHash` does not begin with `/#/` (guards against
  * emitting an absolute/external redirect — there must be no open redirect).
  */
 export function renderShareHtml(meta: ShareMeta): string {
-  if (!meta.redirectHash.startsWith('#/')) {
+  if (!meta.redirectHash.startsWith('/#/')) {
     throw new Error(
-      `renderShareHtml: redirectHash must begin with "#/" (same-origin SPA route), got: ${meta.redirectHash}`,
+      `renderShareHtml: redirectHash must begin with "/#/" (root-absolute SPA route), got: ${meta.redirectHash}`,
     );
   }
 
@@ -120,7 +120,7 @@ export function renderShareHtml(meta: ShareMeta): string {
  * Derives pt-BR `title`/`description` from `design.displayName`, points
  * `og:image` at `${siteOrigin}/og/badge-${stage}.png`, sets the canonical page
  * URL to `${siteOrigin}/s/badge/${stage}`, and redirects into the stage-summary
- * SPA route `#/summary/${stage}`.
+ * SPA route `/#/summary/${stage}`.
  */
 export function buildBadgeShareHtml(
   stage: LearningStage,
@@ -136,7 +136,7 @@ export function buildBadgeShareHtml(
     description,
     imageUrl: `${siteOrigin}/og/badge-${stage}.png`,
     pageUrl: `${siteOrigin}/s/badge/${stage}`,
-    redirectHash: `#/summary/${stage}`,
+    redirectHash: `/#/summary/${stage}`,
   });
 }
 
@@ -146,7 +146,7 @@ export function buildBadgeShareHtml(
  *
  * Points `og:image` at `${siteOrigin}/og/certificate.png`, sets the canonical
  * page URL to `${siteOrigin}/s/certificate`, and redirects into the final
- * achievement SPA route `#/achievement`.
+ * achievement SPA route `/#/achievement`.
  */
 export function buildCertificateShareHtml(siteOrigin: string): string {
   const title = 'Certificado de Conclusão — Kiro Quest';
@@ -158,6 +158,6 @@ export function buildCertificateShareHtml(siteOrigin: string): string {
     description,
     imageUrl: `${siteOrigin}/og/certificate.png`,
     pageUrl: `${siteOrigin}/s/certificate`,
-    redirectHash: '#/achievement',
+    redirectHash: '/#/achievement',
   });
 }
