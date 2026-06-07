@@ -107,6 +107,12 @@ export const useQuizStore = defineStore('quiz', () => {
 
   // --- Actions ---
 
+  function _clearStageData(stage: LearningStage): void {
+    delete userAnswersByStage.value[stage];
+    delete stageResults.value[stage];
+    completedStages.value = completedStages.value.filter((s) => s !== stage);
+  }
+
   function startStage(stage: LearningStage): void {
     const stageQuestions = questionStore.getQuestionsForStage(stage);
 
@@ -114,6 +120,9 @@ export const useQuizStore = defineStore('quiz', () => {
       errorMessage.value = `Não foi possível carregar as perguntas para o estágio "${stage}".`;
       return;
     }
+
+    // Clear previous attempt data to prevent score accumulation on retry
+    _clearStageData(stage);
 
     currentStage.value = stage;
     currentQuestionIndex.value = 0;
@@ -189,14 +198,7 @@ export const useQuizStore = defineStore('quiz', () => {
   }
 
   function retryStage(stage: LearningStage): void {
-    // Remove from completedStages
-    completedStages.value = completedStages.value.filter((s) => s !== stage);
-
-    // Clear userAnswersByStage for this stage
-    delete userAnswersByStage.value[stage];
-
-    // Remove StageResult
-    delete stageResults.value[stage];
+    _clearStageData(stage);
 
     // Generate new session seed for fresh randomization on retry
     sessionSeed.value = Date.now();
