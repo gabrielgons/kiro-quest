@@ -8,6 +8,9 @@ permissions:
   contents: read
   pull-requests: write
 
+env:
+  KIRO_CODE_REVIEW_VERSION: 'b946759' # pinned SHA — update after auditing new commits
+
 jobs:
   code-review:
     runs-on: ubuntu-latest
@@ -27,15 +30,29 @@ jobs:
           # echo "<expected-sha256>  install-kiro.sh" | sha256sum --check
           bash install-kiro.sh
 
-      # TODO: Quando o power kiro-code-review for aprovado no registry da AWS,
-      # substituir este step por: kiro-cli power install kiro-code-review
-      - name: Install kiro-code-review power
-        run: git clone https://github.com/gabrielgons/kiro-code-review.git ~/.kiro/powers/kiro-code-review
+      # O power kiro-code-review é apenas conhecimento (steering markdown).
+      # Clonamos para DENTRO do workspace para que o custom agent
+      # (.kiro/agents/code-reviewer.json) consiga carregar os arquivos via
+      # resources file:// usando caminhos relativos ao repositório.
+      #
+      # NOTA: Não dependemos mais do MCP. No modo headless o kiro-cli desabilita
+      # o MCP via "governance fail-closed" (a chamada à API de governance falha
+      # com auth via API key, derrubando todos os MCP servers — ver issue
+      # aws/amazon-q-developer-cli#3603). Por isso o acesso ao GitHub é feito
+      # pelo gh CLI dentro da tool shell, e a inteligência de review entra pelo
+      # custom agent via resources, sem precisar de MCP.
+      - name: Install kiro-code-review power into workspace
+        run: |
+          rm -rf .kiro/powers/kiro-code-review
+          git clone --depth 1 https://github.com/gabrielgons/kiro-code-review.git .kiro/powers/kiro-code-review
+          cd .kiro/powers/kiro-code-review && git checkout ${{ env.KIRO_CODE_REVIEW_VERSION }}
 
       - name: Run Kiro Code Review
         env:
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
+          GH_TOKEN: ${{ github.token }}
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          kiro-cli chat --no-interactive --trust-all-tools --require-mcp-startup \
-            "Review the pull request #${{ github.event.pull_request.number }} in the repository ${{ github.repository }}. Use the kiro-code-review power to analyze the changes and post a native GitHub PR review with inline comments on the changed files."
+          kiro-cli chat --no-interactive --trust-all-tools \
+            --agent code-reviewer \
+            "Review pull request #${{ github.event.pull_request.number }} in the repository ${{ github.repository }}. Follow the kiro-code-review steering files loaded in your context for the review criteria, workflow, and report format. Use the gh CLI (already authenticated via GH_TOKEN) to fetch the PR data and to post a native GitHub PR review with inline comments on the changed files. Post the review with event=COMMENT."
