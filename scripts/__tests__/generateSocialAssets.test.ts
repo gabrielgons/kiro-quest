@@ -56,7 +56,7 @@ describe('generateSocialAssets (smoke) - Feature: dynamic-social-share-preview, 
 
     // Exact counts: 13 stages + 1 certificate + 1 home = 15 PNGs.
     expect(result.pngFiles).toHaveLength(STAGE_ORDER.length + 2);
-    // HTML: 12 flat + 12 directory-style index.html = 24.
+    // HTML: (STAGE_ORDER.length + 1) flat + (STAGE_ORDER.length + 1) directory-style index.html.
     expect(result.htmlFiles).toHaveLength((STAGE_ORDER.length + 1) * 2);
 
     // Rasterizer invoked exactly once per stage + once for the certificate + once for home.
