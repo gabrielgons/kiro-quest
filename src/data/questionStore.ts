@@ -1,24 +1,6 @@
 import type { LearningStage } from '@/engine/types';
 import type { QuestionPresentation, AnswerKey, DifficultyLevel } from '@/data/types';
-
-/**
- * Ordered list of all Learning Stages as defined in Requirement 3.1.
- */
-const STAGE_ORDER: LearningStage[] = [
-  'kiro-basics',
-  'specs',
-  'feature-specs',
-  'bugfix-specs',
-  'steering',
-  'hooks',
-  'mcp',
-  'powers',
-  'skills',
-  'real-world-workflows',
-  'enterprise-scenarios',
-  'kiro-cli',
-  'kiro-web',
-];
+import { STAGE_ORDER } from '@/engine/stages';
 
 /**
  * Difficulty ordering for sorting questions within a stage.

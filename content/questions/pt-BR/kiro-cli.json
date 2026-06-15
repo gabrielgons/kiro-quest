@@ -17,7 +17,7 @@
       "explanation": "O Kiro CLI é a interface baseada em terminal do Kiro, permitindo que desenvolvedores interajam com o agente diretamente pela linha de comando, sem necessidade de IDE.",
       "sourceUrl": "https://kiro.dev/docs/cli/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2025-06-15"
     },
     {
       "id": "cli-002",
@@ -32,7 +32,7 @@
       "explanation": "O modo headless do Kiro CLI permite execução sem interação humana, sendo ideal para automação em pipelines de CI/CD onde não há um terminal interativo disponível.",
       "sourceUrl": "https://kiro.dev/docs/cli/headless/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2025-06-15"
     },
     {
       "id": "cli-003",
@@ -49,7 +49,7 @@
       "explanation": "Custom agents no Kiro CLI permitem criar agentes especializados com instruções e conjuntos de ferramentas personalizados, adequados para tarefas específicas como revisão de código, migração de dados ou análise de segurança.",
       "sourceUrl": "https://kiro.dev/docs/cli/custom-agents/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2025-06-15"
     },
     {
       "id": "cli-004",
@@ -66,7 +66,7 @@
       "explanation": "O Agent Communication Protocol (ACP) é o protocolo padronizado que permite ao Kiro CLI se comunicar com sistemas externos de forma estruturada, ideal para integrações em pipelines de CI/CD onde o agente precisa receber instruções e retornar resultados de forma programática.",
       "sourceUrl": "https://kiro.dev/docs/cli/acp/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2025-06-15"
     },
     {
       "id": "cli-005",
@@ -83,7 +83,7 @@
       "explanation": "Os effort levels (low, medium e high) no Kiro CLI controlam a profundidade de análise e a quantidade de alterações que o agente realiza, permitindo ajustar o comportamento conforme a complexidade da tarefa.",
       "sourceUrl": "https://kiro.dev/docs/cli/effort-levels/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2025-06-15"
     },
     {
       "id": "cli-006",
@@ -98,7 +98,7 @@
       "explanation": "O Kiro CLI suporta gerenciamento de sessões, permitindo que o usuário retome sessões anteriores com todo o contexto preservado, facilitando trabalhos de longa duração que se estendem por múltiplas interações.",
       "sourceUrl": "https://kiro.dev/docs/cli/sessions/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2025-06-15"
     },
     {
       "id": "cli-007",
@@ -116,7 +116,7 @@
       "explanation": "O modelo de permissões do Kiro CLI opera em camadas progressivas: desde somente leitura (mais restritivo), passando por permissões granulares por arquivo e diretório, permissões inteligentes baseadas no contexto Git (git-aware selection), até acesso completo ao workspace (mais permissivo).",
       "sourceUrl": "https://kiro.dev/docs/cli/permissions/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2025-06-15"
     }
   ]
 }

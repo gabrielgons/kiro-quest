@@ -6,25 +6,9 @@ import type {
   UserAnswer,
 } from './types';
 import type { QuestionType, AnswerKey } from '@/data/types';
+import { STAGE_ORDER } from './stages';
 
-/**
- * Ordered list of all learning stages for progression logic.
- */
-export const STAGE_ORDER: LearningStage[] = [
-  'kiro-basics',
-  'specs',
-  'feature-specs',
-  'bugfix-specs',
-  'steering',
-  'hooks',
-  'mcp',
-  'powers',
-  'skills',
-  'real-world-workflows',
-  'enterprise-scenarios',
-  'kiro-cli',
-  'kiro-web',
-];
+export { STAGE_ORDER };
 
 /**
  * Verifies an answer against the answer key.

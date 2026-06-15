@@ -15,6 +15,7 @@
 
 import type { CertificateRendererOptions } from './types';
 import { drawCenteredText, roundedRect } from './canvasUtils';
+import { STAGE_ORDER } from '@/engine/stages';
 
 /** Fixed certificate width in pixels (landscape). */
 export const CERTIFICATE_WIDTH = 1200;
@@ -25,7 +26,7 @@ export const CERTIFICATE_HEIGHT = 800;
 export const FALLBACK_NAME = 'Um(a) Desbravador(a)';
 
 /** Total number of stages in the Kiro Quest trail. */
-const TOTAL_STAGES = 13;
+const TOTAL_STAGES = STAGE_ORDER.length;
 
 /**
  * Render the full completion certificate onto the provided 2D context.
