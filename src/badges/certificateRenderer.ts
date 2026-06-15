@@ -25,7 +25,7 @@ export const CERTIFICATE_HEIGHT = 800;
 export const FALLBACK_NAME = 'Um(a) Desbravador(a)';
 
 /** Total number of stages in the Kiro Quest trail. */
-const TOTAL_STAGES = 11;
+const TOTAL_STAGES = 13;
 
 /**
  * Render the full completion certificate onto the provided 2D context.
@@ -33,7 +33,7 @@ const TOTAL_STAGES = 11;
  * Preconditions (see design "Certificate Rendering Algorithm"):
  * - `ctx` is a valid 2D canvas rendering context whose canvas dimensions are
  *   at least 1200x800.
- * - `options.stats.completedStages` === 11.
+ * - `options.stats.completedStages` === 13.
  * - `options.stats.totalCorrect` <= `options.stats.totalQuestions`.
  * - `options.completionDate` is a valid Date object.
  *

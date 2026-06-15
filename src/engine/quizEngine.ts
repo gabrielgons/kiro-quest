@@ -22,6 +22,8 @@ export const STAGE_ORDER: LearningStage[] = [
   'skills',
   'real-world-workflows',
   'enterprise-scenarios',
+  'kiro-cli',
+  'kiro-web',
 ];
 
 /**
@@ -108,7 +110,7 @@ export function calculatePerformanceLevel(
 }
 
 /**
- * Returns true only when all 11 stages are completed.
+ * Returns true only when all 13 stages are completed.
  */
 export function canShowFinalPerformance(completedStages: LearningStage[]): boolean {
   return completedStages.length >= STAGE_ORDER.length;

@@ -1,0 +1,121 @@
+{
+  "stage": "kiro-web",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "web-001",
+      "category": "Kiro Web",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que e o Kiro Web?",
+      "options": [
+        { "id": "a", "label": "Uma interface baseada em navegador que permite usar o Kiro sem instalar nada localmente" },
+        { "id": "b", "label": "Um framework JavaScript para criar aplicacoes web com inteligencia artificial" },
+        { "id": "c", "label": "Uma extensao de navegador que adiciona autocompletar em qualquer editor online" },
+        { "id": "d", "label": "Um servico de hospedagem de sites estaticos com deploy automatico" }
+      ],
+      "explanation": "O Kiro Web e a interface baseada em navegador do Kiro, permitindo que desenvolvedores utilizem todas as capacidades do agente diretamente no browser, sem necessidade de instalacao local.",
+      "sourceUrl": "https://kiro.dev/docs/web/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "web-002",
+      "category": "Kiro Web",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "O modo autonomo do Kiro Web permite que o agente execute tarefas de forma independente sem necessidade de aprovacao a cada passo.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "O modo autonomo do Kiro Web permite que o agente trabalhe de forma independente em tarefas, executando multiplos passos sem precisar de aprovacao humana a cada etapa, aumentando a produtividade em tarefas repetitivas.",
+      "sourceUrl": "https://kiro.dev/docs/web/autonomous-mode/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "web-003",
+      "category": "Kiro Web",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "Qual e a funcao do ambiente sandbox no Kiro Web?",
+      "options": [
+        { "id": "a", "label": "Fornece um ambiente isolado na nuvem onde o agente executa codigo e testes com seguranca" },
+        { "id": "b", "label": "Cria uma copia local do repositorio apenas para visualizacao" },
+        { "id": "c", "label": "Bloqueia todo acesso a internet para proteger dados sensiveis" },
+        { "id": "d", "label": "Simula ambientes de producao para testes de carga" }
+      ],
+      "explanation": "O ambiente sandbox no Kiro Web fornece um espaco isolado na nuvem onde o agente pode executar codigo, rodar testes e realizar operacoes de build com seguranca, sem afetar o ambiente local do desenvolvedor.",
+      "sourceUrl": "https://kiro.dev/docs/web/sandbox/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "web-004",
+      "category": "Kiro Web",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Uma equipe quer usar o Kiro Web para automatizar a criacao de PRs a partir de issues. Qual integracao com GitHub/GitLab melhor atende esse cenario?",
+      "options": [
+        { "id": "a", "label": "Conectar o repositorio ao Kiro Web e usar tasks para que o agente crie branches, implemente e abra PRs automaticamente" },
+        { "id": "b", "label": "Configurar um bot separado de terceiros que monitora issues e chama o Kiro via API publica" },
+        { "id": "c", "label": "Exportar issues manualmente para um arquivo CSV e importar no Kiro Web" },
+        { "id": "d", "label": "Usar webhooks genericos que enviam notificacoes por email para cada issue criada" }
+      ],
+      "explanation": "O Kiro Web possui integracao nativa com GitHub e GitLab, permitindo conectar repositorios diretamente. Atraves de tasks, o agente pode ler issues, criar branches, implementar solucoes e abrir PRs automaticamente.",
+      "sourceUrl": "https://kiro.dev/docs/web/integrations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "web-005",
+      "category": "Kiro Web",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "Como se cria uma task no Kiro Web?",
+      "options": [
+        { "id": "a", "label": "Descrevendo o objetivo em linguagem natural na interface, permitindo que o agente planeje e execute os passos" },
+        { "id": "b", "label": "Escrevendo codigo YAML com a sequencia exata de comandos a executar" },
+        { "id": "c", "label": "Arrastando blocos visuais em um editor de fluxo tipo no-code" },
+        { "id": "d", "label": "Selecionando templates pre-definidos sem possibilidade de personalizacao" }
+      ],
+      "explanation": "No Kiro Web, tasks sao criadas descrevendo o objetivo em linguagem natural. O agente interpreta a descricao, cria um plano de execucao e implementa os passos necessarios de forma autonoma no ambiente sandbox.",
+      "sourceUrl": "https://kiro.dev/docs/web/tasks/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "web-006",
+      "category": "Kiro Web",
+      "difficulty": "avançado",
+      "type": "true-false",
+      "text": "Specs podem ser criados e gerenciados diretamente na interface do Kiro Web, sem precisar editar arquivos manualmente no repositorio.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "O Kiro Web oferece uma interface para criar e gerenciar Specs diretamente no navegador. Os Specs sao salvos no repositorio automaticamente, mas o usuario pode edita-los visualmente sem precisar manipular arquivos manualmente.",
+      "sourceUrl": "https://kiro.dev/docs/web/specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "web-007",
+      "category": "Kiro Web",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Organize os niveis de acesso a internet do sandbox no Kiro Web do mais restritivo ao mais permissivo:",
+      "options": [
+        { "id": "step-1", "label": "Sem acesso - sandbox completamente isolado da internet" },
+        { "id": "step-2", "label": "Apenas repositorio - acesso somente ao repositorio conectado" },
+        { "id": "step-3", "label": "Dependencias comuns - acesso a registros de pacotes permitidos (npm, PyPI, Maven)" },
+        { "id": "step-4", "label": "Internet aberta - acesso completo a internet sem restricoes" }
+      ],
+      "explanation": "O sandbox do Kiro Web oferece niveis progressivos de acesso a internet: totalmente isolado, acesso apenas ao repositorio (integracoes), acesso a registros de pacotes comuns (dependencias), e internet aberta completa. A autenticacao e gerenciada via Identity Center.",
+      "sourceUrl": "https://kiro.dev/docs/web/sandbox/internet-access/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

@@ -16,6 +16,8 @@ const STAGE_ORDER: LearningStage[] = [
   'skills',
   'real-world-workflows',
   'enterprise-scenarios',
+  'kiro-cli',
+  'kiro-web',
 ];
 
 /**

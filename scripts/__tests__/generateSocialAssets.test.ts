@@ -32,7 +32,7 @@ describe('generateSocialAssets (smoke) - Feature: dynamic-social-share-preview, 
     await rm(outDir, { recursive: true, force: true });
   });
 
-  it('emits 11 badge + 1 certificate PNG and HTML files following the naming contract', async () => {
+  it('emits 13 badge + 1 certificate PNG and HTML files following the naming contract', async () => {
     const rasterize = vi.fn(() => FAKE_PNG);
 
     const result: GenerateResult = await generateSocialAssets({ outDir, siteOrigin: ORIGIN, rasterize });
@@ -54,7 +54,7 @@ describe('generateSocialAssets (smoke) - Feature: dynamic-social-share-preview, 
     // Home OG card exists.
     expect(existsSync(join(outDir, 'og', 'home.png'))).toBe(true);
 
-    // Exact counts: 11 stages + 1 certificate + 1 home = 13 PNGs.
+    // Exact counts: 13 stages + 1 certificate + 1 home = 15 PNGs.
     expect(result.pngFiles).toHaveLength(STAGE_ORDER.length + 2);
     // HTML: 12 flat + 12 directory-style index.html = 24.
     expect(result.htmlFiles).toHaveLength((STAGE_ORDER.length + 1) * 2);

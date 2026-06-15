@@ -16,21 +16,23 @@ describe('QuestionStore', () => {
     'skills',
     'real-world-workflows',
     'enterprise-scenarios',
+    'kiro-cli',
+    'kiro-web',
   ];
 
   describe('getStages', () => {
-    it('returns all 11 learning stages in defined order', () => {
+    it('returns all 13 learning stages in defined order', () => {
       const stages = questionStore.getStages();
 
       expect(stages).toEqual(STAGE_ORDER);
-      expect(stages).toHaveLength(11);
+      expect(stages).toHaveLength(13);
     });
 
-    it('starts with kiro-basics and ends with enterprise-scenarios', () => {
+    it('starts with kiro-basics and ends with kiro-web', () => {
       const stages = questionStore.getStages();
 
       expect(stages[0]).toBe('kiro-basics');
-      expect(stages[stages.length - 1]).toBe('enterprise-scenarios');
+      expect(stages[stages.length - 1]).toBe('kiro-web');
     });
   });
 

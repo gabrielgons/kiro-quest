@@ -48,7 +48,7 @@ import type { LearningStage, PerformanceLevel } from '../types';
 // Shared generators / fixtures
 // ---------------------------------------------------------------------------
 
-/** The complete enumeration of LearningStage values (11 total). */
+/** The complete enumeration of LearningStage values (13 total). */
 const ALL_STAGES = Object.keys(BADGE_DESIGNS) as LearningStage[];
 
 /** The four computed performance tier labels. */
