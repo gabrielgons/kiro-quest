@@ -34,7 +34,7 @@ const TOTAL_STAGES = STAGE_ORDER.length;
  * Preconditions (see design "Certificate Rendering Algorithm"):
  * - `ctx` is a valid 2D canvas rendering context whose canvas dimensions are
  *   at least 1200x800.
- * - `options.stats.completedStages` === 13.
+ * - `options.stats.completedStages` === TOTAL_STAGES (all stages).
  * - `options.stats.totalCorrect` <= `options.stats.totalQuestions`.
  * - `options.completionDate` is a valid Date object.
  *
