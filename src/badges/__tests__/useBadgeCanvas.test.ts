@@ -44,7 +44,7 @@ const CERTIFICATE_OPTIONS: CertificateRendererOptions = {
     totalCorrect: 95,
     totalQuestions: 110,
     percentage: 86,
-    completedStages: 11,
+    completedStages: 13,
   },
   performanceLevel: 'Especialista em Kiro',
   completionDate: new Date('2024-01-15T12:00:00Z'),

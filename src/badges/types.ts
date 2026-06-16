@@ -71,7 +71,7 @@ export interface CertificateRendererOptions {
  * Validation rules (see design "Certificate Stats"):
  * - `totalCorrect` <= `totalQuestions`
  * - `percentage` = Math.round((totalCorrect / totalQuestions) * 100)
- * - `completedStages` must equal 11 (all stages)
+ * - `completedStages` must equal STAGE_ORDER.length (all stages)
  * - `completionDate` must not be in the future
  */
 export interface CertificateStats {

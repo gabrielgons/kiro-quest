@@ -33,6 +33,8 @@
   "stage.name.skills": "Skills",
   "stage.name.real-world-workflows": "Fluxos Reais de Trabalho",
   "stage.name.enterprise-scenarios": "Cenários Empresariais",
+  "stage.name.kiro-cli": "Kiro CLI",
+  "stage.name.kiro-web": "Kiro Web",
 
   "quiz.progress": "{current} / {total}",
   "quiz.confirm": "Confirmar Resposta",

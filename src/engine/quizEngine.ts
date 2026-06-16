@@ -6,23 +6,9 @@ import type {
   UserAnswer,
 } from './types';
 import type { QuestionType, AnswerKey } from '@/data/types';
+import { STAGE_ORDER } from './stages';
 
-/**
- * Ordered list of all learning stages for progression logic.
- */
-export const STAGE_ORDER: LearningStage[] = [
-  'kiro-basics',
-  'specs',
-  'feature-specs',
-  'bugfix-specs',
-  'steering',
-  'hooks',
-  'mcp',
-  'powers',
-  'skills',
-  'real-world-workflows',
-  'enterprise-scenarios',
-];
+export { STAGE_ORDER };
 
 /**
  * Verifies an answer against the answer key.
@@ -108,7 +94,7 @@ export function calculatePerformanceLevel(
 }
 
 /**
- * Returns true only when all 11 stages are completed.
+ * Returns true only when all 13 stages are completed.
  */
 export function canShowFinalPerformance(completedStages: LearningStage[]): boolean {
   return completedStages.length >= STAGE_ORDER.length;

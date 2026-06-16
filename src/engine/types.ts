@@ -9,7 +9,9 @@ export type LearningStage =
   | 'powers'
   | 'skills'
   | 'real-world-workflows'
-  | 'enterprise-scenarios';
+  | 'enterprise-scenarios'
+  | 'kiro-cli'
+  | 'kiro-web';
 
 export type QuizPhase = 'answering' | 'feedback' | 'stage-complete';
 

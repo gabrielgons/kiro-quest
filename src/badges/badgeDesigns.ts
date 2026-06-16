@@ -3,7 +3,7 @@ import type { BadgeDesign, LearningStage } from './types';
 /**
  * Visual design configuration for every Kiro Quest learning stage.
  *
- * Each of the 11 {@link LearningStage} values maps to a {@link BadgeDesign}
+ * Each of the 13 {@link LearningStage} values maps to a {@link BadgeDesign}
  * describing the emoji icon, gradient colors, and Portuguese display name
  * used when rendering its completion badge.
  *
@@ -90,5 +90,19 @@ export const BADGE_DESIGNS: Record<LearningStage, BadgeDesign> = {
     primaryColor: '#0ea5e9',
     secondaryColor: '#0284c7',
     displayName: 'Cenários Enterprise',
+  },
+  'kiro-cli': {
+    stage: 'kiro-cli',
+    icon: '💻',
+    primaryColor: '#a855f7',
+    secondaryColor: '#9333ea',
+    displayName: 'Kiro CLI',
+  },
+  'kiro-web': {
+    stage: 'kiro-web',
+    icon: '🌐',
+    primaryColor: '#22d3ee',
+    secondaryColor: '#06b6d4',
+    displayName: 'Kiro Web',
   },
 };

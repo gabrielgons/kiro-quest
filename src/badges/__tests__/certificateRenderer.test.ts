@@ -149,7 +149,7 @@ const userNameArb = fc.oneof(
 );
 
 /**
- * Valid completion stats: completedStages is always 11 and
+ * Valid completion stats: completedStages is always 13 and
  * totalCorrect <= totalQuestions (totalQuestions >= 1).
  */
 const statsArb = fc
@@ -159,7 +159,7 @@ const statsArb = fc
       totalQuestions,
       totalCorrect,
       percentage: Math.round((totalCorrect / totalQuestions) * 100),
-      completedStages: 11,
+      completedStages: 13,
     })),
   );
 
@@ -271,7 +271,7 @@ describe('Property 7: Certificate Name Display', () => {
   it('shows the fallback name for an empty string', () => {
     const ctx = renderWith({
       userName: '',
-      stats: { totalCorrect: 10, totalQuestions: 10, percentage: 100, completedStages: 11 },
+      stats: { totalCorrect: 10, totalQuestions: 10, percentage: 100, completedStages: 13 },
       performanceLevel: 'Mestre em Kiro',
       completionDate: new Date(2024, 0, 15),
       theme: 'light',
@@ -282,7 +282,7 @@ describe('Property 7: Certificate Name Display', () => {
   it('shows the trimmed name for a padded input', () => {
     const ctx = renderWith({
       userName: '  Maria Silva  ',
-      stats: { totalCorrect: 8, totalQuestions: 10, percentage: 80, completedStages: 11 },
+      stats: { totalCorrect: 8, totalQuestions: 10, percentage: 80, completedStages: 13 },
       performanceLevel: 'Especialista em Kiro',
       completionDate: new Date(2024, 5, 1),
       theme: 'dark',
