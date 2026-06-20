@@ -64,7 +64,7 @@
         { "id": "d", "label": "Usar webhooks genéricos que enviam notificações por email para cada issue criada" }
       ],
       "explanation": "O Kiro Web possui integração nativa com GitHub e GitLab, permitindo conectar repositórios diretamente. Através de tasks, o agente pode ler issues, criar branches, implementar soluções e abrir PRs automaticamente.",
-      "sourceUrl": "https://kiro.dev/docs/web/integrations/",
+      "sourceUrl": "https://kiro.dev/docs/web/github/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-06-15"
     },
@@ -81,7 +81,7 @@
         { "id": "d", "label": "Selecionando templates pré-definidos sem possibilidade de personalização" }
       ],
       "explanation": "No Kiro Web, tasks são criadas descrevendo o objetivo em linguagem natural. O agente interpreta a descrição, cria um plano de execução e implementa os passos necessários de forma autônoma no ambiente sandbox.",
-      "sourceUrl": "https://kiro.dev/docs/web/tasks/",
+      "sourceUrl": "https://kiro.dev/docs/web/using-the-agent/creating-tasks/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-06-15"
     },
