@@ -81,7 +81,7 @@
         { "id": "d", "label": "Single, batch e parallel - determinando quantos arquivos são processados simultaneamente" }
       ],
       "explanation": "Os effort levels (low, medium e high) no Kiro CLI controlam a profundidade de análise e a quantidade de alterações que o agente realiza, permitindo ajustar o comportamento conforme a complexidade da tarefa.",
-      "sourceUrl": "https://kiro.dev/docs/cli/effort-levels/",
+      "sourceUrl": "https://kiro.dev/docs/cli/chat/effort/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-06-15"
     },
@@ -96,7 +96,7 @@
         { "id": "false", "label": "Falso" }
       ],
       "explanation": "O Kiro CLI suporta gerenciamento de sessões, permitindo que o usuário retome sessões anteriores com todo o contexto preservado, facilitando trabalhos de longa duração que se estendem por múltiplas interações.",
-      "sourceUrl": "https://kiro.dev/docs/cli/sessions/",
+      "sourceUrl": "https://kiro.dev/docs/cli/chat/session-management/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-06-15"
     },
@@ -114,7 +114,7 @@
         { "id": "step-5", "label": "Acesso completo ao workspace - todas as operações permitidas" }
       ],
       "explanation": "O modelo de permissões do Kiro CLI opera em camadas progressivas: desde somente leitura (mais restritivo), passando por permissões granulares por arquivo e diretório, permissões inteligentes baseadas no contexto Git (git-aware selection), até acesso completo ao workspace (mais permissivo).",
-      "sourceUrl": "https://kiro.dev/docs/cli/permissions/",
+      "sourceUrl": "https://kiro.dev/docs/cli/chat/permissions/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-06-15"
     }
