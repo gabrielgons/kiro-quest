@@ -1,4 +1,6 @@
 import type { ProgressState } from './types';
+import { api, isApiConfigured } from '@/services/api';
+import type { ApiSaveProgressRequest } from '@/services/api';
 
 const STORAGE_KEY = 'kiro-quest:progress:v1';
 const CURRENT_VERSION = 1;
@@ -43,6 +45,39 @@ function persist(state: ProgressState): void {
 }
 
 /**
+ * Persists progress to the cloud API when user is authenticated.
+ * This is a fire-and-forget operation that does not block the UI.
+ * Falls back to localStorage-only when API is not configured or user is not authenticated.
+ */
+function persistToCloud(state: ProgressState): void {
+  // Always persist locally first
+  persist(state);
+
+  // Attempt cloud sync if API is configured
+  if (!isApiConfigured()) return;
+
+  const stageId = state.currentStage;
+  const userAnswers = state.userAnswersByStage[stageId] || [];
+
+  const request: ApiSaveProgressRequest = {
+    stageId,
+    currentQuestionIndex: state.currentQuestionIndex,
+    quizPhase: state.quizPhase,
+    userAnswers: userAnswers.map((a) => ({
+      questionId: a.questionId,
+      selectedOptionId: a.selectedOptionId,
+      isCorrect: a.isCorrect,
+      answeredAt: a.answeredAt,
+    })),
+  };
+
+  // Fire-and-forget: errors are silently ignored since localStorage is the fallback
+  api.saveProgress(request).catch(() => {
+    // Cloud sync failed - localStorage has the data as fallback
+  });
+}
+
+/**
  * Restores the ProgressState from localStorage.
  * Returns a discriminated result:
  * - { state: ProgressState, wasCorrupted: false } on success
@@ -80,6 +115,7 @@ function clear(): void {
 
 export const progressTracker = {
   persist,
+  persistToCloud,
   restore,
   clear,
   isValid,

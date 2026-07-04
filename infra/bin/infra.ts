@@ -4,6 +4,7 @@ import * as cdk from 'aws-cdk-lib';
 import { FrontendStack } from '../lib/frontend-stack';
 import { DnsStack } from '../lib/dns-stack';
 import { AuthStack } from '../lib/auth-stack';
+import { BackendStack } from '../lib/backend-stack';
 
 const app = new cdk.App();
 
@@ -32,12 +33,20 @@ const frontendStack = new FrontendStack(app, 'KiroQuestFrontendStack', {
 
 // Auth Stack - Cognito User Pool with Google OAuth (always deployed)
 // Google IdP is only configured if credentials are provided via context/env
-new AuthStack(app, 'KiroQuestAuthStack', {
+const authStack = new AuthStack(app, 'KiroQuestAuthStack', {
   env,
   description: 'Kiro Quest - Authentication with Amazon Cognito',
   googleClientId,
   googleClientSecret,
   domainPrefix: cognitoDomainPrefix,
+});
+
+// Backend Stack - API Gateway + Lambda + DynamoDB (always deployed)
+new BackendStack(app, 'KiroQuestBackendStack', {
+  env,
+  description: 'Kiro Quest - Backend API with Lambda, API Gateway, and DynamoDB',
+  userPool: authStack.userPool,
+  userPoolClientId: authStack.userPoolClient.userPoolClientId,
 });
 
 // DNS Stack - Route 53 + ACM (optional, only if domain is configured)

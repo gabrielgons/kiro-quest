@@ -22,6 +22,7 @@ import { randomizeOptions, randomizeOrderingItems } from '@/engine/randomizer';
 import { questionStore } from '@/data/questionStore';
 import { progressTracker } from '@/progress/progressTracker';
 import type { ProgressState } from '@/progress/types';
+import { useAuthStore } from '@/stores/authStore';
 
 export const useQuizStore = defineStore('quiz', () => {
   // --- State ---
@@ -276,7 +277,14 @@ export const useQuizStore = defineStore('quiz', () => {
       userAnswersByStage: userAnswersByStage.value,
       lastUpdated: Date.now(),
     };
-    progressTracker.persist(state);
+
+    // Use cloud persistence when user is authenticated, localStorage otherwise
+    const authStore = useAuthStore();
+    if (authStore.isAuthenticated) {
+      progressTracker.persistToCloud(state);
+    } else {
+      progressTracker.persist(state);
+    }
   }
 
   /**
