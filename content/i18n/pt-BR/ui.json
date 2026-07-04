@@ -35,6 +35,11 @@
   "stage.name.enterprise-scenarios": "Cenários Empresariais",
   "stage.name.kiro-cli": "Kiro CLI",
   "stage.name.kiro-web": "Kiro Web",
+  "stage.name.chat-modes": "Chat & Modos",
+  "stage.name.custom-agents": "Agentes Personalizados",
+  "stage.name.editor-tools": "Editor & Ferramentas",
+  "stage.name.automations": "Automações na Nuvem",
+  "stage.name.privacy-security": "Privacidade & Segurança",
 
   "quiz.progress": "{current} / {total}",
   "quiz.confirm": "Confirmar Resposta",

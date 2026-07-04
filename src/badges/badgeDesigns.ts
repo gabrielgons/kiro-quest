@@ -126,7 +126,7 @@ export const BADGE_DESIGNS: Record<LearningStage, BadgeDesign> = {
     secondaryColor: '#b45309',
     displayName: 'Editor & Ferramentas',
   },
-  automations: {
+  'automations': {
     stage: 'automations',
     icon: '⚙️',
     primaryColor: '#2563eb',
