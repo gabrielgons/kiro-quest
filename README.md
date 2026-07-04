@@ -217,6 +217,71 @@ infra/
 
 ---
 
+## CI/CD Pipeline
+
+O projeto utiliza GitHub Actions para integracao continua e deploy automatizado. A autenticacao com a AWS e feita via OIDC (OpenID Connect), sem necessidade de chaves de acesso de longa duracao.
+
+### Workflows
+
+| Workflow | Trigger | Descricao |
+| --- | --- | --- |
+| `ci.yml` | Pull Request para `main` | Valida build, testes e typecheck (frontend, backend, infra) |
+| `deploy-frontend.yml` | Push para `main` (paths: src/, content/, public/) | Build Vue app, sync S3, invalidate CloudFront |
+| `deploy-backend.yml` | Push para `main` (paths: backend/, infra/) | Bundle Lambdas, CDK deploy backend stack |
+| `cdk-diff.yml` | Pull Request (paths: infra/) | Roda `cdk diff` e posta resultado como comentario no PR |
+| `kiro-code-review.yml` | Pull Request (opened/synchronize) | Code review automatizado com Kiro |
+
+### Configuracao do OIDC
+
+A autenticacao e feita via GitHub OIDC Provider, eliminando a necessidade de armazenar `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY` como secrets.
+
+#### Pre-requisitos
+
+1. Faca o deploy do stack `KiroQuestGitHubOidcStack` para criar o OIDC provider e a IAM role:
+
+```bash
+cd infra
+npx cdk deploy KiroQuestGitHubOidcStack -c githubRepo=owner/kiro-quest
+```
+
+2. Configure as seguintes **Repository Variables** no GitHub (`Settings > Secrets and variables > Actions > Variables`):
+
+| Variavel | Descricao | Exemplo |
+| --- | --- | --- |
+| `AWS_ACCOUNT_ID` | ID da conta AWS | `123456789012` |
+| `AWS_REGION` | Regiao AWS principal | `us-east-1` |
+| `S3_BUCKET_NAME` | Nome do bucket S3 do frontend | `kiro-quest-site-123456789012` |
+| `CLOUDFRONT_DISTRIBUTION_ID` | ID da distribuicao CloudFront | `E1234567890ABC` |
+
+3. Crie um **Environment** chamado `production` no GitHub (`Settings > Environments > New environment`). Os workflows de deploy referenciam este environment.
+
+#### Trust Relationship
+
+A role `KiroQuestGitHubActionsRole` confia apenas em tokens OIDC emitidos pelo repositorio configurado, via condicao:
+
+```json
+{
+  "StringLike": {
+    "token.actions.githubusercontent.com:sub": "repo:owner/kiro-quest:*"
+  }
+}
+```
+
+Isso garante que apenas GitHub Actions rodando neste repositorio podem assumir a role.
+
+### Estrutura dos workflows
+
+```
+.github/workflows/
+├── ci.yml                  # Validacao em PRs
+├── deploy-frontend.yml     # Deploy frontend (S3 + CloudFront)
+├── deploy-backend.yml      # Deploy backend (Lambda + CDK)
+├── cdk-diff.yml            # CDK diff em PRs com mudancas em infra/
+└── kiro-code-review.yml    # Code review automatizado
+```
+
+---
+
 ## Licenca
 
 Este projeto e open source. Verifique o arquivo de licenca ou abra uma issue caso precise de mais detalhes.

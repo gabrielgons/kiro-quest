@@ -5,6 +5,7 @@ import { FrontendStack } from '../lib/frontend-stack';
 import { DnsStack } from '../lib/dns-stack';
 import { AuthStack } from '../lib/auth-stack';
 import { BackendStack } from '../lib/backend-stack';
+import { GitHubOidcStack } from '../lib/github-oidc-stack';
 
 const app = new cdk.App();
 
@@ -19,6 +20,7 @@ const hostedZoneName = app.node.tryGetContext('hostedZoneName') || process.env.H
 const googleClientId = app.node.tryGetContext('googleClientId') || process.env.GOOGLE_CLIENT_ID;
 const googleClientSecret = app.node.tryGetContext('googleClientSecret') || process.env.GOOGLE_CLIENT_SECRET;
 const cognitoDomainPrefix = app.node.tryGetContext('cognitoDomainPrefix') || process.env.COGNITO_DOMAIN_PREFIX || 'kiro-quest';
+const githubRepo = app.node.tryGetContext('githubRepo') || process.env.GITHUB_REPOSITORY || 'owner/kiro-quest';
 
 const env: cdk.Environment = {
   account,
@@ -64,6 +66,13 @@ if (domainName && hostedZoneName) {
     crossRegionReferences: true,
   });
 }
+
+// GitHub OIDC Stack - IAM role for GitHub Actions CI/CD
+new GitHubOidcStack(app, 'KiroQuestGitHubOidcStack', {
+  env,
+  description: 'Kiro Quest - GitHub Actions OIDC authentication for CI/CD',
+  repositoryName: githubRepo,
+});
 
 // Tags applied to all resources
 cdk.Tags.of(app).add('Project', 'KiroQuest');
