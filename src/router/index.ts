@@ -3,6 +3,7 @@ import type { RouteRecordRaw } from 'vue-router';
 import { STAGE_ORDER } from '@/engine/quizEngine';
 import type { LearningStage } from '@/engine/types';
 import { useQuizStore } from '@/stores/quizStore';
+import { useAuthStore } from '@/stores/authStore';
 
 /**
  * Valid stage identifiers for route parameter validation.
@@ -43,6 +44,18 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/FinalAchievement.vue'),
   },
   {
+    path: '/auth/callback',
+    name: 'auth-callback',
+    component: () => import('@/views/AuthCallback.vue'),
+    meta: { skipAuth: true },
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('@/views/UserProfile.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/stages',
   },
@@ -58,6 +71,7 @@ const router = createRouter({
  * - Validate :stage params against LearningStage union
  * - Guard /achievement route (requires all stages complete)
  * - Guard /summary/:stage route (requires stage completion)
+ * - Optional auth guard for routes with meta.requiresAuth
  */
 router.beforeEach((to, _from, next) => {
   const stageParam = to.params.stage as string | undefined;
@@ -85,6 +99,14 @@ router.beforeEach((to, _from, next) => {
 
     if (!isCompleted && !isStageComplete) {
       return next({ path: '/stages' });
+    }
+  }
+
+  // Optional auth guard: routes with meta.requiresAuth redirect to home if not authenticated
+  if (to.meta.requiresAuth) {
+    const authStore = useAuthStore();
+    if (!authStore.isAuthenticated) {
+      return next({ path: '/' });
     }
   }
 
