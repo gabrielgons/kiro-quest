@@ -2,7 +2,7 @@
   "id": "FEAT-004",
   "type": "chore",
   "description": "Phase 4 - CI/CD Pipeline with GitHub Actions: Create GitHub Actions workflows for automated deployment to AWS. Includes: build and test on PR, deploy frontend to S3/CloudFront on merge to main, deploy backend Lambdas, and run CDK diff on PRs for infrastructure review.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create .github/workflows/ci.yml: On PR - install deps, typecheck, test, build (validates the PR is green)",
     "Create .github/workflows/deploy-frontend.yml: On push to main - build the Vue app, sync dist/ to S3, invalidate CloudFront cache. Uses OIDC for AWS auth (no long-lived secrets). Environment: production.",
@@ -25,5 +25,5 @@
     "npm test"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "All 4 workflow files pass YAML validation. Infra typecheck passes including new github-oidc-stack.ts. Frontend typecheck passes. Only pre-existing test failure in questionStore.test.ts (documented in task context). Used Node 22 in CI workflows as specified."
 }
