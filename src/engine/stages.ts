@@ -18,4 +18,9 @@ export const STAGE_ORDER: LearningStage[] = [
   'enterprise-scenarios',
   'kiro-cli',
   'kiro-web',
+  'chat-modes',
+  'custom-agents',
+  'editor-tools',
+  'automations',
+  'privacy-security',
 ];

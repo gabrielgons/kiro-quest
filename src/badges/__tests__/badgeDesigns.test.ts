@@ -15,7 +15,7 @@ import type { LearningStage } from '../types';
  * Validates: Requirements 6.1, 6.2
  */
 
-/** The complete enumeration of LearningStage values (13 total). */
+/** The complete enumeration of LearningStage values (18 total). */
 const ALL_STAGES: LearningStage[] = [
   'kiro-basics',
   'specs',
@@ -30,6 +30,11 @@ const ALL_STAGES: LearningStage[] = [
   'enterprise-scenarios',
   'kiro-cli',
   'kiro-web',
+  'chat-modes',
+  'custom-agents',
+  'editor-tools',
+  'automations',
+  'privacy-security',
 ];
 
 /** Matches a 3- or 6-digit hex color code (e.g. #fff or #3b82f6). */
@@ -67,8 +72,8 @@ describe('Badge Design Configuration (Property 9)', () => {
 
   // Unit tests covering specific examples and the completeness edge case.
   describe('example-based checks', () => {
-    it('defines an entry for all 13 LearningStage values', () => {
-      expect(Object.keys(BADGE_DESIGNS)).toHaveLength(13);
+    it('defines an entry for all 18 LearningStage values', () => {
+      expect(Object.keys(BADGE_DESIGNS)).toHaveLength(18);
       for (const stage of ALL_STAGES) {
         expect(BADGE_DESIGNS).toHaveProperty(stage);
       }

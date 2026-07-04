@@ -1,0 +1,13 @@
+{
+  "stage": "chat-modes",
+  "answers": [
+    { "questionId": "cm-001", "correctAnswerId": "a" },
+    { "questionId": "cm-002", "correctAnswerId": "false" },
+    { "questionId": "cm-003", "correctAnswerId": "a" },
+    { "questionId": "cm-004", "correctAnswerId": "b" },
+    { "questionId": "cm-005", "correctAnswerId": "b" },
+    { "questionId": "cm-006", "correctAnswerId": "true" },
+    { "questionId": "cm-007", "correctAnswerId": "c" },
+    { "questionId": "cm-008", "correctAnswerId": ["step-1", "step-2", "step-3", "step-4"] }
+  ]
+}

@@ -32,7 +32,7 @@ describe('generateSocialAssets (smoke) - Feature: dynamic-social-share-preview, 
     await rm(outDir, { recursive: true, force: true });
   });
 
-  it('emits 13 badge + 1 certificate PNG and HTML files following the naming contract', async () => {
+  it('emits 18 badge + 1 certificate PNG and HTML files following the naming contract', async () => {
     const rasterize = vi.fn(() => FAKE_PNG);
 
     const result: GenerateResult = await generateSocialAssets({ outDir, siteOrigin: ORIGIN, rasterize });
