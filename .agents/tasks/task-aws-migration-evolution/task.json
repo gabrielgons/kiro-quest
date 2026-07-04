@@ -1,0 +1,7 @@
+{
+  "task_id": "task-aws-migration-evolution",
+  "task_description": "Migrate Kiro Quest from Cloudflare Workers to AWS (S3 + CloudFront) and evolve the architecture to include serverless backend (Lambda + API Gateway), DynamoDB for persistence, Cognito for Gmail SSO authentication, IaC with CDK, CI/CD with GitHub Actions, and DNS/HTTPS with Route 53 + ACM. All optimized for AWS Free Tier (zero or low cost).",
+  "status": "in_progress",
+  "feature_order": ["FEAT-001", "FEAT-002", "FEAT-003", "FEAT-004", "FEAT-005"],
+  "blocked_reason": null
+}

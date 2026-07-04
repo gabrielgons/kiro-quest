@@ -44,8 +44,13 @@ Kiro Quest é uma aplicação web que transforma o aprendizado sobre o Kiro em u
 - [Vite](https://vitejs.dev/) (build & dev server)
 - [Pinia](https://pinia.vuejs.org/) (gerenciamento de estado)
 - [Vue Router](https://router.vuejs.org/)
-- [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/) + [fast-check](https://fast-check.dev/) (testes unitários e baseados em propriedades)
-- Cloudflare Workers (hospedagem da versão pública)
+- [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/) + [fast-check](https://fast-check.dev/) (testes unitarios e baseados em propriedades)
+- **AWS S3 + CloudFront** (hospedagem do frontend)
+- **AWS Lambda + API Gateway** (backend serverless)
+- **Amazon DynamoDB** (banco de dados NoSQL)
+- **Amazon Cognito** (autenticacao SSO com Google)
+- **AWS CDK** (infraestrutura como codigo)
+- **GitHub Actions + OIDC** (CI/CD)
 
 ---
 
@@ -279,6 +284,33 @@ Isso garante que apenas GitHub Actions rodando neste repositorio podem assumir a
 ├── cdk-diff.yml            # CDK diff em PRs com mudancas em infra/
 └── kiro-code-review.yml    # Code review automatizado
 ```
+
+---
+
+## Documentacao
+
+Documentacao detalhada esta disponivel na pasta `docs/`:
+
+| Documento | Descricao |
+| --- | --- |
+| [Arquitetura](docs/architecture.md) | Diagrama completo da arquitetura, componentes, fluxo de dados, modelo de seguranca |
+| [Guia de Migracao](docs/migration-guide.md) | Passo a passo para migrar de Cloudflare Workers para AWS |
+| [Custos - Free Tier](docs/aws-free-tier.md) | Analise detalhada de custos e limites do AWS Free Tier |
+| [Runbook Operacional](docs/runbook.md) | Monitoramento, troubleshooting, deploy manual, gerenciamento de usuarios |
+
+### Configuracao de Ambiente
+
+O frontend utiliza variaveis de ambiente Vite para configuracao:
+
+```bash
+# Copie o template de desenvolvimento
+cp .env.development .env.local
+
+# Preencha com seus valores (Cognito, API URL)
+# O app funciona sem backend - progresso salvo em localStorage
+```
+
+Veja `src/config/environment.ts` para a configuracao tipada e `.env.development` / `.env.production` para os templates.
 
 ---
 

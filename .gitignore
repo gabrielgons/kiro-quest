@@ -33,6 +33,8 @@ vitest.config.d.ts.map
 .env
 .env.*
 !.env.example
+!.env.development
+!.env.production
 
 # Editor directories and files
 .vscode/*
