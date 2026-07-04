@@ -1,7 +1,7 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { docClient, TABLE_NAME } from '../models/dynamodb.js';
 import type { StageResultItem, RankingItem, SubmitResultRequest, SubmitResultResponse } from '../models/types.js';
-import { getUserId, getUserName, jsonResponse, errorResponse } from './utils.js';
+import { getUserId, getUserName, jsonResponse, errorResponse, validateBodySize } from './utils.js';
 import type { ApiEvent, ApiResponse } from './utils.js';
 
 export async function handler(event: ApiEvent): Promise<ApiResponse> {
@@ -9,6 +9,9 @@ export async function handler(event: ApiEvent): Promise<ApiResponse> {
   if (!userId) {
     return errorResponse(401, 'Unauthorized');
   }
+
+  const bodySizeError = validateBodySize(event);
+  if (bodySizeError) return bodySizeError;
 
   let body: SubmitResultRequest;
   try {
@@ -39,12 +42,16 @@ export async function handler(event: ApiEvent): Promise<ApiResponse> {
   };
 
   // Save ranking entry (zero-padded score for sort order)
+  // Invert timestamp so that within the same score, earlier completions sort first
+  // (first-to-achieve ranks higher). Using max timestamp of 9999999999999 (year 2286).
+  const MAX_TIMESTAMP = 9999999999999;
   const paddedScore = String(body.correctCount).padStart(5, '0');
+  const invertedTimestamp = String(MAX_TIMESTAMP - completedAt).padStart(13, '0');
   const userName = getUserName(event);
 
   const rankingItem: RankingItem = {
     pk: `RANKING#${body.stageId}`,
-    sk: `SCORE#${paddedScore}#${completedAt}#${userId}`,
+    sk: `SCORE#${paddedScore}#${invertedTimestamp}#${userId}`,
     gsi1pk: `RANKING#${body.stageId}`,
     gsi1sk: `SCORE#${paddedScore}`,
     entityType: 'RANKING',

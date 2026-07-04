@@ -47,3 +47,26 @@ export function jsonResponse(statusCode: number, body: unknown): ApiResponse {
 export function errorResponse(statusCode: number, message: string): ApiResponse {
   return jsonResponse(statusCode, { error: message });
 }
+
+/**
+ * Maximum allowed request body size in bytes (100KB).
+ * DynamoDB items have a 400KB limit, and this provides a safety margin
+ * to prevent oversized payloads from reaching the database.
+ */
+const MAX_BODY_SIZE_BYTES = 100 * 1024;
+
+/**
+ * Validates that the request body does not exceed the maximum allowed size.
+ * Returns an error response if the body is too large, or null if valid.
+ */
+export function validateBodySize(event: ApiEvent): ApiResponse | null {
+  const body = event.body || '';
+  const bodySize = event.isBase64Encoded
+    ? Math.ceil(body.length * 0.75) // Base64 decodes to ~75% of encoded size
+    : new TextEncoder().encode(body).length;
+
+  if (bodySize > MAX_BODY_SIZE_BYTES) {
+    return errorResponse(413, `Request body too large. Maximum size is ${MAX_BODY_SIZE_BYTES} bytes`);
+  }
+  return null;
+}

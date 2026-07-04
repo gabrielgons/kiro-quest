@@ -14,6 +14,14 @@ const VERIFIER_KEY = 'kiro-quest:auth:pkce_verifier';
 const STATE_KEY = 'kiro-quest:auth:state';
 
 /**
+ * In-flight refresh promise used to deduplicate concurrent refresh requests.
+ * Prevents the race condition where multiple calls to getAccessToken() with an
+ * expired token simultaneously attempt to use the same refresh token, causing
+ * Cognito to invalidate it on the first use and reject subsequent attempts.
+ */
+let refreshPromise: Promise<AuthTokens | null> | null = null;
+
+/**
  * Initiates the login flow by redirecting to the Cognito hosted UI.
  * Generates PKCE code verifier/challenge and stores verifier for the callback.
  */
@@ -207,13 +215,23 @@ export function logout(): void {
 /**
  * Returns the current valid access token, refreshing if needed.
  * Returns null if the user is not authenticated.
+ *
+ * Uses a deduplication pattern to prevent race conditions: if multiple
+ * callers invoke this while the token is expired, only one refresh request
+ * is made and all callers share the same result.
  */
 export async function getAccessToken(): Promise<string | null> {
   const tokens = getStoredTokens();
   if (!tokens) return null;
 
   if (isTokenExpired(tokens)) {
-    const refreshed = await refreshTokens();
+    // Deduplicate concurrent refresh attempts
+    if (!refreshPromise) {
+      refreshPromise = refreshTokens().finally(() => {
+        refreshPromise = null;
+      });
+    }
+    const refreshed = await refreshPromise;
     return refreshed?.accessToken ?? null;
   }
 

@@ -15,9 +15,10 @@ export interface GitHubOidcStackProps extends cdk.StackProps {
   siteBucketArn?: string;
 
   /**
-   * CloudFront distribution ARN for cache invalidation permissions.
+   * CloudFront distribution ID to scope cache invalidation permissions.
+   * If not provided, no CloudFront permissions are granted.
    */
-  distributionArn?: string;
+  distributionId?: string;
 }
 
 export class GitHubOidcStack extends cdk.Stack {
@@ -72,7 +73,11 @@ export class GitHubOidcStack extends cdk.Stack {
       }),
     );
 
-    // CloudFront permissions for cache invalidation
+    // CloudFront permissions for cache invalidation (scoped to specific distribution)
+    const distributionArn = props.distributionId
+      ? `arn:aws:cloudfront::${this.account}:distribution/${props.distributionId}`
+      : `arn:aws:cloudfront::${this.account}:distribution/*`;
+
     this.role.addToPolicy(
       new iam.PolicyStatement({
         sid: 'CloudFrontInvalidation',
@@ -81,7 +86,7 @@ export class GitHubOidcStack extends cdk.Stack {
           'cloudfront:CreateInvalidation',
           'cloudfront:GetInvalidation',
         ],
-        resources: [`arn:aws:cloudfront::${this.account}:distribution/*`],
+        resources: [distributionArn],
       }),
     );
 

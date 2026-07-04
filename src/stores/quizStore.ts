@@ -36,6 +36,7 @@ export const useQuizStore = defineStore('quiz', () => {
   const lastAnswerResult = ref<AnswerResult | null>(null);
   const errorMessage = ref<string | null>(null);
   const sessionSeed = ref(Date.now());
+  const cloudSyncFailed = ref(false);
 
   // --- Computed Getters ---
 
@@ -281,9 +282,12 @@ export const useQuizStore = defineStore('quiz', () => {
     // Use cloud persistence when user is authenticated, localStorage otherwise
     const authStore = useAuthStore();
     if (authStore.isAuthenticated) {
-      progressTracker.persistToCloud(state);
+      progressTracker.persistToCloud(state).then((result) => {
+        cloudSyncFailed.value = !result.synced;
+      });
     } else {
       progressTracker.persist(state);
+      cloudSyncFailed.value = false;
     }
   }
 
@@ -370,6 +374,7 @@ export const useQuizStore = defineStore('quiz', () => {
     lastAnswerResult,
     errorMessage,
     sessionSeed,
+    cloudSyncFailed,
 
     // Getters
     currentQuestion,

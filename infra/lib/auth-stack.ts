@@ -25,8 +25,16 @@ export interface AuthStackProps extends cdk.StackProps {
   /**
    * Google OAuth 2.0 Client Secret for federated sign-in.
    * If not provided, Google IdP will not be configured.
+   * Can be a plaintext value (for dev) or a Secrets Manager secret name.
    */
   googleClientSecret?: string;
+
+  /**
+   * Name of the Secrets Manager secret containing the Google OAuth Client Secret.
+   * When provided, this takes precedence over googleClientSecret and avoids
+   * embedding the secret in plaintext in the CloudFormation template.
+   */
+  googleClientSecretArn?: string;
 
   /**
    * Cognito hosted UI domain prefix.
@@ -51,6 +59,10 @@ export class AuthStack extends cdk.Stack {
     const googleClientSecret =
       props?.googleClientSecret ||
       this.node.tryGetContext('googleClientSecret') ||
+      '';
+    const googleClientSecretArn =
+      props?.googleClientSecretArn ||
+      this.node.tryGetContext('googleClientSecretArn') ||
       '';
     const domainPrefix =
       props?.domainPrefix ||
@@ -102,14 +114,19 @@ export class AuthStack extends cdk.Stack {
       cognito.UserPoolClientIdentityProvider.COGNITO,
     ];
 
-    if (googleClientId && googleClientSecret) {
+    if (googleClientId && (googleClientSecret || googleClientSecretArn)) {
+      // Use Secrets Manager ARN if available, otherwise fall back to plaintext (dev only)
+      const clientSecretValue = googleClientSecretArn
+        ? cdk.SecretValue.secretsManager(googleClientSecretArn)
+        : cdk.SecretValue.unsafePlainText(googleClientSecret);
+
       const googleProvider = new cognito.UserPoolIdentityProviderGoogle(
         this,
         'GoogleProvider',
         {
           userPool: this.userPool,
           clientId: googleClientId,
-          clientSecretValue: cdk.SecretValue.unsafePlainText(googleClientSecret),
+          clientSecretValue,
           scopes: ['profile', 'email', 'openid'],
           attributeMapping: {
             email: cognito.ProviderAttribute.GOOGLE_EMAIL,

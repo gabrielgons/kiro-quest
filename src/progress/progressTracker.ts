@@ -45,16 +45,26 @@ function persist(state: ProgressState): void {
 }
 
 /**
+ * Result of a cloud persistence attempt.
+ */
+export interface CloudPersistResult {
+  synced: boolean;
+  error?: string;
+}
+
+/**
  * Persists progress to the cloud API when user is authenticated.
- * This is a fire-and-forget operation that does not block the UI.
+ * Returns a promise that resolves with the sync result.
  * Falls back to localStorage-only when API is not configured or user is not authenticated.
  */
-function persistToCloud(state: ProgressState): void {
+function persistToCloud(state: ProgressState): Promise<CloudPersistResult> {
   // Always persist locally first
   persist(state);
 
   // Attempt cloud sync if API is configured
-  if (!isApiConfigured()) return;
+  if (!isApiConfigured()) {
+    return Promise.resolve({ synced: false, error: 'API not configured' });
+  }
 
   const stageId = state.currentStage;
   const userAnswers = state.userAnswersByStage[stageId] || [];
@@ -71,10 +81,13 @@ function persistToCloud(state: ProgressState): void {
     })),
   };
 
-  // Fire-and-forget: errors are silently ignored since localStorage is the fallback
-  api.saveProgress(request).catch(() => {
-    // Cloud sync failed - localStorage has the data as fallback
-  });
+  return api
+    .saveProgress(request)
+    .then(() => ({ synced: true }))
+    .catch((err: unknown) => {
+      const message = err instanceof Error ? err.message : 'Cloud sync failed';
+      return { synced: false, error: message };
+    });
 }
 
 /**

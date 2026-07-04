@@ -1,0 +1,33 @@
+{
+  "id": "FEAT-006",
+  "type": "fix",
+  "description": "Address all 7 issues from the code review: CORS wildcard origin, ranking tie-break order, cloud persistence error handling, GitHub OIDC CloudFront scope, request body size validation, refresh token race condition, and Google client secret handling.",
+  "status": "in_progress",
+  "steps": [
+    "Fix CORS wildcard origin in backend-stack.ts - restrict to CloudFront domain + localhost",
+    "Fix ranking tie-break order in submitResult.ts - invert timestamp for correct first-to-achieve semantics",
+    "Fix cloud persistence fire-and-forget in progressTracker.ts - return sync status",
+    "Fix cloud sync error surfacing in quizStore.ts",
+    "Fix GitHub OIDC CloudFront scope in github-oidc-stack.ts - accept distribution ID",
+    "Add request body size validation to Lambda handlers",
+    "Fix refresh token race condition in src/auth/client.ts",
+    "Fix Google client secret handling in auth-stack.ts - use Secrets Manager reference"
+  ],
+  "acceptance_criteria": [
+    "CORS only allows specific origins (CloudFront domain + localhost for dev)",
+    "Rankings sort first-to-achieve higher within same score",
+    "Cloud persistence failure is reported via a returned status or callback",
+    "GitHub OIDC role scopes CloudFront to specific distribution ARN",
+    "Lambda handlers reject bodies larger than 100KB",
+    "Concurrent getAccessToken calls deduplicate refresh token requests",
+    "Google client secret uses SecretValue.secretsManager instead of unsafePlainText"
+  ],
+  "verification": [
+    "npm run typecheck",
+    "npm test",
+    "cd infra && npx tsc --noEmit && npx cdk synth --quiet",
+    "cd backend && npx vitest run"
+  ],
+  "blocked_reason": null,
+  "findings": null
+}

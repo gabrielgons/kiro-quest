@@ -17,6 +17,12 @@ export interface BackendStackProps extends cdk.StackProps {
    * The Cognito User Pool Client ID(s) for JWT audience validation.
    */
   userPoolClientId: string;
+
+  /**
+   * Allowed origins for CORS.
+   * Defaults to localhost for development if not provided.
+   */
+  allowedOrigins?: string[];
 }
 
 export class BackendStack extends cdk.Stack {
@@ -114,12 +120,18 @@ export class BackendStack extends cdk.Stack {
     this.table.grantReadData(getRankingsFn);
     this.table.grantReadWriteData(getProfileFn);
 
+    // Allowed CORS origins - restrict to specific domains instead of wildcard
+    const allowedOrigins = props.allowedOrigins || [
+      'http://localhost:5173',
+      'http://localhost:4173',
+    ];
+
     // API Gateway HTTP API (cheaper than REST API)
     this.httpApi = new apigatewayv2.HttpApi(this, 'KiroQuestApi', {
       apiName: 'KiroQuestAPI',
       description: 'Kiro Quest Backend API',
       corsPreflight: {
-        allowOrigins: ['*'],
+        allowOrigins: allowedOrigins,
         allowMethods: [
           apigatewayv2.CorsHttpMethod.GET,
           apigatewayv2.CorsHttpMethod.POST,

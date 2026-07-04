@@ -1,7 +1,7 @@
 import { PutCommand } from '@aws-sdk/lib-dynamodb';
 import { docClient, TABLE_NAME } from '../models/dynamodb.js';
 import type { SaveProgressRequest, UserProgressItem } from '../models/types.js';
-import { getUserId, jsonResponse, errorResponse } from './utils.js';
+import { getUserId, jsonResponse, errorResponse, validateBodySize } from './utils.js';
 import type { ApiEvent, ApiResponse } from './utils.js';
 
 export async function handler(event: ApiEvent): Promise<ApiResponse> {
@@ -9,6 +9,9 @@ export async function handler(event: ApiEvent): Promise<ApiResponse> {
   if (!userId) {
     return errorResponse(401, 'Unauthorized');
   }
+
+  const bodySizeError = validateBodySize(event);
+  if (bodySizeError) return bodySizeError;
 
   let body: SaveProgressRequest;
   try {
