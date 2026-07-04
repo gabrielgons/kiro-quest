@@ -2,7 +2,7 @@
   "id": "FEAT-005",
   "type": "docs",
   "description": "Phase 5 - Architecture Documentation and Migration Guide: Create comprehensive documentation covering the full architecture, migration steps from Cloudflare to AWS, cost analysis (Free Tier breakdown), and operational runbook. Also create an environment configuration system for the frontend to switch between local dev and production AWS endpoints.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create docs/architecture.md with: Architecture diagram (text-based), component descriptions, data flow for authenticated vs anonymous users, DynamoDB access patterns, security model (Cognito + API Gateway authorizer)",
     "Create docs/migration-guide.md with: Step-by-step migration from Cloudflare Workers to AWS (parallel running period, DNS cutover plan, rollback procedure), prerequisites (AWS account, domain, Google OAuth app registration)",
@@ -27,5 +27,5 @@
     "ls docs/ (confirm documentation files exist)"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "Pre-existing test failure in src/data/__tests__/questionStore.test.ts (getQuestionById test) - unrelated to this feature. All .env files required .gitignore exceptions since the project ignores .env.* by default. Added !.env.development and !.env.production to .gitignore."
 }
