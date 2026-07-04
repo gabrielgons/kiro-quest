@@ -141,6 +141,82 @@ Contribuições são bem-vindas! Sugestões de novos estágios, perguntas, melho
 
 ---
 
-## Licença
+## Infraestrutura AWS
 
-Este projeto é open source. Verifique o arquivo de licença ou abra uma issue caso precise de mais detalhes.
+O projeto inclui infraestrutura como codigo (IaC) usando AWS CDK para hospedar a aplicacao na AWS, substituindo o Cloudflare Workers.
+
+### Arquitetura
+
+- **S3** - Bucket privado para armazenamento dos assets estaticos (dist/)
+- **CloudFront** - CDN global com Origin Access Control (OAC) para servir o conteudo do S3
+- **Route 53** - DNS gerenciado (opcional, para dominio customizado)
+- **ACM** - Certificado SSL/TLS gratuito (opcional, para dominio customizado)
+
+Todos os recursos sao otimizados para o AWS Free Tier:
+- S3 Standard: 5GB de armazenamento, 20K GET, 2K PUT/mes
+- CloudFront: 1TB de transferencia, 10M requisicoes/mes
+- Route 53: $0.50/mes por hosted zone (unico custo fixo se usar dominio customizado)
+
+### Deploy
+
+#### Pre-requisitos
+
+- AWS CLI configurado com credenciais validas
+- Node.js 20+
+- Conta AWS com permissoes para criar S3, CloudFront, Route 53, e ACM
+
+#### Primeira vez (provisionar infraestrutura)
+
+```bash
+cd infra
+npm install
+cp .env.example .env  # Preencha com seus valores
+
+# Bootstrap do CDK (apenas na primeira vez por conta/regiao)
+npx cdk bootstrap
+
+# Deploy da infraestrutura
+npm run deploy
+```
+
+#### Deploy do frontend (apos build)
+
+```bash
+# Na raiz do projeto
+npm run build
+
+# Sincronizar dist/ com S3 e invalidar cache do CloudFront
+cd infra
+npm run sync
+```
+
+#### Usando dominio customizado (opcional)
+
+Para usar um dominio customizado, configure as variaveis `DOMAIN_NAME` e `HOSTED_ZONE_NAME` no `.env` e faca o deploy dos dois stacks:
+
+```bash
+npx cdk deploy --all -c domainName=kiro-quest.seudominio.com -c hostedZoneName=seudominio.com
+```
+
+### Estrutura do diretorio infra/
+
+```
+infra/
+├── bin/
+│   └── infra.ts            # Entry point do CDK app
+├── lib/
+│   ├── frontend-stack.ts   # S3 + CloudFront + OAC
+│   └── dns-stack.ts        # Route 53 + ACM (opcional)
+├── scripts/
+│   └── sync-to-s3.mjs     # Script de sync dist/ -> S3
+├── cdk.json                # Configuracao do CDK
+├── package.json            # Dependencias do CDK
+├── tsconfig.json           # TypeScript config
+└── .env.example            # Variaveis de configuracao
+```
+
+---
+
+## Licenca
+
+Este projeto e open source. Verifique o arquivo de licenca ou abra uma issue caso precise de mais detalhes.
