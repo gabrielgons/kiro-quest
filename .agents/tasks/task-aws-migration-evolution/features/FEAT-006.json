@@ -2,7 +2,7 @@
   "id": "FEAT-006",
   "type": "fix",
   "description": "Address all 7 issues from the code review: CORS wildcard origin, ranking tie-break order, cloud persistence error handling, GitHub OIDC CloudFront scope, request body size validation, refresh token race condition, and Google client secret handling.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Fix CORS wildcard origin in backend-stack.ts - restrict to CloudFront domain + localhost",
     "Fix ranking tie-break order in submitResult.ts - invert timestamp for correct first-to-achieve semantics",
@@ -29,5 +29,5 @@
     "cd backend && npx vitest run"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "All 7 review issues addressed in a single commit. CDK synth succeeds for all 4 stacks. Backend tests (20/20) pass. Frontend typecheck clean. Only pre-existing test failure remains (getQuestionById in questionStore.test.ts, unrelated to these changes). The cross-stack reference from FrontendStack to GitHubOidcStack for distributionId produces a CDK warning about cross-stack reference strength (non-blocking)."
 }
