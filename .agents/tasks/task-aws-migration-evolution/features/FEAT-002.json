@@ -2,7 +2,7 @@
   "id": "FEAT-002",
   "type": "feat",
   "description": "Phase 2 - Authentication with Amazon Cognito: Add Cognito User Pool with Google OAuth 2.0 (Gmail SSO) as federated identity provider to the CDK infrastructure. Create a Cognito stack that provisions the User Pool, App Client, and hosted UI domain. Output the necessary configuration (User Pool ID, App Client ID, domain) for the frontend to integrate. Cognito Free Tier: 50,000 MAUs.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Create lib/auth-stack.ts in infra/ with: Cognito User Pool (email as primary sign-in, self sign-up enabled), User Pool App Client (SPA flow with PKCE, no client secret), Google as federated identity provider (configurable client ID/secret via CDK context or SSM parameters), Hosted UI domain (cognito prefix domain or custom domain), callback/logout URLs configurable for dev/prod environments",
     "Add CfnOutput exports for: UserPoolId, UserPoolClientId, CognitoDomain, IdentityPoolId (if needed)",
@@ -27,5 +27,5 @@
     "npm test"
   ],
   "blocked_reason": null,
-  "findings": ""
+  "findings": "CDK AuthStack synths cleanly with optional Google IdP (only configured when credentials provided via context/env). Frontend auth uses zero external dependencies - custom OIDC/PKCE implementation with native fetch and Web Crypto API. All new tests pass. Pre-existing questionStore test failure (getQuestionById) continues as documented in FEAT-001. Build produces properly code-split auth chunks (~0.68KB for AuthCallback, ~1.32KB for UserProfile). Router type augmentation requires 'export {}' before 'declare module vue-router' to avoid shadowing vue-router's own exports."
 }
