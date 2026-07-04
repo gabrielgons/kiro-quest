@@ -1,0 +1,140 @@
+{
+  "stage": "editor-tools",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "et-001",
+      "category": "Editor & Ferramentas Integradas",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que é o codebase indexing no Kiro?",
+      "options": [
+        { "id": "a", "label": "Processo que analisa e indexa a estrutura do código para que o agente entenda a codebase sem precisar ler arquivos inteiros" },
+        { "id": "b", "label": "Um sistema de busca textual simples que encontra palavras-chave nos arquivos" },
+        { "id": "c", "label": "Um cache local que armazena cópias dos arquivos para acesso mais rápido" },
+        { "id": "d", "label": "Uma ferramenta de versionamento que rastreia mudanças em cada arquivo" }
+      ],
+      "explanation": "O codebase indexing analisa e indexa a estrutura do código (classes, funções, dependências, imports) para que o agente possa entender a codebase de forma eficiente, sem precisar ler cada arquivo inteiro. Isso permite navegação inteligente e respostas mais contextualizadas.",
+      "sourceUrl": "https://kiro.dev/docs/editor/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "et-002",
+      "category": "Editor & Ferramentas Integradas",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "O arquivo .kiroignore permite excluir diretórios e arquivos que o agente não deve ler ou modificar.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "O arquivo .kiroignore funciona de forma similar ao .gitignore, permitindo especificar padrões de arquivos e diretórios que o agente do Kiro não deve ler, indexar ou modificar. Isso é útil para excluir arquivos gerados, dados sensíveis ou diretórios irrelevantes.",
+      "sourceUrl": "https://kiro.dev/docs/editor/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "et-003",
+      "category": "Editor & Ferramentas Integradas",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "Como o Kiro utiliza IDE Diagnostics (LSP) para melhorar a qualidade do código gerado?",
+      "options": [
+        { "id": "a", "label": "Apenas exibe erros no painel de problemas para o desenvolvedor corrigir manualmente" },
+        { "id": "b", "label": "Consulta diagnostics do language server em tempo real após gerar código, detectando erros de tipo, imports faltando e violações de lint sem precisar executar build" },
+        { "id": "c", "label": "Executa o compilador completo do projeto a cada linha gerada" },
+        { "id": "d", "label": "Usa apenas análise estática básica sem integração com language servers" }
+      ],
+      "explanation": "O Kiro integra-se com IDE Diagnostics (LSP) para consultar o language server em tempo real após gerar código. Isso permite detectar erros de tipo, imports faltando e violações de lint automaticamente, sem precisar executar o build completo do projeto.",
+      "sourceUrl": "https://kiro.dev/docs/editor/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "et-004",
+      "category": "Editor & Ferramentas Integradas",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "A integração com IDE Diagnostics reduziu em 29% a necessidade de executar comandos de build/test durante o desenvolvimento.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Dado real mencionado no blog do Kiro: a integração com IDE Diagnostics reduziu em 29% a necessidade de executar comandos de build e test durante o desenvolvimento, já que muitos erros são detectados e corrigidos em tempo real via language server.",
+      "sourceUrl": "https://kiro.dev/docs/editor/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "et-005",
+      "category": "Editor & Ferramentas Integradas",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "O agente está gerando código com erros de tipo que só aparecem após rodar `npm run build`. Qual funcionalidade resolve isso automaticamente em menos de 35ms?",
+      "options": [
+        { "id": "a", "label": "IDE Diagnostics / integração LSP que valida em tempo real sem precisar rodar build" },
+        { "id": "b", "label": "Um hook postToolUse que executa o TypeScript compiler após cada edição" },
+        { "id": "c", "label": "O codebase indexing que pré-compila todos os arquivos em background" },
+        { "id": "d", "label": "Um script customizado no package.json que roda tsc --watch" }
+      ],
+      "explanation": "A integração com IDE Diagnostics (LSP) valida o código gerado em menos de 35ms, detectando erros de tipo, imports faltando e inconsistências sem precisar executar o build completo. Isso proporciona feedback instantâneo ao agente para correção imediata.",
+      "sourceUrl": "https://kiro.dev/docs/editor/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "et-006",
+      "category": "Editor & Ferramentas Integradas",
+      "difficulty": "avançado",
+      "type": "multiple-choice",
+      "text": "O que é o AST-based editing e qual sua principal vantagem?",
+      "options": [
+        { "id": "a", "label": "Edição baseada em expressões regulares que encontra padrões de texto com alta precisão" },
+        { "id": "b", "label": "Edição baseada em AST que opera sobre a estrutura do código, reduzindo tokens em ~20% e eliminando erros de matching por formatação" },
+        { "id": "c", "label": "Edição baseada em diffs que compara versões anteriores do arquivo para aplicar mudanças" },
+        { "id": "d", "label": "Edição baseada em linhas que modifica o arquivo linha por linha de forma sequencial" }
+      ],
+      "explanation": "O AST-based editing (Abstract Syntax Tree) opera sobre a estrutura do código (funções, classes, métodos) em vez de usar string matching. Isso reduz o consumo de tokens em aproximadamente 20% e elimina erros de matching causados por diferenças de formatação ou indentação.",
+      "sourceUrl": "https://kiro.dev/docs/editor/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "et-007",
+      "category": "Editor & Ferramentas Integradas",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "Você precisa renomear um símbolo usado em 30 arquivos sem quebrar referências. Qual ferramenta do Kiro garante isso?",
+      "options": [
+        { "id": "a", "label": "Find and Replace global com regex no editor" },
+        { "id": "b", "label": "Refactoring tools integrados que usam language servers para propagar renomeação em todas as referências automaticamente" },
+        { "id": "c", "label": "Um script customizado que percorre todos os arquivos com sed" },
+        { "id": "d", "label": "Pedir ao agente para editar cada arquivo manualmente um por um" }
+      ],
+      "explanation": "Os Refactoring tools integrados do Kiro utilizam language servers para propagar renomeações de forma segura em todas as referências do símbolo. Isso garante que imports, chamadas de função e declarações sejam atualizados automaticamente sem quebrar nenhuma referência.",
+      "sourceUrl": "https://kiro.dev/docs/editor/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "et-008",
+      "category": "Editor & Ferramentas Integradas",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Ordene o fluxo de validação com IDE Diagnostics do início ao fim:",
+      "options": [
+        { "id": "step-1", "label": "Gerar código" },
+        { "id": "step-2", "label": "Checar diagnostics (<35ms)" },
+        { "id": "step-3", "label": "Identificar erros com linha/descrição" },
+        { "id": "step-4", "label": "Gerar fix direcionado" },
+        { "id": "step-5", "label": "Revalidar via diagnostics" },
+        { "id": "step-6", "label": "Prosseguir com código validado" }
+      ],
+      "explanation": "O fluxo de validação com IDE Diagnostics segue uma sequência lógica: primeiro o agente gera código, depois checa diagnostics em menos de 35ms, identifica erros com linha e descrição, gera um fix direcionado para o problema, revalida via diagnostics novamente, e só então prossegue com o código validado.",
+      "sourceUrl": "https://kiro.dev/docs/editor/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    }
+  ]
+}

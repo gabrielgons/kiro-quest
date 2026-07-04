@@ -1,0 +1,106 @@
+{
+  "stage": "custom-agents",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "ca-001",
+      "category": "Agentes Personalizados",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que são Custom Agents no Kiro?",
+      "options": [
+        { "id": "a", "label": "Agentes especializados configuráveis que mantêm contexto próprio e podem ser otimizados para domínios específicos" },
+        { "id": "b", "label": "Scripts de automação que rodam em background sem interação com o usuário" },
+        { "id": "c", "label": "Extensões de terceiros instaladas via marketplace do editor" },
+        { "id": "d", "label": "Templates de prompts salvos para reutilização em conversas futuras" }
+      ],
+      "explanation": "Custom Agents são agentes especializados configuráveis que mantêm contexto próprio e podem ser otimizados para domínios específicos como frontend, backend, code review, entre outros. Cada agente tem seu próprio system prompt e configurações.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-002",
+      "category": "Agentes Personalizados",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Custom Agents compartilham o mesmo contexto da sessão principal do chat.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Cada Custom Agent mantém seu próprio contexto isolado. Isso é uma das principais vantagens dos Custom Agents: evitar poluição de contexto entre domínios diferentes, mantendo cada agente focado em sua área de especialização.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-003",
+      "category": "Agentes Personalizados",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "Onde são configurados os Custom Agents em um projeto Kiro?",
+      "options": [
+        { "id": "a", "label": "No arquivo settings.json do editor" },
+        { "id": "b", "label": "No diretório .kiro/agents/ do projeto, em arquivos de configuração" },
+        { "id": "c", "label": "No painel de preferências globais do Kiro" },
+        { "id": "d", "label": "No arquivo package.json do projeto, na seção 'kiro'" }
+      ],
+      "explanation": "Custom Agents são configurados no diretório .kiro/agents/ do projeto. Cada agente possui seu próprio arquivo de configuração que define seu system prompt, ferramentas disponíveis e escopo de atuação.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-004",
+      "category": "Agentes Personalizados",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Sua equipe tem um frontend React e um backend Python. O contexto do agente está sobrecarregado com ferramentas de ambos. Como resolver?",
+      "options": [
+        { "id": "a", "label": "Aumentar o limite de tokens do contexto nas configurações" },
+        { "id": "b", "label": "Criar subagents separados: um frontend-agent com ferramentas de browser/componentes e um backend-agent com database/API docs" },
+        { "id": "c", "label": "Alternar manualmente entre projetos diferentes no editor" },
+        { "id": "d", "label": "Usar .kiroignore para esconder arquivos do backend quando trabalhando no frontend" }
+      ],
+      "explanation": "A solução ideal é criar subagents separados: um frontend-agent otimizado com ferramentas de browser e componentes React, e um backend-agent com acesso a database e documentação de API. Cada agente mantém contexto isolado, evitando sobrecarga.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-005",
+      "category": "Agentes Personalizados",
+      "difficulty": "avançado",
+      "type": "multiple-choice",
+      "text": "Qual a diferença principal entre Custom Agents, Steering Files e Skills no Kiro?",
+      "options": [
+        { "id": "a", "label": "Não há diferença, são apenas nomes diferentes para a mesma funcionalidade" },
+        { "id": "b", "label": "Steering = regras sempre ativas; Skills = conhecimento sob demanda; Custom Agents = agentes completos com contexto isolado e ferramentas próprias" },
+        { "id": "c", "label": "Skills são para frontend, Steering para backend, e Custom Agents para DevOps" },
+        { "id": "d", "label": "Custom Agents substituem completamente Steering Files e Skills quando configurados" }
+      ],
+      "explanation": "Cada conceito tem um papel distinto: Steering Files definem regras que estão sempre ativas em toda interação; Skills são pacotes de conhecimento ativados sob demanda quando necessário; Custom Agents são agentes completos com contexto isolado, ferramentas próprias e system prompt dedicado.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-006",
+      "category": "Agentes Personalizados",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "Você quer criar um agente de code review que valida padrões de segurança automaticamente. Qual abordagem é mais adequada?",
+      "options": [
+        { "id": "a", "label": "Adicionar regras de segurança no steering file global do projeto" },
+        { "id": "b", "label": "Criar um Custom Agent com system prompt focado em segurança, configurado em .kiro/agents/" },
+        { "id": "c", "label": "Instalar uma extensão de linting de segurança no editor" },
+        { "id": "d", "label": "Criar um hook que roda um scanner de segurança após cada commit" }
+      ],
+      "explanation": "A abordagem mais adequada é criar um Custom Agent dedicado a code review de segurança, configurado em .kiro/agents/. Esse agente terá um system prompt focado em padrões de segurança, com contexto isolado e ferramentas específicas para análise de vulnerabilidades.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    }
+  ]
+}

@@ -1,0 +1,106 @@
+{
+  "stage": "automations",
+  "locale": "pt-BR",
+  "questions": [
+    {
+      "id": "au-001",
+      "category": "Automações na Nuvem",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "O que são Automations no Kiro Web?",
+      "options": [
+        { "id": "a", "label": "Tarefas recorrentes automatizadas que rodam em sandbox na nuvem, clonando repos e abrindo PRs com as mudanças" },
+        { "id": "b", "label": "Scripts locais que executam no terminal do desenvolvedor em horários programados" },
+        { "id": "c", "label": "Workflows de CI/CD configurados diretamente no GitHub Actions" },
+        { "id": "d", "label": "Macros de teclado que automatizam sequências de comandos no editor" }
+      ],
+      "explanation": "Automations no Kiro Web são tarefas recorrentes automatizadas que rodam em um sandbox na nuvem. Elas clonam repositórios, executam tarefas definidas pelo usuário e abrem Pull Requests automaticamente com as mudanças realizadas.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-002",
+      "category": "Automações na Nuvem",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Automations executam tarefas no sandbox local da máquina do desenvolvedor.",
+      "options": [
+        { "id": "true", "label": "Verdadeiro" },
+        { "id": "false", "label": "Falso" }
+      ],
+      "explanation": "Automations rodam em um sandbox na nuvem, completamente isolado do ambiente local do desenvolvedor. Isso garante segurança, reprodutibilidade e permite execução mesmo quando o desenvolvedor não está com a máquina ligada.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-003",
+      "category": "Automações na Nuvem",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "Qual é o resultado final de uma execução de Automation?",
+      "options": [
+        { "id": "a", "label": "Um relatório em PDF enviado por email ao time" },
+        { "id": "b", "label": "Um Pull Request é aberto automaticamente com as mudanças realizadas" },
+        { "id": "c", "label": "Um commit direto na branch main sem revisão" },
+        { "id": "d", "label": "Uma notificação no Slack com o resumo das alterações sugeridas" }
+      ],
+      "explanation": "O resultado final de uma execução de Automation é um Pull Request aberto automaticamente com as mudanças realizadas. Isso mantém o fluxo de code review e permite que o time revise as alterações antes de fazer merge.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-004",
+      "category": "Automações na Nuvem",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Sua documentação fica desatualizada toda semana após merges na main. Como usar Automations para resolver?",
+      "options": [
+        { "id": "a", "label": "Configurar um hook postToolUse que atualiza docs após cada edição" },
+        { "id": "b", "label": "Criar uma Automation com schedule semanal que verifica gaps entre código e documentação, abrindo PR com atualizações" },
+        { "id": "c", "label": "Adicionar uma regra no steering file para sempre atualizar docs" },
+        { "id": "d", "label": "Criar um GitHub Action que bloqueia merges sem docs atualizadas" }
+      ],
+      "explanation": "A solução ideal é criar uma Automation com schedule diário ou semanal que verifica gaps entre o código alterado na main e a documentação existente, abrindo um PR automaticamente quando algo precisa ser atualizado.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-005",
+      "category": "Automações na Nuvem",
+      "difficulty": "avançado",
+      "type": "multiple-choice",
+      "text": "Quantos schedules podem ser configurados por Automation e quais formatos são aceitos?",
+      "options": [
+        { "id": "a", "label": "Apenas 1 schedule por automation, somente no formato cron" },
+        { "id": "b", "label": "Até 3 schedules por automation, apenas com opções built-in (daily, weekly, monthly)" },
+        { "id": "c", "label": "Até 5 schedules por automation, aceitando opções built-in (daily, weekly) ou expressões cron customizadas" },
+        { "id": "d", "label": "Schedules ilimitados por automation, mas apenas no formato ISO 8601" }
+      ],
+      "explanation": "Cada Automation suporta até 5 schedules, oferecendo flexibilidade na configuração. Os formatos aceitos incluem opções built-in simplificadas (como daily e weekly) e expressões cron customizadas para maior controle sobre os horários de execução.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-006",
+      "category": "Automações na Nuvem",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "Você quer detectar arquivos alterados na main sem cobertura de testes e gerar testes automaticamente toda terça-feira. Como configurar?",
+      "options": [
+        { "id": "a", "label": "Criar um hook que roda coverage report após cada push" },
+        { "id": "b", "label": "Configurar um GitHub Action com schedule cron para terças-feiras" },
+        { "id": "c", "label": "Criar uma Automation selecionando o repo, descrevendo a tarefa de detectar arquivos sem coverage, e configurando schedule cron para toda terça" },
+        { "id": "d", "label": "Adicionar uma skill que analisa coverage quando invocada manualmente" }
+      ],
+      "explanation": "A configuração ideal usa Automations: selecione o repositório, descreva a tarefa (detectar arquivos alterados sem cobertura de testes e gerar os testes necessários), e configure o schedule com expressão cron para execução toda terça-feira.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    }
+  ]
+}

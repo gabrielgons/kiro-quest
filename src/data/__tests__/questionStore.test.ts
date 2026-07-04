@@ -18,6 +18,11 @@ describe('QuestionStore', () => {
     'enterprise-scenarios',
     'kiro-cli',
     'kiro-web',
+    'chat-modes',
+    'custom-agents',
+    'editor-tools',
+    'automations',
+    'privacy-security',
   ];
 
   describe('getStages', () => {
@@ -25,14 +30,14 @@ describe('QuestionStore', () => {
       const stages = questionStore.getStages();
 
       expect(stages).toEqual(STAGE_ORDER);
-      expect(stages).toHaveLength(13);
+      expect(stages).toHaveLength(18);
     });
 
-    it('starts with kiro-basics and ends with kiro-web', () => {
+    it('starts with kiro-basics and ends with privacy-security', () => {
       const stages = questionStore.getStages();
 
       expect(stages[0]).toBe('kiro-basics');
-      expect(stages[stages.length - 1]).toBe('kiro-web');
+      expect(stages[stages.length - 1]).toBe('privacy-security');
     });
   });
 

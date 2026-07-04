@@ -11,7 +11,12 @@ export type LearningStage =
   | 'real-world-workflows'
   | 'enterprise-scenarios'
   | 'kiro-cli'
-  | 'kiro-web';
+  | 'kiro-web'
+  | 'chat-modes'
+  | 'custom-agents'
+  | 'editor-tools'
+  | 'automations'
+  | 'privacy-security';
 
 export type QuizPhase = 'answering' | 'feedback' | 'stage-complete';
 

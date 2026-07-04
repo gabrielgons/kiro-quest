@@ -3,7 +3,7 @@ import type { BadgeDesign, LearningStage } from './types';
 /**
  * Visual design configuration for every Kiro Quest learning stage.
  *
- * Each of the 13 {@link LearningStage} values maps to a {@link BadgeDesign}
+ * Each of the 18 {@link LearningStage} values maps to a {@link BadgeDesign}
  * describing the emoji icon, gradient colors, and Portuguese display name
  * used when rendering its completion badge.
  *
@@ -104,5 +104,40 @@ export const BADGE_DESIGNS: Record<LearningStage, BadgeDesign> = {
     primaryColor: '#22d3ee',
     secondaryColor: '#06b6d4',
     displayName: 'Kiro Web',
+  },
+  'chat-modes': {
+    stage: 'chat-modes',
+    icon: '💬',
+    primaryColor: '#7c3aed',
+    secondaryColor: '#5b21b6',
+    displayName: 'Chat & Modos',
+  },
+  'custom-agents': {
+    stage: 'custom-agents',
+    icon: '🤖',
+    primaryColor: '#059669',
+    secondaryColor: '#047857',
+    displayName: 'Agentes Personalizados',
+  },
+  'editor-tools': {
+    stage: 'editor-tools',
+    icon: '🛠️',
+    primaryColor: '#d97706',
+    secondaryColor: '#b45309',
+    displayName: 'Editor & Ferramentas',
+  },
+  automations: {
+    stage: 'automations',
+    icon: '⚙️',
+    primaryColor: '#2563eb',
+    secondaryColor: '#1d4ed8',
+    displayName: 'Automações na Nuvem',
+  },
+  'privacy-security': {
+    stage: 'privacy-security',
+    icon: '🔒',
+    primaryColor: '#dc2626',
+    secondaryColor: '#b91c1c',
+    displayName: 'Privacidade & Segurança',
   },
 };
