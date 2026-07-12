@@ -62,13 +62,11 @@ function handler(event) {
   return request;
 }
       `.trim()),
-      functionName: 'KiroQuestSpaRouting',
       comment: 'Redirects non-file requests to index.html for SPA routing',
     });
 
     // Response headers policy for security
     const responseHeadersPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersPolicy', {
-      responseHeadersPolicyName: 'KiroQuestSecurityHeaders',
       comment: 'Security headers for Kiro Quest frontend',
       securityHeadersBehavior: {
         contentTypeOptions: { override: true },
