@@ -1,6 +1,6 @@
-import { PutCommand } from '@aws-sdk/lib-dynamodb';
+import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { docClient, TABLE_NAME } from '../models/dynamodb.js';
-import type { SaveProgressRequest, UserProgressItem } from '../models/types.js';
+import type { SaveProgressRequest } from '../models/types.js';
 import { getUserId, jsonResponse, errorResponse, validateBodySize, isValidStageId } from './utils.js';
 import type { ApiEvent, ApiResponse } from './utils.js';
 
@@ -30,24 +30,24 @@ export async function handler(event: ApiEvent): Promise<ApiResponse> {
 
   try {
     const now = new Date().toISOString();
-    const item: UserProgressItem = {
-      pk: `USER#${userId}`,
-      sk: `PROGRESS#${body.stageId}`,
-      entityType: 'USER_PROGRESS',
-      userId,
-      stageId: body.stageId,
-      currentQuestionIndex: body.currentQuestionIndex,
-      quizPhase: body.quizPhase,
-      userAnswers: body.userAnswers || [],
-      lastUpdated: Date.now(),
-      createdAt: now,
-      updatedAt: now,
-    };
+    const lastUpdated = Date.now();
 
     await docClient.send(
-      new PutCommand({
+      new UpdateCommand({
         TableName: TABLE_NAME,
-        Item: item,
+        Key: { pk: `USER#${userId}`, sk: `PROGRESS#${body.stageId}` },
+        UpdateExpression:
+          'SET entityType = :et, userId = :uid, stageId = :sid, currentQuestionIndex = :qi, quizPhase = :qp, userAnswers = :ua, lastUpdated = :lu, updatedAt = :now, createdAt = if_not_exists(createdAt, :now)',
+        ExpressionAttributeValues: {
+          ':et': 'USER_PROGRESS',
+          ':uid': userId,
+          ':sid': body.stageId,
+          ':qi': body.currentQuestionIndex,
+          ':qp': body.quizPhase,
+          ':ua': body.userAnswers || [],
+          ':lu': lastUpdated,
+          ':now': now,
+        },
       }),
     );
 
@@ -55,7 +55,7 @@ export async function handler(event: ApiEvent): Promise<ApiResponse> {
       stageId: body.stageId,
       currentQuestionIndex: body.currentQuestionIndex,
       quizPhase: body.quizPhase,
-      lastUpdated: item.lastUpdated,
+      lastUpdated,
     }, event);
   } catch (err) {
     console.error('[saveProgress] DynamoDB error:', err);

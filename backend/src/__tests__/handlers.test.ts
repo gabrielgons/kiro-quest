@@ -378,8 +378,8 @@ describe('submitResult handler', () => {
 
     const response = await handler(event);
     expect(response.statusCode).toBe(200);
-    // Should write both result and ranking items
-    expect(mockSend).toHaveBeenCalledTimes(2);
+    // Should write both result and ranking items in a single transaction
+    expect(mockSend).toHaveBeenCalledOnce();
 
     const body = JSON.parse(response.body as string);
     expect(body.stageId).toBe('kiro-basics');

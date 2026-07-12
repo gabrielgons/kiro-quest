@@ -1,4 +1,4 @@
-import { PutCommand } from '@aws-sdk/lib-dynamodb';
+import { TransactWriteCommand } from '@aws-sdk/lib-dynamodb';
 import { docClient, TABLE_NAME } from '../models/dynamodb.js';
 import type { StageResultItem, RankingItem, SubmitResultRequest, SubmitResultResponse } from '../models/types.js';
 import { getUserId, getUserName, jsonResponse, errorResponse, validateBodySize, isValidStageId } from './utils.js';
@@ -83,11 +83,15 @@ export async function handler(event: ApiEvent): Promise<ApiResponse> {
       updatedAt: now,
     };
 
-    // Write both items
-    await Promise.all([
-      docClient.send(new PutCommand({ TableName: TABLE_NAME, Item: resultItem })),
-      docClient.send(new PutCommand({ TableName: TABLE_NAME, Item: rankingItem })),
-    ]);
+    // Write both items atomically
+    await docClient.send(
+      new TransactWriteCommand({
+        TransactItems: [
+          { Put: { TableName: TABLE_NAME, Item: resultItem } },
+          { Put: { TableName: TABLE_NAME, Item: rankingItem } },
+        ],
+      }),
+    );
 
     const response: SubmitResultResponse = {
       stageId: body.stageId,

@@ -103,7 +103,7 @@ export function validateBodySize(event: ApiEvent): ApiResponse | null {
     : new TextEncoder().encode(body).length;
 
   if (bodySize > MAX_BODY_SIZE_BYTES) {
-    return errorResponse(413, `Request body too large. Maximum size is ${MAX_BODY_SIZE_BYTES} bytes`);
+    return errorResponse(413, `Request body too large. Maximum size is ${MAX_BODY_SIZE_BYTES} bytes`, event);
   }
   return null;
 }

@@ -16,6 +16,7 @@ export const useAuthStore = defineStore('auth', () => {
   // --- State ---
   const user = ref<UserInfo | null>(null);
   const isLoading = ref(false);
+  const isInitialized = ref(false);
   const error = ref<string | null>(null);
 
   // --- Computed ---
@@ -29,10 +30,10 @@ export const useAuthStore = defineStore('auth', () => {
    * Call this on app startup to restore session.
    */
   function initialize(): void {
-    if (!isAuthConfigured()) return;
+    if (!isAuthConfigured()) { isInitialized.value = true; return; }
 
     const tokens = getStoredTokens();
-    if (!tokens) return;
+    if (!tokens) { isInitialized.value = true; return; }
 
     if (isTokenExpired(tokens)) {
       // Try to refresh in the background
@@ -50,6 +51,7 @@ export const useAuthStore = defineStore('auth', () => {
         })
         .finally(() => {
           isLoading.value = false;
+          isInitialized.value = true;
         });
       return;
     }
@@ -59,6 +61,7 @@ export const useAuthStore = defineStore('auth', () => {
     } catch {
       user.value = null;
     }
+    isInitialized.value = true;
   }
 
   /**
@@ -117,6 +120,7 @@ export const useAuthStore = defineStore('auth', () => {
     // State
     user,
     isLoading,
+    isInitialized,
     error,
     // Computed
     isAuthenticated,
