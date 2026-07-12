@@ -48,6 +48,7 @@ export async function login(): Promise<void> {
     state,
     code_challenge: challenge,
     code_challenge_method: 'S256',
+    identity_provider: 'Google',
   });
 
   window.location.href = `${config.domain}/oauth2/authorize?${params.toString()}`;
