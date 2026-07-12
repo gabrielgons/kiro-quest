@@ -18,7 +18,6 @@ const hostedZoneName = app.node.tryGetContext('hostedZoneName') || process.env.H
 
 // Auth configuration (optional - Google OAuth credentials)
 const googleClientId = app.node.tryGetContext('googleClientId') || process.env.GOOGLE_CLIENT_ID;
-const googleClientSecret = app.node.tryGetContext('googleClientSecret') || process.env.GOOGLE_CLIENT_SECRET;
 const googleClientSecretArn = app.node.tryGetContext('googleClientSecretArn') || process.env.GOOGLE_CLIENT_SECRET_ARN;
 const cognitoDomainPrefix = app.node.tryGetContext('cognitoDomainPrefix') || process.env.COGNITO_DOMAIN_PREFIX || 'kiro-quest';
 const githubRepo = app.node.tryGetContext('githubRepo') || process.env.GITHUB_REPOSITORY || 'owner/kiro-quest';
@@ -44,7 +43,6 @@ const authStack = new AuthStack(app, 'KiroQuestAuthStack', {
   env,
   description: 'Kiro Quest - Authentication with Amazon Cognito',
   googleClientId,
-  googleClientSecret,
   googleClientSecretArn,
   domainPrefix: cognitoDomainPrefix,
   callbackUrls: [

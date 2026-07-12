@@ -51,16 +51,9 @@ jobs:
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/KiroQuestGitHubActionsRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy auth stack
+      - name: Deploy stacks
         env:
           GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        run: npx cdk deploy KiroQuestAuthStack --require-approval never
-        working-directory: infra
-
-      - name: Deploy backend stack
-        env:
-          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET: ${{ secrets.GOOGLE_CLIENT_SECRET }}
-        run: npx cdk deploy KiroQuestBackendStack --require-approval never
+          GOOGLE_CLIENT_SECRET_ARN: ${{ secrets.GOOGLE_CLIENT_SECRET_ARN }}
+        run: npx cdk deploy KiroQuestFrontendStack KiroQuestAuthStack KiroQuestBackendStack --require-approval never
         working-directory: infra
