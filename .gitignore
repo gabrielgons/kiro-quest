@@ -69,3 +69,5 @@ infra/whoami.txt
 *.njsproj
 *.sln
 *.sw?
+
+.agents/

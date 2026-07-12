@@ -46,6 +46,18 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/FinalAchievement.vue'),
   },
   {
+    path: '/login',
+    name: 'login',
+    component: () => import('@/views/LoginPage.vue'),
+    meta: { skipAuth: true },
+    beforeEnter: () => {
+      const authStore = useAuthStore();
+      if (authStore.isAuthenticated) {
+        return { name: 'stages' };
+      }
+    },
+  },
+  {
     path: '/auth/callback',
     name: 'auth-callback',
     component: () => import('@/views/AuthCallback.vue'),

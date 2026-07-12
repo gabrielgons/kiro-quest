@@ -114,5 +114,12 @@
   "a11y.selectedOption": "Opção selecionada",
   "a11y.stageComplete": "Estágio concluído",
   "a11y.dragHandle": "Arrastar para reordenar",
-  "a11y.questionUpdate": "Pergunta {current} de {total}"
+  "a11y.questionUpdate": "Pergunta {current} de {total}",
+
+  "login.headline": "Comece sua jornada",
+  "login.subtitle": "Teste seus conhecimentos sobre o Kiro e conquiste badges exclusivos",
+  "login.continueWithGoogle": "Continuar com Google",
+  "login.securityNote": "Login seguro via Google OAuth",
+  "login.loading": "Carregando...",
+  "login.authNotConfigured": "Autenticação não configurada. Verifique as variáveis de ambiente."
 }
