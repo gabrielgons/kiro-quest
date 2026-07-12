@@ -44,8 +44,13 @@ Kiro Quest é uma aplicação web que transforma o aprendizado sobre o Kiro em u
 - [Vite](https://vitejs.dev/) (build & dev server)
 - [Pinia](https://pinia.vuejs.org/) (gerenciamento de estado)
 - [Vue Router](https://router.vuejs.org/)
-- [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/) + [fast-check](https://fast-check.dev/) (testes unitários e baseados em propriedades)
-- Cloudflare Workers (hospedagem da versão pública)
+- [Vitest](https://vitest.dev/) + [@vue/test-utils](https://test-utils.vuejs.org/) + [fast-check](https://fast-check.dev/) (testes unitarios e baseados em propriedades)
+- **AWS S3 + CloudFront** (hospedagem do frontend)
+- **AWS Lambda + API Gateway** (backend serverless)
+- **Amazon DynamoDB** (banco de dados NoSQL)
+- **Amazon Cognito** (autenticacao SSO com Google)
+- **AWS CDK** (infraestrutura como codigo)
+- **GitHub Actions + OIDC** (CI/CD)
 
 ---
 
@@ -141,6 +146,174 @@ Contribuições são bem-vindas! Sugestões de novos estágios, perguntas, melho
 
 ---
 
-## Licença
+## Infraestrutura AWS
 
-Este projeto é open source. Verifique o arquivo de licença ou abra uma issue caso precise de mais detalhes.
+O projeto inclui infraestrutura como codigo (IaC) usando AWS CDK para hospedar a aplicacao na AWS, substituindo o Cloudflare Workers.
+
+### Arquitetura
+
+- **S3** - Bucket privado para armazenamento dos assets estaticos (dist/)
+- **CloudFront** - CDN global com Origin Access Control (OAC) para servir o conteudo do S3
+- **Route 53** - DNS gerenciado (opcional, para dominio customizado)
+- **ACM** - Certificado SSL/TLS gratuito (opcional, para dominio customizado)
+
+Todos os recursos sao otimizados para o AWS Free Tier:
+- S3 Standard: 5GB de armazenamento, 20K GET, 2K PUT/mes
+- CloudFront: 1TB de transferencia, 10M requisicoes/mes
+- Route 53: $0.50/mes por hosted zone (unico custo fixo se usar dominio customizado)
+
+### Deploy
+
+#### Pre-requisitos
+
+- AWS CLI configurado com credenciais validas
+- Node.js 20+
+- Conta AWS com permissoes para criar S3, CloudFront, Route 53, e ACM
+
+#### Primeira vez (provisionar infraestrutura)
+
+```bash
+cd infra
+npm install
+cp .env.example .env  # Preencha com seus valores
+
+# Bootstrap do CDK (apenas na primeira vez por conta/regiao)
+npx cdk bootstrap
+
+# Deploy da infraestrutura
+npm run deploy
+```
+
+#### Deploy do frontend (apos build)
+
+```bash
+# Na raiz do projeto
+npm run build
+
+# Sincronizar dist/ com S3 e invalidar cache do CloudFront
+cd infra
+npm run sync
+```
+
+#### Usando dominio customizado (opcional)
+
+Para usar um dominio customizado, configure as variaveis `DOMAIN_NAME` e `HOSTED_ZONE_NAME` no `.env` e faca o deploy dos dois stacks:
+
+```bash
+npx cdk deploy --all -c domainName=kiro-quest.seudominio.com -c hostedZoneName=seudominio.com
+```
+
+### Estrutura do diretorio infra/
+
+```
+infra/
+├── bin/
+│   └── infra.ts            # Entry point do CDK app
+├── lib/
+│   ├── frontend-stack.ts   # S3 + CloudFront + OAC
+│   └── dns-stack.ts        # Route 53 + ACM (opcional)
+├── scripts/
+│   └── sync-to-s3.mjs     # Script de sync dist/ -> S3
+├── cdk.json                # Configuracao do CDK
+├── package.json            # Dependencias do CDK
+├── tsconfig.json           # TypeScript config
+└── .env.example            # Variaveis de configuracao
+```
+
+---
+
+## CI/CD Pipeline
+
+O projeto utiliza GitHub Actions para integracao continua e deploy automatizado. A autenticacao com a AWS e feita via OIDC (OpenID Connect), sem necessidade de chaves de acesso de longa duracao.
+
+### Workflows
+
+| Workflow | Trigger | Descricao |
+| --- | --- | --- |
+| `ci.yml` | Pull Request para `main` | Valida build, testes e typecheck (frontend, backend, infra) |
+| `deploy-frontend.yml` | Push para `main` (paths: src/, content/, public/) | Build Vue app, sync S3, invalidate CloudFront |
+| `deploy-backend.yml` | Push para `main` (paths: backend/, infra/) | Bundle Lambdas, CDK deploy backend stack |
+| `cdk-diff.yml` | Pull Request (paths: infra/) | Roda `cdk diff` e posta resultado como comentario no PR |
+| `kiro-code-review.yml` | Pull Request (opened/synchronize) | Code review automatizado com Kiro |
+
+### Configuracao do OIDC
+
+A autenticacao e feita via GitHub OIDC Provider, eliminando a necessidade de armazenar `AWS_ACCESS_KEY_ID` e `AWS_SECRET_ACCESS_KEY` como secrets.
+
+#### Pre-requisitos
+
+1. Faca o deploy do stack `KiroQuestGitHubOidcStack` para criar o OIDC provider e a IAM role:
+
+```bash
+cd infra
+npx cdk deploy KiroQuestGitHubOidcStack -c githubRepo=owner/kiro-quest
+```
+
+2. Configure as seguintes **Repository Variables** no GitHub (`Settings > Secrets and variables > Actions > Variables`):
+
+| Variavel | Descricao | Exemplo |
+| --- | --- | --- |
+| `AWS_ACCOUNT_ID` | ID da conta AWS | `123456789012` |
+| `AWS_REGION` | Regiao AWS principal | `us-east-1` |
+| `S3_BUCKET_NAME` | Nome do bucket S3 do frontend | `kiro-quest-site-123456789012` |
+| `CLOUDFRONT_DISTRIBUTION_ID` | ID da distribuicao CloudFront | `E1234567890ABC` |
+
+3. Crie um **Environment** chamado `production` no GitHub (`Settings > Environments > New environment`). Os workflows de deploy referenciam este environment.
+
+#### Trust Relationship
+
+A role `KiroQuestGitHubActionsRole` confia apenas em tokens OIDC emitidos pelo repositorio configurado, via condicao:
+
+```json
+{
+  "StringLike": {
+    "token.actions.githubusercontent.com:sub": "repo:owner/kiro-quest:*"
+  }
+}
+```
+
+Isso garante que apenas GitHub Actions rodando neste repositorio podem assumir a role.
+
+### Estrutura dos workflows
+
+```
+.github/workflows/
+├── ci.yml                  # Validacao em PRs
+├── deploy-frontend.yml     # Deploy frontend (S3 + CloudFront)
+├── deploy-backend.yml      # Deploy backend (Lambda + CDK)
+├── cdk-diff.yml            # CDK diff em PRs com mudancas em infra/
+└── kiro-code-review.yml    # Code review automatizado
+```
+
+---
+
+## Documentacao
+
+Documentacao detalhada esta disponivel na pasta `docs/`:
+
+| Documento | Descricao |
+| --- | --- |
+| [Arquitetura](docs/architecture.md) | Diagrama completo da arquitetura, componentes, fluxo de dados, modelo de seguranca |
+| [Guia de Migracao](docs/migration-guide.md) | Passo a passo para migrar de Cloudflare Workers para AWS |
+| [Custos - Free Tier](docs/aws-free-tier.md) | Analise detalhada de custos e limites do AWS Free Tier |
+| [Runbook Operacional](docs/runbook.md) | Monitoramento, troubleshooting, deploy manual, gerenciamento de usuarios |
+
+### Configuracao de Ambiente
+
+O frontend utiliza variaveis de ambiente Vite para configuracao:
+
+```bash
+# Copie o template de desenvolvimento
+cp .env.development .env.local
+
+# Preencha com seus valores (Cognito, API URL)
+# O app funciona sem backend - progresso salvo em localStorage
+```
+
+Veja `src/config/environment.ts` para a configuracao tipada e `.env.development` / `.env.production` para os templates.
+
+---
+
+## Licenca
+
+Este projeto e open source. Verifique o arquivo de licenca ou abra uma issue caso precise de mais detalhes.

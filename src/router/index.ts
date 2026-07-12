@@ -1,8 +1,9 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 import { STAGE_ORDER } from '@/engine/quizEngine';
 import type { LearningStage } from '@/engine/types';
 import { useQuizStore } from '@/stores/quizStore';
+import { useAuthStore } from '@/stores/authStore';
 
 /**
  * Valid stage identifiers for route parameter validation.
@@ -11,7 +12,9 @@ const VALID_STAGES: Set<string> = new Set(STAGE_ORDER);
 
 /**
  * Route definitions for the Kiro Quiz Game.
- * Uses hash mode for GitHub Pages compatibility.
+ * Uses HTML5 history mode (path-based) so OAuth redirect URIs like
+ * /auth/callback work without a fragment. CloudFront rewrites non-file
+ * paths to /index.html (see FrontendStack SpaRoutingFunction).
  * All view components are lazy-loaded for code splitting.
  */
 const routes: RouteRecordRaw[] = [
@@ -43,23 +46,43 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/views/FinalAchievement.vue'),
   },
   {
+    path: '/auth/callback',
+    name: 'auth-callback',
+    component: () => import('@/views/AuthCallback.vue'),
+    meta: { skipAuth: true },
+  },
+  {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('@/views/UserProfile.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/stages',
   },
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 });
 
 /**
  * Navigation guards:
+ * - Redirect legacy hash-based URLs (#/) to equivalent history paths
  * - Validate :stage params against LearningStage union
  * - Guard /achievement route (requires all stages complete)
  * - Guard /summary/:stage route (requires stage completion)
+ * - Optional auth guard for routes with meta.requiresAuth
  */
 router.beforeEach((to, _from, next) => {
+  // Handle legacy hash-based URLs: redirect /#/path to /path
+  if (to.fullPath === '/' && window.location.hash.startsWith('#/')) {
+    const hashPath = window.location.hash.slice(1); // Remove the '#'
+    return next(hashPath);
+  }
+
   const stageParam = to.params.stage as string | undefined;
 
   // Validate :stage parameter for quiz and summary routes
@@ -85,6 +108,14 @@ router.beforeEach((to, _from, next) => {
 
     if (!isCompleted && !isStageComplete) {
       return next({ path: '/stages' });
+    }
+  }
+
+  // Optional auth guard: routes with meta.requiresAuth redirect to home if not authenticated
+  if (to.meta.requiresAuth) {
+    const authStore = useAuthStore();
+    if (!authStore.isAuthenticated) {
+      return next({ path: '/' });
     }
   }
 

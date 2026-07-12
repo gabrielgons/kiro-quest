@@ -55,7 +55,11 @@ const answerModules = import.meta.glob<AnswerFileData>(
 function loadAllQuestions(): QuestionPresentation[] {
   const allQuestions: QuestionPresentation[] = [];
 
-  for (const data of Object.values(questionModules)) {
+  for (const [path, data] of Object.entries(questionModules)) {
+    // Skip underscore-prefixed files (e.g. _test-invalid.json). The `_` prefix
+    // is a convention for private/fixture files that must not be bundled into
+    // production content.
+    if (isPrivateFile(path)) continue;
     if (!data || !data.questions) continue;
     for (const q of data.questions) {
       allQuestions.push({ ...q, stage: data.stage });
@@ -66,12 +70,22 @@ function loadAllQuestions(): QuestionPresentation[] {
 }
 
 /**
+ * Returns true when the file name (last path segment) starts with an underscore,
+ * marking it as a private/fixture file that should be excluded from bundling.
+ */
+function isPrivateFile(path: string): boolean {
+  const fileName = path.split('/').pop() ?? '';
+  return fileName.startsWith('_');
+}
+
+/**
  * Build a map of questionId → AnswerKey from all answer files.
  */
 function loadAllAnswers(): Map<string, AnswerKey> {
   const answerMap = new Map<string, AnswerKey>();
 
-  for (const data of Object.values(answerModules)) {
+  for (const [path, data] of Object.entries(answerModules)) {
+    if (isPrivateFile(path)) continue;
     if (!data || !data.answers) continue;
     for (const answer of data.answers) {
       answerMap.set(answer.questionId, answer);

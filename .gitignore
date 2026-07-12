@@ -34,6 +34,31 @@ vitest.config.d.ts.map
 .env.*
 !.env.example
 
+# Kiro IDE (ignora tudo exceto agents e steering que o CI/equipe precisa)
+.kiro/settings/
+.kiro/specs/
+.kiro/hooks/
+.kiro/powers/
+
+# Temporary build/deploy logs
+findres.txt
+usage.txt
+commando-cloudshell-deployer.text
+backend/be-build-err.txt
+backend/be-build-out.txt
+backend/be-install.txt
+infra/npm-install-out.txt
+infra/stackstatus.txt
+infra/synth-code.txt
+infra/synth-err.txt
+infra/synth-out.txt
+infra/synth-oidc.txt
+infra/deploy-oidc.txt
+infra/whoami.txt
+
+# Kiro scripts (gerados localmente)
+.kiro/scripts/
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json

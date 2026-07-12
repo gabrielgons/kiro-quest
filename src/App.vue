@@ -1,14 +1,23 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue';
 import { useQuizStore } from '@/stores/quizStore';
+import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/composables/useTheme';
 import ThemeToggle from '@/components/ThemeToggle.vue';
+import LoginButton from '@/components/LoginButton.vue';
+import UserMenu from '@/components/UserMenu.vue';
+import { version } from '../package.json';
 
 const quizStore = useQuizStore();
+const authStore = useAuthStore();
 useTheme();
 const showRecoveryError = ref(false);
+const appVersion = version;
 
 onMounted(() => {
+  // Restore auth session from stored tokens (if any)
+  authStore.initialize();
+
   const wasCorrupted = quizStore.restoreProgress();
 
   if (wasCorrupted) {
@@ -29,8 +38,15 @@ function dismissError() {
     <button @click="dismissError()">Fechar</button>
   </div>
 
+  <header class="app-header">
+    <UserMenu />
+    <LoginButton />
+  </header>
+
   <ThemeToggle />
   <router-view />
+
+  <span class="app-version">v{{ appVersion }}</span>
 </template>
 
 <style>
@@ -39,6 +55,16 @@ function dismissError() {
   color: var(--color-text);
   background-color: var(--color-background);
   min-height: 100vh;
+}
+
+.app-header {
+  position: fixed;
+  top: 1rem;
+  right: 1rem;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .notification {
@@ -70,5 +96,16 @@ function dismissError() {
   cursor: pointer;
   color: inherit;
   font-size: var(--font-size-sm);
+}
+
+.app-version {
+  position: fixed;
+  bottom: 0.5rem;
+  left: 0.75rem;
+  font-size: 0.65rem;
+  color: var(--color-text-secondary);
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
 }
 </style>

@@ -1,0 +1,29 @@
+{
+  "id": "FEAT-001",
+  "type": "chore",
+  "description": "Phase 1 - AWS CDK Infrastructure Foundation: Initialize AWS CDK project (TypeScript) in an infra/ directory at the project root. Create the base CDK stack with S3 bucket for static hosting, CloudFront distribution with OAC (Origin Access Control), and ACM certificate placeholder. This replaces the Cloudflare Workers deployment. The CDK stack should be optimized for Free Tier (S3 standard, CloudFront free 1TB/month).",
+  "status": "completed",
+  "steps": [
+    "Create infra/ directory at the project root with a CDK TypeScript project (package.json, tsconfig.json, cdk.json, bin/infra.ts, lib/ stacks)",
+    "Create lib/frontend-stack.ts with: S3 bucket (private, no public access), CloudFront distribution with OAC pointing to S3, CloudFront function for SPA routing (redirect all 404s to /index.html for Vue Router hash mode), response headers policy for security headers",
+    "Create lib/dns-stack.ts with: Route 53 hosted zone reference (configurable domain parameter), ACM certificate in us-east-1 (required for CloudFront), DNS A/AAAA alias records pointing to CloudFront",
+    "Create bin/infra.ts as the CDK app entry point with environment configuration and context parameters for domain name",
+    "Add a deploy script in infra/package.json that runs cdk deploy and a separate script to sync the built dist/ to S3 and invalidate CloudFront cache",
+    "Add .env.example in infra/ documenting required configuration: AWS_ACCOUNT_ID, AWS_REGION, DOMAIN_NAME",
+    "Update root README.md with a new section on AWS infrastructure and deployment instructions"
+  ],
+  "acceptance_criteria": [
+    "infra/ directory contains a valid CDK TypeScript project that compiles without errors",
+    "Running cd infra && npm install && npx tsc --noEmit passes type checking",
+    "The CDK stack defines S3 bucket, CloudFront distribution, and OAC with proper configuration",
+    "CloudFront is configured to handle SPA routing (404 -> /index.html)",
+    "DNS stack accepts domain as a parameter and creates ACM certificate + Route 53 records",
+    "All resources use Free Tier eligible configurations where possible"
+  ],
+  "verification": [
+    "cd infra && npm install && npx tsc --noEmit",
+    "cd infra && npx cdk synth --quiet 2>&1 | head -50 (validates CloudFormation template generation)"
+  ],
+  "blocked_reason": null,
+  "findings": "Node.js available via nvm (v20.20.2). CDK synth passes cleanly, generating KiroQuestFrontendStack with S3, CloudFront, OAC, CloudFront Function, and ResponseHeadersPolicy. DNS stack only synthesizes when domainName and hostedZoneName context params are provided. Pre-existing test failure in src/data/__tests__/questionStore.test.ts (getQuestionById test) unrelated to infra changes."
+}
