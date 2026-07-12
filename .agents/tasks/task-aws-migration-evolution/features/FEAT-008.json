@@ -2,7 +2,7 @@
   "id": "FEAT-008",
   "type": "fix",
   "description": "Address second PR review round on custom login page: flash prevention via beforeEnter guard and async watch, try/catch in handleLogin, aria-busy/aria-live on button, semantic <main> wrapper.",
-  "status": "in_progress",
+  "status": "completed",
   "steps": [
     "Add beforeEnter guard to /login route in router/index.ts redirecting authenticated users to stages",
     "Add watch on isAuthenticated in LoginPage.vue for async redirect after store initializes",
@@ -22,5 +22,5 @@
     "npm run build"
   ],
   "blocked_reason": null,
-  "findings": null
+  "findings": "All 5 review issues addressed. vue-tsc typecheck has pre-existing TS2307 errors for .vue module declarations (same on base branch). Vite build succeeds cleanly (148 modules). All 106 tests pass (vitest teardown errors are a known Bun+vitest compatibility issue, not related to code)."
 }
