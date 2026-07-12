@@ -1,5 +1,5 @@
 import { build } from 'esbuild';
-import { readdirSync } from 'fs';
+import { readdirSync, writeFileSync } from 'fs';
 import { join } from 'path';
 
 const handlersDir = join(import.meta.dirname, 'src', 'handlers');
@@ -21,5 +21,13 @@ await build({
     js: 'import { createRequire } from "module"; const require = createRequire(import.meta.url);',
   },
 });
+
+// Lambda Node.js 20 needs a package.json with "type": "module" in the
+// deployment bundle to treat .js files as ESM. Without this, the runtime
+// defaults to CommonJS and fails to parse import/export syntax.
+writeFileSync(
+  join(import.meta.dirname, 'dist', 'package.json'),
+  JSON.stringify({ type: 'module' }),
+);
 
 console.log('Build complete.');
