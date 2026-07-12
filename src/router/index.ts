@@ -70,12 +70,19 @@ const router = createRouter({
 
 /**
  * Navigation guards:
+ * - Redirect legacy hash-based URLs (#/) to equivalent history paths
  * - Validate :stage params against LearningStage union
  * - Guard /achievement route (requires all stages complete)
  * - Guard /summary/:stage route (requires stage completion)
  * - Optional auth guard for routes with meta.requiresAuth
  */
 router.beforeEach((to, _from, next) => {
+  // Handle legacy hash-based URLs: redirect /#/path to /path
+  if (to.fullPath === '/' && window.location.hash.startsWith('#/')) {
+    const hashPath = window.location.hash.slice(1); // Remove the '#'
+    return next(hashPath);
+  }
+
   const stageParam = to.params.stage as string | undefined;
 
   // Validate :stage parameter for quiz and summary routes

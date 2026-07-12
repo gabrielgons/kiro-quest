@@ -4,6 +4,26 @@ export type ApiEvent = APIGatewayProxyEventV2WithJWTAuthorizer;
 export type ApiResponse = APIGatewayProxyStructuredResultV2;
 
 /**
+ * Allowed origins for CORS, loaded from environment variable.
+ * Format: comma-separated list of origins (e.g. "https://example.com,http://localhost:5173")
+ */
+const ALLOWED_ORIGINS: Set<string> = new Set(
+  (process.env.ALLOWED_ORIGINS || '').split(',').map((o) => o.trim()).filter(Boolean),
+);
+
+/**
+ * Validates the request Origin header against ALLOWED_ORIGINS.
+ * Returns the origin if allowed, or undefined if not.
+ */
+function getAllowedOrigin(event: ApiEvent): string | undefined {
+  const origin = event.headers?.origin;
+  if (origin && ALLOWED_ORIGINS.has(origin)) {
+    return origin;
+  }
+  return undefined;
+}
+
+/**
  * Extracts the userId (sub claim) from the JWT authorizer context.
  */
 export function getUserId(event: ApiEvent): string | null {
@@ -26,17 +46,34 @@ export function getUserName(event: ApiEvent): string {
 }
 
 /**
- * Returns a JSON API Gateway response.
+ * Validates a stageId parameter.
+ * Must be alphanumeric with hyphens, max 50 characters.
  */
-export function jsonResponse(statusCode: number, body: unknown): ApiResponse {
+export function isValidStageId(stageId: string): boolean {
+  return /^[a-z0-9-]{1,50}$/.test(stageId);
+}
+
+/**
+ * Returns a JSON API Gateway response.
+ * Validates the request Origin header against allowed origins for CORS.
+ */
+export function jsonResponse(statusCode: number, body: unknown, event?: ApiEvent): ApiResponse {
+  const headers: Record<string, string> = {
+    'Content-Type': 'application/json',
+    'Access-Control-Allow-Headers': 'Content-Type,Authorization',
+    'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
+  };
+
+  if (event) {
+    const allowedOrigin = getAllowedOrigin(event);
+    if (allowedOrigin) {
+      headers['Access-Control-Allow-Origin'] = allowedOrigin;
+    }
+  }
+
   return {
     statusCode,
-    headers: {
-      'Content-Type': 'application/json',
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Headers': 'Content-Type,Authorization',
-      'Access-Control-Allow-Methods': 'GET,POST,PUT,DELETE,OPTIONS',
-    },
+    headers,
     body: JSON.stringify(body),
   };
 }
@@ -44,8 +81,8 @@ export function jsonResponse(statusCode: number, body: unknown): ApiResponse {
 /**
  * Returns an error response.
  */
-export function errorResponse(statusCode: number, message: string): ApiResponse {
-  return jsonResponse(statusCode, { error: message });
+export function errorResponse(statusCode: number, message: string, event?: ApiEvent): ApiResponse {
+  return jsonResponse(statusCode, { error: message }, event);
 }
 
 /**
@@ -66,7 +103,7 @@ export function validateBodySize(event: ApiEvent): ApiResponse | null {
     : new TextEncoder().encode(body).length;
 
   if (bodySize > MAX_BODY_SIZE_BYTES) {
-    return errorResponse(413, `Request body too large. Maximum size is ${MAX_BODY_SIZE_BYTES} bytes`);
+    return errorResponse(413, `Request body too large. Maximum size is ${MAX_BODY_SIZE_BYTES} bytes`, event);
   }
   return null;
 }

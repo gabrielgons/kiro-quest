@@ -1,6 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { ApiEvent } from '../handlers/utils.js';
-import { getUserId, getUserEmail, getUserName, jsonResponse, errorResponse } from '../handlers/utils.js';
+import { getUserId, getUserEmail, getUserName, errorResponse } from '../handlers/utils.js';
 
 function createMockEvent(overrides: Partial<ApiEvent> = {}): ApiEvent {
   return {
@@ -94,12 +94,47 @@ describe('Handler Utils', () => {
   });
 
   describe('jsonResponse', () => {
-    it('should create a proper JSON response', () => {
-      const response = jsonResponse(200, { message: 'ok' });
+    beforeEach(() => {
+      vi.resetModules();
+    });
+
+    it('should create a proper JSON response with valid origin', async () => {
+      process.env.ALLOWED_ORIGINS = 'https://example.com,http://localhost:5173';
+      const { jsonResponse: jsonRes } = await import('../handlers/utils.js');
+
+      const event = createMockEvent({
+        headers: { origin: 'https://example.com' },
+      });
+
+      const response = jsonRes(200, { message: 'ok' }, event);
       expect(response.statusCode).toBe(200);
       expect(response.headers?.['Content-Type']).toBe('application/json');
-      expect(response.headers?.['Access-Control-Allow-Origin']).toBe('*');
+      expect(response.headers?.['Access-Control-Allow-Origin']).toBe('https://example.com');
       expect(response.body).toBe(JSON.stringify({ message: 'ok' }));
+    });
+
+    it('should not set Access-Control-Allow-Origin when no event is provided', async () => {
+      process.env.ALLOWED_ORIGINS = 'https://example.com';
+      const { jsonResponse: jsonRes } = await import('../handlers/utils.js');
+
+      const response = jsonRes(200, { message: 'ok' });
+      expect(response.statusCode).toBe(200);
+      expect(response.headers?.['Content-Type']).toBe('application/json');
+      expect(response.headers?.['Access-Control-Allow-Origin']).toBeUndefined();
+      expect(response.body).toBe(JSON.stringify({ message: 'ok' }));
+    });
+
+    it('should not set Access-Control-Allow-Origin when origin is not allowed', async () => {
+      process.env.ALLOWED_ORIGINS = 'https://example.com';
+      const { jsonResponse: jsonRes } = await import('../handlers/utils.js');
+
+      const event = createMockEvent({
+        headers: { origin: 'https://evil.com' },
+      });
+
+      const response = jsonRes(200, { message: 'ok' }, event);
+      expect(response.statusCode).toBe(200);
+      expect(response.headers?.['Access-Control-Allow-Origin']).toBeUndefined();
     });
   });
 
@@ -343,8 +378,8 @@ describe('submitResult handler', () => {
 
     const response = await handler(event);
     expect(response.statusCode).toBe(200);
-    // Should write both result and ranking items
-    expect(mockSend).toHaveBeenCalledTimes(2);
+    // Should write both result and ranking items in a single transaction
+    expect(mockSend).toHaveBeenCalledOnce();
 
     const body = JSON.parse(response.body as string);
     expect(body.stageId).toBe('kiro-basics');
