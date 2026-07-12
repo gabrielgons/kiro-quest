@@ -6,11 +6,13 @@ import { useTheme } from '@/composables/useTheme';
 import ThemeToggle from '@/components/ThemeToggle.vue';
 import LoginButton from '@/components/LoginButton.vue';
 import UserMenu from '@/components/UserMenu.vue';
+import { version } from '../package.json';
 
 const quizStore = useQuizStore();
 const authStore = useAuthStore();
 useTheme();
 const showRecoveryError = ref(false);
+const appVersion = version;
 
 onMounted(() => {
   // Restore auth session from stored tokens (if any)
@@ -43,6 +45,8 @@ function dismissError() {
 
   <ThemeToggle />
   <router-view />
+
+  <span class="app-version">v{{ appVersion }}</span>
 </template>
 
 <style>
@@ -92,5 +96,16 @@ function dismissError() {
   cursor: pointer;
   color: inherit;
   font-size: var(--font-size-sm);
+}
+
+.app-version {
+  position: fixed;
+  bottom: 0.5rem;
+  left: 0.75rem;
+  font-size: 0.65rem;
+  color: var(--color-text-secondary);
+  opacity: 0.5;
+  pointer-events: none;
+  user-select: none;
 }
 </style>

@@ -52,7 +52,12 @@ infra/stackstatus.txt
 infra/synth-code.txt
 infra/synth-err.txt
 infra/synth-out.txt
+infra/synth-oidc.txt
+infra/deploy-oidc.txt
 infra/whoami.txt
+
+# Kiro scripts (gerados localmente)
+.kiro/scripts/
 
 # Editor directories and files
 .vscode/*

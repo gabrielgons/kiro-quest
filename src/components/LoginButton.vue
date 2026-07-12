@@ -37,18 +37,19 @@ const { isConfigured, isAuthenticated, login, isLoading } = useAuth();
   align-items: center;
   gap: 0.375rem;
   padding: 0.5rem 1rem;
-  border: 1px solid var(--color-border, #d1d5db);
-  border-radius: 0.375rem;
-  background: var(--color-bg, #ffffff);
-  color: var(--color-text, #374151);
-  font-size: 0.875rem;
+  min-height: var(--min-touch-target, 44px);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md, 0.375rem);
+  background: var(--color-background-card);
+  color: var(--color-text);
+  font-size: var(--font-size-sm, 0.875rem);
   cursor: pointer;
-  transition: background-color 0.2s, border-color 0.2s;
+  transition: background-color var(--transition-fast, 150ms ease), border-color var(--transition-fast, 150ms ease);
 }
 
 .login-button:hover:not(:disabled) {
-  background: var(--color-bg-hover, #f9fafb);
-  border-color: var(--color-primary, #3b82f6);
+  background: var(--color-background-secondary);
+  border-color: var(--color-primary);
 }
 
 .login-button:disabled {
