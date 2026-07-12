@@ -1,12 +1,14 @@
 <script setup lang="ts">
-import { onMounted } from 'vue';
+import { onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
+import { useAuthStore } from '@/stores/authStore';
 import { useLocale } from '@/i18n/useLocale';
 
 const router = useRouter();
 const { t } = useLocale();
 const { login, isAuthenticated, isLoading, error } = useAuth();
+const authStore = useAuthStore();
 
 onMounted(() => {
   if (isAuthenticated.value) {
@@ -14,13 +16,24 @@ onMounted(() => {
   }
 });
 
+// Watch for async auth resolution (e.g. token refresh in background)
+watch(() => authStore.isAuthenticated, (authed) => {
+  if (authed) {
+    router.replace({ name: 'stages' });
+  }
+});
+
 async function handleLogin() {
-  await login();
+  try {
+    await login();
+  } catch {
+    // error ref is already set by the store
+  }
 }
 </script>
 
 <template>
-  <div class="login-page">
+  <main class="login-page">
     <!-- Background decorative elements -->
     <div class="bg-grid" aria-hidden="true"></div>
     <div class="orb orb-indigo" aria-hidden="true"></div>
@@ -92,7 +105,13 @@ async function handleLogin() {
       </p>
 
       <!-- Google login button -->
-      <button class="btn-google" :disabled="isLoading" @click="handleLogin">
+      <button
+        class="btn-google"
+        :disabled="isLoading"
+        :aria-busy="isLoading"
+        aria-live="polite"
+        @click="handleLogin"
+      >
         <template v-if="isLoading">
           <span>{{ t('login.loading') }}</span>
         </template>
@@ -115,7 +134,7 @@ async function handleLogin() {
         &#x1F512; {{ t('login.securityNote') }}
       </p>
     </div>
-  </div>
+  </main>
 </template>
 
 <style scoped>
