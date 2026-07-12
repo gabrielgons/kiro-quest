@@ -23,16 +23,8 @@ export interface AuthStackProps extends cdk.StackProps {
   googleClientId?: string;
 
   /**
-   * Google OAuth 2.0 Client Secret for federated sign-in.
-   * If not provided, Google IdP will not be configured.
-   * Can be a plaintext value (for dev) or a Secrets Manager secret name.
-   */
-  googleClientSecret?: string;
-
-  /**
-   * Name of the Secrets Manager secret containing the Google OAuth Client Secret.
-   * When provided, this takes precedence over googleClientSecret and avoids
-   * embedding the secret in plaintext in the CloudFormation template.
+   * ARN of the Secrets Manager secret containing the Google OAuth Client Secret.
+   * Required (along with googleClientId) to enable Google federated sign-in.
    */
   googleClientSecretArn?: string;
 
@@ -55,10 +47,6 @@ export class AuthStack extends cdk.Stack {
     const googleClientId =
       props?.googleClientId ||
       this.node.tryGetContext('googleClientId') ||
-      '';
-    const googleClientSecret =
-      props?.googleClientSecret ||
-      this.node.tryGetContext('googleClientSecret') ||
       '';
     const googleClientSecretArn =
       props?.googleClientSecretArn ||
@@ -114,11 +102,8 @@ export class AuthStack extends cdk.Stack {
       cognito.UserPoolClientIdentityProvider.COGNITO,
     ];
 
-    if (googleClientId && (googleClientSecret || googleClientSecretArn)) {
-      // Use Secrets Manager ARN if available, otherwise fall back to plaintext (dev only)
-      const clientSecretValue = googleClientSecretArn
-        ? cdk.SecretValue.secretsManager(googleClientSecretArn)
-        : cdk.SecretValue.unsafePlainText(googleClientSecret);
+    if (googleClientId && googleClientSecretArn) {
+      const clientSecretValue = cdk.SecretValue.secretsManager(googleClientSecretArn);
 
       const googleProvider = new cognito.UserPoolIdentityProviderGoogle(
         this,

@@ -1,4 +1,4 @@
-name: Deploy Backend
+name: Deploy Infrastructure
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-backend
+  group: deploy-infra
   cancel-in-progress: false
 
 env:
