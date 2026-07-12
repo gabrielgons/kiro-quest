@@ -1,6 +1,7 @@
 import type { ProgressState } from './types';
+import type { LearningStage, QuizPhase } from '@/engine/types';
 import { api, isApiConfigured } from '@/services/api';
-import type { ApiSaveProgressRequest } from '@/services/api';
+import type { ApiSaveProgressRequest, ApiProgressEntry } from '@/services/api';
 
 const STORAGE_KEY = 'kiro-quest:progress:v1';
 const CURRENT_VERSION = 1;
@@ -126,10 +127,73 @@ function clear(): void {
   }
 }
 
+/**
+ * Result of a cloud restore attempt.
+ */
+export interface CloudRestoreResult {
+  restored: boolean;
+  state: ProgressState | null;
+  error?: string;
+}
+
+/**
+ * Restores progress from the cloud API when the user is authenticated
+ * but has no local data. Fetches all progress entries and hydrates
+ * a ProgressState from the most recently updated entry.
+ */
+async function restoreFromCloud(): Promise<CloudRestoreResult> {
+  if (!isApiConfigured()) {
+    return { restored: false, state: null, error: 'API not configured' };
+  }
+
+  try {
+    const entries: ApiProgressEntry[] = await api.getProgress();
+
+    if (!entries || entries.length === 0) {
+      return { restored: false, state: null };
+    }
+
+    // Find the most recently updated entry to use as the current stage
+    const sorted = [...entries].sort((a, b) => b.lastUpdated - a.lastUpdated);
+    const latest = sorted[0]!;
+
+    // Build userAnswersByStage from all entries
+    const userAnswersByStage: Record<string, Array<{ questionId: string; selectedOptionId: string | string[]; isCorrect: boolean; answeredAt: number }>> = {};
+    const completedStages: LearningStage[] = [];
+
+    for (const entry of entries) {
+      userAnswersByStage[entry.stageId] = entry.userAnswers || [];
+      if (entry.quizPhase === 'stage-complete') {
+        completedStages.push(entry.stageId as LearningStage);
+      }
+    }
+
+    const state: ProgressState = {
+      version: CURRENT_VERSION,
+      currentStage: latest.stageId as LearningStage,
+      currentQuestionIndex: latest.currentQuestionIndex,
+      quizPhase: latest.quizPhase as QuizPhase,
+      completedStages,
+      stageResults: {},
+      userAnswersByStage,
+      lastUpdated: latest.lastUpdated,
+    };
+
+    // Persist restored state locally
+    persist(state);
+
+    return { restored: true, state };
+  } catch (err: unknown) {
+    const message = err instanceof Error ? err.message : 'Cloud restore failed';
+    return { restored: false, state: null, error: message };
+  }
+}
+
 export const progressTracker = {
   persist,
   persistToCloud,
   restore,
+  restoreFromCloud,
   clear,
   isValid,
 };

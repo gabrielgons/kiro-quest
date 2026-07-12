@@ -92,6 +92,15 @@ function handler(event) {
           override: true,
         },
       },
+      customHeadersBehavior: {
+        customHeaders: [
+          {
+            header: 'Content-Security-Policy',
+            value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https://*.amazoncognito.com https://*.execute-api.*.amazonaws.com;",
+            override: true,
+          },
+        ],
+      },
     });
 
     // CloudFront Origin Access Control for S3

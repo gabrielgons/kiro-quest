@@ -36,15 +36,21 @@ export const useAuthStore = defineStore('auth', () => {
 
     if (isTokenExpired(tokens)) {
       // Try to refresh in the background
-      refreshTokens().then((refreshed) => {
-        if (refreshed) {
-          user.value = getUserInfoFromToken(refreshed.idToken);
-        } else {
+      isLoading.value = true;
+      refreshTokens()
+        .then((refreshed) => {
+          if (refreshed) {
+            user.value = getUserInfoFromToken(refreshed.idToken);
+          } else {
+            user.value = null;
+          }
+        })
+        .catch(() => {
           user.value = null;
-        }
-      }).catch(() => {
-        user.value = null;
-      });
+        })
+        .finally(() => {
+          isLoading.value = false;
+        });
       return;
     }
 

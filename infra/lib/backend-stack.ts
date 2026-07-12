@@ -56,10 +56,17 @@ export class BackendStack extends cdk.Stack {
       projectionType: dynamodb.ProjectionType.ALL,
     });
 
+    // Allowed CORS origins - restrict to specific domains instead of wildcard
+    const allowedOrigins = props.allowedOrigins || [
+      'http://localhost:5173',
+      'http://localhost:4173',
+    ];
+
     // Shared Lambda environment variables
     const lambdaEnvironment = {
       TABLE_NAME: this.table.tableName,
       NODE_OPTIONS: '--enable-source-maps',
+      ALLOWED_ORIGINS: allowedOrigins.join(','),
     };
 
     // Lambda functions - Node.js 20 runtime
@@ -119,12 +126,6 @@ export class BackendStack extends cdk.Stack {
     this.table.grantReadWriteData(submitResultFn);
     this.table.grantReadData(getRankingsFn);
     this.table.grantReadWriteData(getProfileFn);
-
-    // Allowed CORS origins - restrict to specific domains instead of wildcard
-    const allowedOrigins = props.allowedOrigins || [
-      'http://localhost:5173',
-      'http://localhost:4173',
-    ];
 
     // API Gateway HTTP API (cheaper than REST API)
     this.httpApi = new apigatewayv2.HttpApi(this, 'KiroQuestApi', {
