@@ -1,4 +1,4 @@
-name: Deploy Backend
+name: Deploy Infrastructure
 
 on:
   push:
@@ -12,7 +12,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: deploy-backend
+  group: deploy-infra
   cancel-in-progress: false
 
 env:
@@ -51,6 +51,9 @@ jobs:
           role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/KiroQuestGitHubActionsRole
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Deploy backend stack
-        run: npx cdk deploy KiroQuestBackendStack --require-approval never
+      - name: Deploy stacks
+        env:
+          GOOGLE_CLIENT_ID: ${{ secrets.GOOGLE_CLIENT_ID }}
+          GOOGLE_CLIENT_SECRET_ARN: ${{ secrets.GOOGLE_CLIENT_SECRET_ARN }}
+        run: npx cdk deploy KiroQuestFrontendStack KiroQuestAuthStack KiroQuestBackendStack --require-approval never
         working-directory: infra
