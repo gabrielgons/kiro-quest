@@ -120,5 +120,6 @@
   "login.subtitle": "Teste seus conhecimentos sobre o Kiro e conquiste badges exclusivos",
   "login.continueWithGoogle": "Continuar com Google",
   "login.securityNote": "Login seguro via Google OAuth",
-  "login.loading": "Carregando..."
+  "login.loading": "Carregando...",
+  "login.authNotConfigured": "Autenticação não configurada. Verifique as variáveis de ambiente."
 }
