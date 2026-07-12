@@ -24,13 +24,22 @@ export interface AuthConfig {
   scopes: string[];
 }
 
+/**
+ * Reads an env var and trims surrounding whitespace.
+ * Trailing whitespace in .env files (a common copy/paste mistake) would
+ * otherwise leak into OAuth URLs as "%20"/"+" and break the login flow.
+ */
+function readEnv(value: string | undefined): string {
+  return (value ?? '').trim();
+}
+
 export function getAuthConfig(): AuthConfig {
   return {
-    userPoolId: import.meta.env.VITE_COGNITO_USER_POOL_ID || '',
-    clientId: import.meta.env.VITE_COGNITO_CLIENT_ID || '',
-    domain: import.meta.env.VITE_COGNITO_DOMAIN || '',
-    redirectUri: import.meta.env.VITE_AUTH_REDIRECT_URI || `${window.location.origin}/auth/callback`,
-    logoutUri: import.meta.env.VITE_AUTH_LOGOUT_URI || window.location.origin,
+    userPoolId: readEnv(import.meta.env.VITE_COGNITO_USER_POOL_ID),
+    clientId: readEnv(import.meta.env.VITE_COGNITO_CLIENT_ID),
+    domain: readEnv(import.meta.env.VITE_COGNITO_DOMAIN),
+    redirectUri: readEnv(import.meta.env.VITE_AUTH_REDIRECT_URI) || `${window.location.origin}/auth/callback`,
+    logoutUri: readEnv(import.meta.env.VITE_AUTH_LOGOUT_URI) || window.location.origin,
     scopes: ['openid', 'email', 'profile'],
   };
 }

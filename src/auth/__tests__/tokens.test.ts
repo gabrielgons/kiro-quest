@@ -9,10 +9,22 @@ import {
 } from '../tokens';
 import type { AuthTokens } from '../tokens';
 
+// Base64url-encode a string the same way Cognito does: UTF-8 bytes -> base64url.
+// Using btoa(JSON.stringify(...)) directly would misrepresent multi-byte
+// characters, so we encode UTF-8 first to mirror real tokens.
+function base64UrlEncodeUtf8(value: string): string {
+  const bytes = new TextEncoder().encode(value);
+  let binary = '';
+  for (const byte of bytes) {
+    binary += String.fromCharCode(byte);
+  }
+  return btoa(binary).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+}
+
 // Helper to create a simple JWT for testing (header.payload.signature)
 function createTestJwt(payload: Record<string, unknown>): string {
-  const header = btoa(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
-  const body = btoa(JSON.stringify(payload));
+  const header = base64UrlEncodeUtf8(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
+  const body = base64UrlEncodeUtf8(JSON.stringify(payload));
   const signature = 'test-signature';
   return `${header}.${body}.${signature}`;
 }
@@ -122,6 +134,30 @@ describe('tokens', () => {
       expect(() => decodeJwtPayload('not-a-jwt')).toThrow('Invalid JWT format');
       expect(() => decodeJwtPayload('only.two')).toThrow('Invalid JWT format');
     });
+
+    // Regression: multi-byte UTF-8 characters (accented names) were mangled
+    // ("Gonçalves" -> "GonÃ§alves") because atob() yields Latin-1 bytes.
+    it('decodes multi-byte UTF-8 characters correctly', () => {
+      const payload = {
+        sub: 'user-123',
+        name: 'Gabriel Gonçalves',
+        email: 'gabriel@example.com',
+      };
+      const token = createTestJwt(payload);
+
+      const decoded = decodeJwtPayload(token);
+
+      expect(decoded.name).toBe('Gabriel Gonçalves');
+    });
+
+    it('decodes a range of non-ASCII characters', () => {
+      const payload = { name: 'José da Conceição — 日本語 — Müller' };
+      const token = createTestJwt(payload);
+
+      const decoded = decodeJwtPayload(token);
+
+      expect(decoded.name).toBe('José da Conceição — 日本語 — Müller');
+    });
   });
 
   describe('getUserInfoFromToken', () => {
@@ -155,6 +191,19 @@ describe('tokens', () => {
       const userInfo = getUserInfoFromToken(token);
 
       expect(userInfo.name).toBe('cognito-user');
+    });
+
+    it('preserves accented characters in the display name', () => {
+      const payload = {
+        sub: 'abc-123',
+        email: 'gabriel@gmail.com',
+        name: 'Gabriel Gonçalves',
+      };
+      const token = createTestJwt(payload);
+
+      const userInfo = getUserInfoFromToken(token);
+
+      expect(userInfo.name).toBe('Gabriel Gonçalves');
     });
   });
 });

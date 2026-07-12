@@ -77,7 +77,12 @@ export function decodeJwtPayload(token: string): Record<string, unknown> {
   }
   const payload = parts[1]!;
   const padded = payload.replace(/-/g, '+').replace(/_/g, '/');
-  const decoded = atob(padded);
+  const binary = atob(padded);
+  // Decode the binary string as UTF-8 so multi-byte characters (e.g. "ç", "ã")
+  // are not mangled. atob() yields one char per byte (Latin-1), so we must
+  // reinterpret those bytes as UTF-8 before parsing.
+  const bytes = Uint8Array.from(binary, (char) => char.charCodeAt(0));
+  const decoded = new TextDecoder('utf-8').decode(bytes);
   return JSON.parse(decoded) as Record<string, unknown>;
 }
 

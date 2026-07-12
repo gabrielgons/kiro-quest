@@ -49,5 +49,29 @@ describe('auth config', () => {
       expect(config.clientId).toBe('my-client-id');
       expect(config.domain).toBe('https://myapp.auth.us-east-1.amazoncognito.com');
     });
+
+    // Regression: trailing whitespace in .env files leaked into OAuth URLs as
+    // "%20"/"+", producing an invalid Cognito authorize URL (DNS_PROBE / Invalid state).
+    it('trims surrounding whitespace from all values', () => {
+      vi.stubEnv('VITE_COGNITO_USER_POOL_ID', 'us-east-1_test ');
+      vi.stubEnv('VITE_COGNITO_CLIENT_ID', ' my-client-id ');
+      vi.stubEnv('VITE_COGNITO_DOMAIN', 'https://myapp.auth.us-east-1.amazoncognito.com ');
+      vi.stubEnv('VITE_AUTH_REDIRECT_URI', 'https://app.example.com/auth/callback ');
+      vi.stubEnv('VITE_AUTH_LOGOUT_URI', ' https://app.example.com/ ');
+
+      const config = getAuthConfig();
+
+      expect(config.userPoolId).toBe('us-east-1_test');
+      expect(config.clientId).toBe('my-client-id');
+      expect(config.domain).toBe('https://myapp.auth.us-east-1.amazoncognito.com');
+      expect(config.redirectUri).toBe('https://app.example.com/auth/callback');
+      expect(config.logoutUri).toBe('https://app.example.com/');
+    });
+
+    it('reports configured when values have trailing whitespace', () => {
+      vi.stubEnv('VITE_COGNITO_CLIENT_ID', 'my-client-id ');
+      vi.stubEnv('VITE_COGNITO_DOMAIN', 'https://myapp.auth.us-east-1.amazoncognito.com ');
+      expect(isAuthConfigured()).toBe(true);
+    });
   });
 });

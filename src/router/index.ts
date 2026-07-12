@@ -1,4 +1,4 @@
-import { createRouter, createWebHashHistory } from 'vue-router';
+import { createRouter, createWebHistory } from 'vue-router';
 import type { RouteRecordRaw } from 'vue-router';
 import { STAGE_ORDER } from '@/engine/quizEngine';
 import type { LearningStage } from '@/engine/types';
@@ -12,7 +12,9 @@ const VALID_STAGES: Set<string> = new Set(STAGE_ORDER);
 
 /**
  * Route definitions for the Kiro Quiz Game.
- * Uses hash mode for GitHub Pages compatibility.
+ * Uses HTML5 history mode (path-based) so OAuth redirect URIs like
+ * /auth/callback work without a fragment. CloudFront rewrites non-file
+ * paths to /index.html (see FrontendStack SpaRoutingFunction).
  * All view components are lazy-loaded for code splitting.
  */
 const routes: RouteRecordRaw[] = [
@@ -62,7 +64,7 @@ const routes: RouteRecordRaw[] = [
 ];
 
 const router = createRouter({
-  history: createWebHashHistory(import.meta.env.BASE_URL),
+  history: createWebHistory(import.meta.env.BASE_URL),
   routes,
 });
 

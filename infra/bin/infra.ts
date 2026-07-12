@@ -37,6 +37,9 @@ const frontendStack = new FrontendStack(app, 'KiroQuestFrontendStack', {
 // Auth Stack - Cognito User Pool with Google OAuth (always deployed)
 // Google IdP is only configured if credentials are provided via context/env
 // Prefer Secrets Manager ARN for the client secret (avoid plaintext in templates)
+// Callback/logout URLs for the Cognito hosted UI.
+// Includes the CloudFront distribution domain (production) + localhost (dev).
+const appDomain = `https://${frontendStack.distribution.distributionDomainName}`;
 const authStack = new AuthStack(app, 'KiroQuestAuthStack', {
   env,
   description: 'Kiro Quest - Authentication with Amazon Cognito',
@@ -44,6 +47,16 @@ const authStack = new AuthStack(app, 'KiroQuestAuthStack', {
   googleClientSecret,
   googleClientSecretArn,
   domainPrefix: cognitoDomainPrefix,
+  callbackUrls: [
+    `${appDomain}/auth/callback`,
+    'http://localhost:5173/auth/callback',
+    'http://localhost:4173/auth/callback',
+  ],
+  logoutUrls: [
+    `${appDomain}/`,
+    'http://localhost:5173/',
+    'http://localhost:4173/',
+  ],
 });
 
 // Backend Stack - API Gateway + Lambda + DynamoDB (always deployed)
