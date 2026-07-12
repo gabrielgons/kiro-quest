@@ -50,12 +50,10 @@ const routes: RouteRecordRaw[] = [
     name: 'login',
     component: () => import('@/views/LoginPage.vue'),
     meta: { skipAuth: true },
-    beforeEnter: (_to, _from, next) => {
+    beforeEnter: () => {
       const authStore = useAuthStore();
       if (authStore.isAuthenticated) {
-        next({ name: 'stages' });
-      } else {
-        next();
+        return { name: 'stages' };
       }
     },
   },

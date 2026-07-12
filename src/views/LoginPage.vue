@@ -1,23 +1,15 @@
 <script setup lang="ts">
-import { onMounted, watch } from 'vue';
+import { watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuth } from '@/composables/useAuth';
-import { useAuthStore } from '@/stores/authStore';
 import { useLocale } from '@/i18n/useLocale';
 
 const router = useRouter();
 const { t } = useLocale();
 const { login, isAuthenticated, isLoading, error } = useAuth();
-const authStore = useAuthStore();
-
-onMounted(() => {
-  if (isAuthenticated.value) {
-    router.replace({ name: 'stages' });
-  }
-});
 
 // Watch for async auth resolution (e.g. token refresh in background)
-watch(() => authStore.isAuthenticated, (authed) => {
+watch(isAuthenticated, (authed) => {
   if (authed) {
     router.replace({ name: 'stages' });
   }
@@ -26,8 +18,9 @@ watch(() => authStore.isAuthenticated, (authed) => {
 async function handleLogin() {
   try {
     await login();
-  } catch {
-    // error ref is already set by the store
+  } catch (err) {
+    // Error ref is already set by the store for UI display.
+    console.error('[LoginPage] login failed:', err);
   }
 }
 </script>
