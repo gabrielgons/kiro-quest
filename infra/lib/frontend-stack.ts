@@ -2,7 +2,6 @@ import * as cdk from 'aws-cdk-lib';
 import * as s3 from 'aws-cdk-lib/aws-s3';
 import * as cloudfront from 'aws-cdk-lib/aws-cloudfront';
 import * as origins from 'aws-cdk-lib/aws-cloudfront-origins';
-import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
 
 export interface FrontendStackProps extends cdk.StackProps {
@@ -69,6 +68,10 @@ function handler(event) {
     const responseHeadersPolicy = new cloudfront.ResponseHeadersPolicy(this, 'SecurityHeadersPolicy', {
       comment: 'Security headers for Kiro Quest frontend',
       securityHeadersBehavior: {
+        contentSecurityPolicy: {
+          contentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https://*.amazoncognito.com https://*.execute-api.*.amazonaws.com;",
+          override: true,
+        },
         contentTypeOptions: { override: true },
         frameOptions: {
           frameOption: cloudfront.HeadersFrameOption.DENY,
@@ -89,15 +92,6 @@ function handler(event) {
           modeBlock: true,
           override: true,
         },
-      },
-      customHeadersBehavior: {
-        customHeaders: [
-          {
-            header: 'Content-Security-Policy',
-            value: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; connect-src 'self' https://*.amazoncognito.com https://*.execute-api.*.amazonaws.com;",
-            override: true,
-          },
-        ],
       },
     });
 
