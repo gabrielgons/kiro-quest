@@ -69,7 +69,7 @@ function handler(event) {
       comment: 'Security headers for Kiro Quest frontend',
       securityHeadersBehavior: {
         contentSecurityPolicy: {
-          contentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; connect-src 'self' https://*.amazoncognito.com https://*.execute-api.*.amazonaws.com;",
+          contentSecurityPolicy: "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' https: data: blob:; font-src 'self'; object-src 'none'; base-uri 'self'; form-action 'self'; connect-src 'self' https://*.amazoncognito.com https://*.execute-api.us-east-1.amazonaws.com;",
           override: true,
         },
         contentTypeOptions: { override: true },
