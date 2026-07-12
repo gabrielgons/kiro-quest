@@ -241,6 +241,7 @@ function handleNext() {
 <style scoped>
 .quiz-view {
   padding: 1.5rem;
+  padding-top: 4rem;
   max-width: 700px;
   margin: 0 auto;
   min-height: 100vh;
