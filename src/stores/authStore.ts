@@ -28,31 +28,30 @@ export const useAuthStore = defineStore('auth', () => {
   /**
    * Initializes auth state from stored tokens.
    * Call this on app startup to restore session.
+   * Returns a promise that resolves when initialization is complete.
    */
-  function initialize(): void {
+  async function initialize(): Promise<void> {
     if (!isAuthConfigured()) { isInitialized.value = true; return; }
 
     const tokens = getStoredTokens();
     if (!tokens) { isInitialized.value = true; return; }
 
     if (isTokenExpired(tokens)) {
-      // Try to refresh in the background
+      // Try to refresh tokens
       isLoading.value = true;
-      refreshTokens()
-        .then((refreshed) => {
-          if (refreshed) {
-            user.value = getUserInfoFromToken(refreshed.idToken);
-          } else {
-            user.value = null;
-          }
-        })
-        .catch(() => {
+      try {
+        const refreshed = await refreshTokens();
+        if (refreshed) {
+          user.value = getUserInfoFromToken(refreshed.idToken);
+        } else {
           user.value = null;
-        })
-        .finally(() => {
-          isLoading.value = false;
-          isInitialized.value = true;
-        });
+        }
+      } catch {
+        user.value = null;
+      } finally {
+        isLoading.value = false;
+        isInitialized.value = true;
+      }
       return;
     }
 

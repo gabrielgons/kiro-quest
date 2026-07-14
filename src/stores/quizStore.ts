@@ -251,6 +251,40 @@ export const useQuizStore = defineStore('quiz', () => {
     return false;
   }
 
+  /**
+   * Restores progress from the cloud (DynamoDB).
+   * Used when user is authenticated but has no local progress.
+   * Returns true if progress was successfully restored from cloud.
+   */
+  async function restoreProgressFromCloud(): Promise<boolean> {
+    const result = await progressTracker.restoreFromCloud();
+
+    if (!result.restored || !result.state) {
+      return false;
+    }
+
+    const saved = result.state;
+
+    currentStage.value = saved.currentStage;
+    currentQuestionIndex.value = saved.currentQuestionIndex;
+    quizPhase.value = saved.quizPhase;
+    completedStages.value = saved.completedStages;
+    stageResults.value = saved.stageResults;
+    userAnswersByStage.value = saved.userAnswersByStage;
+    errorMessage.value = null;
+
+    // Load questions for current stage
+    const stageQuestions = questionStore.getQuestionsForStage(saved.currentStage);
+    questions.value = stageQuestions;
+
+    // Reconstruct lastAnswerResult if quizPhase is "feedback"
+    if (saved.quizPhase === 'feedback') {
+      _reconstructLastAnswerResult();
+    }
+
+    return true;
+  }
+
   function resetProgress(): void {
     progressTracker.clear();
     currentStage.value = 'kiro-basics';
@@ -395,6 +429,7 @@ export const useQuizStore = defineStore('quiz', () => {
     completeStage,
     retryStage,
     restoreProgress,
+    restoreProgressFromCloud,
     resetProgress,
   };
 });

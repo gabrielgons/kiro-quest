@@ -14,15 +14,27 @@ useTheme();
 const showRecoveryError = ref(false);
 const appVersion = version;
 
-onMounted(() => {
-  // Restore auth session from stored tokens (if any)
-  authStore.initialize();
+onMounted(async () => {
+  // Await auth initialization (may refresh tokens asynchronously)
+  await authStore.initialize();
 
+  // Try local restore first
   const wasCorrupted = quizStore.restoreProgress();
 
   if (wasCorrupted) {
     showRecoveryError.value = true;
     setTimeout(() => { showRecoveryError.value = false; }, 5000);
+    return;
+  }
+
+  // If authenticated and no local progress exists, try cloud restore
+  if (authStore.isAuthenticated) {
+    const hasLocalProgress = quizStore.completedStages.length > 0 ||
+      Object.keys(quizStore.userAnswersByStage).length > 0;
+
+    if (!hasLocalProgress) {
+      await quizStore.restoreProgressFromCloud();
+    }
   }
 });
 
