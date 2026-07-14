@@ -15,7 +15,6 @@ const showRecoveryError = ref(false);
 const appVersion = version;
 
 onMounted(async () => {
-  // Restore local progress immediately (non-blocking)
   const wasCorrupted = quizStore.restoreProgress();
   if (wasCorrupted) {
     showRecoveryError.value = true;
@@ -23,16 +22,16 @@ onMounted(async () => {
     return;
   }
 
-  // Then await auth and attempt cloud restore
-  await authStore.initialize();
-
-  if (authStore.isAuthenticated) {
-    const hasLocalProgress = quizStore.completedStages.length > 0 ||
-      Object.keys(quizStore.userAnswersByStage).length > 0;
-    if (!hasLocalProgress) {
-      await quizStore.restoreProgressFromCloud();
+  // Non-blocking: auth init + cloud restore happen in background
+  authStore.initialize().then(async () => {
+    if (authStore.isAuthenticated) {
+      const hasLocalProgress = quizStore.completedStages.length > 0 ||
+        Object.keys(quizStore.userAnswersByStage).length > 0;
+      if (!hasLocalProgress) {
+        await quizStore.restoreProgressFromCloud();
+      }
     }
-  }
+  });
 });
 
 function dismissError() {

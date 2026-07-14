@@ -229,6 +229,7 @@ export const useQuizStore = defineStore('quiz', () => {
     stageResults.value = saved.stageResults;
     userAnswersByStage.value = saved.userAnswersByStage;
     errorMessage.value = null;
+    lastAnswerResult.value = null;
 
     questions.value = questionStore.getQuestionsForStage(saved.currentStage);
 
