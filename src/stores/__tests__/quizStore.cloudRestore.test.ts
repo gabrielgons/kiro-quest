@@ -264,8 +264,9 @@ describe('quizStore - restoreProgressFromCloud', () => {
     const result = await store.restoreProgressFromCloud();
 
     expect(result).toBe(true);
-    expect(store.stageResults['kiro-basics']).toBeDefined();
-    expect(store.stageResults['kiro-basics'].totalCount).toBe(2);
-    expect(store.stageResults['kiro-basics'].correctCount).toBe(1);
+    const kiroBasicsResult = store.stageResults['kiro-basics'];
+    expect(kiroBasicsResult).toBeDefined();
+    expect(kiroBasicsResult!.totalCount).toBe(2);
+    expect(kiroBasicsResult!.correctCount).toBe(1);
   });
 });
