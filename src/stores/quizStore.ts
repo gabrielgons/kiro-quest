@@ -275,7 +275,6 @@ export const useQuizStore = defineStore('quiz', () => {
       const result = await progressTracker.restoreFromCloud();
 
       if (!result.restored || !result.state) {
-        isRestoringFromCloud.value = false;
         return false;
       }
 
@@ -292,12 +291,12 @@ export const useQuizStore = defineStore('quiz', () => {
       // Persist the complete state including computed results
       _persist();
 
-      isRestoringFromCloud.value = false;
       return true;
     } catch (err) {
       console.warn('[QuizStore] restoreProgressFromCloud failed:', err);
-      isRestoringFromCloud.value = false;
       return false;
+    } finally {
+      isRestoringFromCloud.value = false;
     }
   }
 
