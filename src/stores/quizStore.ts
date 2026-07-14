@@ -37,6 +37,7 @@ export const useQuizStore = defineStore('quiz', () => {
   const errorMessage = ref<string | null>(null);
   const sessionSeed = ref(Date.now());
   const cloudSyncFailed = ref(false);
+  const isRestoringFromCloud = ref(false);
 
   // --- Computed Getters ---
 
@@ -101,6 +102,11 @@ export const useQuizStore = defineStore('quiz', () => {
   const recommendedNextStage = computed<LearningStage | null>(() => {
     return getRecommendedNextStage(completedStages.value);
   });
+
+  const hasAnyProgress = computed(() =>
+    completedStages.value.length > 0 ||
+    Object.keys(userAnswersByStage.value).length > 0
+  );
 
   const incorrectAnswers = computed(() => {
     const stageAnswers = userAnswersByStage.value[currentStage.value] ?? [];
@@ -218,6 +224,28 @@ export const useQuizStore = defineStore('quiz', () => {
   }
 
   /**
+   * Hydrates store state from a ProgressState object.
+   * NOTE: Does NOT persist — callers are responsible for ensuring
+   * the state is already persisted (localStorage or cloud).
+   */
+  function _hydrateFromState(saved: ProgressState): void {
+    currentStage.value = saved.currentStage;
+    currentQuestionIndex.value = saved.currentQuestionIndex;
+    quizPhase.value = saved.quizPhase;
+    completedStages.value = saved.completedStages;
+    stageResults.value = saved.stageResults;
+    userAnswersByStage.value = saved.userAnswersByStage;
+    errorMessage.value = null;
+    lastAnswerResult.value = null;
+
+    questions.value = questionStore.getQuestionsForStage(saved.currentStage);
+
+    if (saved.quizPhase === 'feedback') {
+      _reconstructLastAnswerResult();
+    }
+  }
+
+  /**
    * Restores progress from localStorage.
    * Returns true if data was corrupted (notification should be shown).
    */
@@ -231,24 +259,45 @@ export const useQuizStore = defineStore('quiz', () => {
 
     if (!saved) return false;
 
-    currentStage.value = saved.currentStage;
-    currentQuestionIndex.value = saved.currentQuestionIndex;
-    quizPhase.value = saved.quizPhase;
-    completedStages.value = saved.completedStages;
-    stageResults.value = saved.stageResults;
-    userAnswersByStage.value = saved.userAnswersByStage;
-    errorMessage.value = null;
-
-    // Load questions for current stage
-    const stageQuestions = questionStore.getQuestionsForStage(saved.currentStage);
-    questions.value = stageQuestions;
-
-    // Reconstruct lastAnswerResult if quizPhase is "feedback"
-    if (saved.quizPhase === 'feedback') {
-      _reconstructLastAnswerResult();
-    }
+    _hydrateFromState(saved);
 
     return false;
+  }
+
+  /**
+   * Restores progress from the cloud (DynamoDB).
+   * Used when user is authenticated but has no local progress.
+   * Returns true if progress was successfully restored from cloud.
+   */
+  async function restoreProgressFromCloud(): Promise<boolean> {
+    isRestoringFromCloud.value = true;
+    try {
+      const result = await progressTracker.restoreFromCloud();
+
+      if (!result.restored || !result.state) {
+        return false;
+      }
+
+      _hydrateFromState(result.state);
+
+      // Reconstruct stageResults for completed stages (cloud doesn't store computed results)
+      for (const stage of completedStages.value) {
+        const answers = userAnswersByStage.value[stage];
+        if (answers && !stageResults.value[stage]) {
+          stageResults.value[stage] = calculateStageResult(stage, answers);
+        }
+      }
+
+      // Persist the complete state including computed results
+      _persist();
+
+      return true;
+    } catch (err) {
+      console.warn('[QuizStore] restoreProgressFromCloud failed:', err);
+      return false;
+    } finally {
+      isRestoringFromCloud.value = false;
+    }
   }
 
   function resetProgress(): void {
@@ -375,6 +424,7 @@ export const useQuizStore = defineStore('quiz', () => {
     errorMessage,
     sessionSeed,
     cloudSyncFailed,
+    isRestoringFromCloud,
 
     // Getters
     currentQuestion,
@@ -387,6 +437,7 @@ export const useQuizStore = defineStore('quiz', () => {
     isAllComplete,
     recommendedNextStage,
     incorrectAnswers,
+    hasAnyProgress,
 
     // Actions
     startStage,
@@ -395,6 +446,7 @@ export const useQuizStore = defineStore('quiz', () => {
     completeStage,
     retryStage,
     restoreProgress,
+    restoreProgressFromCloud,
     resetProgress,
   };
 });

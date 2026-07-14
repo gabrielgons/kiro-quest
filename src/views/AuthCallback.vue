@@ -2,13 +2,21 @@
 import { onMounted } from 'vue';
 import { useRouter } from 'vue-router';
 import { useAuthStore } from '@/stores/authStore';
+import { useQuizStore } from '@/stores/quizStore';
 
 const router = useRouter();
 const authStore = useAuthStore();
+const quizStore = useQuizStore();
 
 onMounted(async () => {
   const success = await authStore.handleCallback(window.location.href);
   if (success) {
+    if (!quizStore.hasAnyProgress) {
+      const restored = await quizStore.restoreProgressFromCloud();
+      if (!restored) {
+        console.warn('[AuthCallback] Cloud progress restore failed or empty');
+      }
+    }
     router.replace({ path: '/stages' });
   } else {
     router.replace({ path: '/' });

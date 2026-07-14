@@ -15,16 +15,28 @@ const showRecoveryError = ref(false);
 const appVersion = version;
 
 onMounted(() => {
-  // Restore auth session from stored tokens (if any)
-  authStore.initialize();
-
   const wasCorrupted = quizStore.restoreProgress();
-
   if (wasCorrupted) {
     showRecoveryError.value = true;
     setTimeout(() => { showRecoveryError.value = false; }, 5000);
+    // Attempt cloud recovery as fallback
+    void restoreFromCloudIfNeeded();
+    return;
   }
+
+  // Fire-and-forget: cloud restore runs in background
+  void restoreFromCloudIfNeeded();
 });
+
+async function restoreFromCloudIfNeeded() {
+  await authStore.initialize();
+  if (authStore.isAuthenticated && !quizStore.hasAnyProgress) {
+    // Re-check after async boundary to avoid TOCTOU race
+    if (quizStore.quizPhase === 'answering' && quizStore.currentQuestionIndex === 0 && !quizStore.isRestoringFromCloud) {
+      await quizStore.restoreProgressFromCloud();
+    }
+  }
+}
 
 function dismissError() {
   showRecoveryError.value = false;
