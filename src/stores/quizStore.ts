@@ -218,6 +218,26 @@ export const useQuizStore = defineStore('quiz', () => {
   }
 
   /**
+   * Hydrates store state from a ProgressState object.
+   * Shared by restoreProgress() and restoreProgressFromCloud().
+   */
+  function _hydrateFromState(saved: ProgressState): void {
+    currentStage.value = saved.currentStage;
+    currentQuestionIndex.value = saved.currentQuestionIndex;
+    quizPhase.value = saved.quizPhase;
+    completedStages.value = saved.completedStages;
+    stageResults.value = saved.stageResults;
+    userAnswersByStage.value = saved.userAnswersByStage;
+    errorMessage.value = null;
+
+    questions.value = questionStore.getQuestionsForStage(saved.currentStage);
+
+    if (saved.quizPhase === 'feedback') {
+      _reconstructLastAnswerResult();
+    }
+  }
+
+  /**
    * Restores progress from localStorage.
    * Returns true if data was corrupted (notification should be shown).
    */
@@ -231,22 +251,7 @@ export const useQuizStore = defineStore('quiz', () => {
 
     if (!saved) return false;
 
-    currentStage.value = saved.currentStage;
-    currentQuestionIndex.value = saved.currentQuestionIndex;
-    quizPhase.value = saved.quizPhase;
-    completedStages.value = saved.completedStages;
-    stageResults.value = saved.stageResults;
-    userAnswersByStage.value = saved.userAnswersByStage;
-    errorMessage.value = null;
-
-    // Load questions for current stage
-    const stageQuestions = questionStore.getQuestionsForStage(saved.currentStage);
-    questions.value = stageQuestions;
-
-    // Reconstruct lastAnswerResult if quizPhase is "feedback"
-    if (saved.quizPhase === 'feedback') {
-      _reconstructLastAnswerResult();
-    }
+    _hydrateFromState(saved);
 
     return false;
   }
@@ -264,27 +269,7 @@ export const useQuizStore = defineStore('quiz', () => {
         return false;
       }
 
-      const saved = result.state;
-
-      currentStage.value = saved.currentStage;
-      currentQuestionIndex.value = saved.currentQuestionIndex;
-      quizPhase.value = saved.quizPhase;
-      completedStages.value = saved.completedStages;
-      stageResults.value = saved.stageResults;
-      userAnswersByStage.value = saved.userAnswersByStage;
-      errorMessage.value = null;
-
-      // Load questions for current stage
-      const stageQuestions = questionStore.getQuestionsForStage(saved.currentStage);
-      questions.value = stageQuestions;
-
-      // Reconstruct lastAnswerResult if quizPhase is "feedback"
-      if (saved.quizPhase === 'feedback') {
-        _reconstructLastAnswerResult();
-      }
-
-      // Persist cloud-restored state to localStorage for offline access
-      progressTracker.persist(saved);
+      _hydrateFromState(result.state);
 
       return true;
     } catch {

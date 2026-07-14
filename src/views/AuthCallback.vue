@@ -11,7 +11,10 @@ const quizStore = useQuizStore();
 onMounted(async () => {
   const success = await authStore.handleCallback(window.location.href);
   if (success) {
-    await quizStore.restoreProgressFromCloud();
+    const restored = await quizStore.restoreProgressFromCloud();
+    if (!restored) {
+      console.warn('[AuthCallback] Cloud progress restore failed or empty');
+    }
     router.replace({ path: '/stages' });
   } else {
     router.replace({ path: '/' });
