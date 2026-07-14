@@ -257,32 +257,36 @@ export const useQuizStore = defineStore('quiz', () => {
    * Returns true if progress was successfully restored from cloud.
    */
   async function restoreProgressFromCloud(): Promise<boolean> {
-    const result = await progressTracker.restoreFromCloud();
+    try {
+      const result = await progressTracker.restoreFromCloud();
 
-    if (!result.restored || !result.state) {
+      if (!result.restored || !result.state) {
+        return false;
+      }
+
+      const saved = result.state;
+
+      currentStage.value = saved.currentStage;
+      currentQuestionIndex.value = saved.currentQuestionIndex;
+      quizPhase.value = saved.quizPhase;
+      completedStages.value = saved.completedStages;
+      stageResults.value = saved.stageResults;
+      userAnswersByStage.value = saved.userAnswersByStage;
+      errorMessage.value = null;
+
+      // Load questions for current stage
+      const stageQuestions = questionStore.getQuestionsForStage(saved.currentStage);
+      questions.value = stageQuestions;
+
+      // Reconstruct lastAnswerResult if quizPhase is "feedback"
+      if (saved.quizPhase === 'feedback') {
+        _reconstructLastAnswerResult();
+      }
+
+      return true;
+    } catch {
       return false;
     }
-
-    const saved = result.state;
-
-    currentStage.value = saved.currentStage;
-    currentQuestionIndex.value = saved.currentQuestionIndex;
-    quizPhase.value = saved.quizPhase;
-    completedStages.value = saved.completedStages;
-    stageResults.value = saved.stageResults;
-    userAnswersByStage.value = saved.userAnswersByStage;
-    errorMessage.value = null;
-
-    // Load questions for current stage
-    const stageQuestions = questionStore.getQuestionsForStage(saved.currentStage);
-    questions.value = stageQuestions;
-
-    // Reconstruct lastAnswerResult if quizPhase is "feedback"
-    if (saved.quizPhase === 'feedback') {
-      _reconstructLastAnswerResult();
-    }
-
-    return true;
   }
 
   function resetProgress(): void {

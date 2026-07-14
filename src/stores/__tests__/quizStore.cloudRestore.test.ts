@@ -193,6 +193,23 @@ describe('quizStore - restoreProgressFromCloud', () => {
     expect(store.userAnswersByStage['kiro-basics']).toHaveLength(2);
   });
 
+  it('returns false and leaves state unchanged when restoreFromCloud rejects', async () => {
+    mockRestoreFromCloud.mockRejectedValue(new Error('network'));
+
+    const store = useQuizStore();
+    const result = await store.restoreProgressFromCloud();
+
+    expect(result).toBe(false);
+    expect(mockRestoreFromCloud).toHaveBeenCalledOnce();
+    // Store state should remain at defaults
+    expect(store.currentStage).toBe('kiro-basics');
+    expect(store.currentQuestionIndex).toBe(0);
+    expect(store.quizPhase).toBe('answering');
+    expect(store.completedStages).toEqual([]);
+    expect(Object.keys(store.userAnswersByStage)).toHaveLength(0);
+    expect(store.questions).toHaveLength(0);
+  });
+
   it('reconstructs lastAnswerResult when quizPhase is feedback', async () => {
     const cloudState: ProgressState = {
       version: 1,
