@@ -19,6 +19,8 @@ onMounted(() => {
   if (wasCorrupted) {
     showRecoveryError.value = true;
     setTimeout(() => { showRecoveryError.value = false; }, 5000);
+    // Attempt cloud recovery as fallback
+    void restoreFromCloudIfNeeded();
     return;
   }
 
@@ -28,8 +30,9 @@ onMounted(() => {
 
 async function restoreFromCloudIfNeeded() {
   await authStore.initialize();
-  if (authStore.isAuthenticated) {
-    if (!quizStore.hasAnyProgress && quizStore.quizPhase === 'answering' && quizStore.currentQuestionIndex === 0) {
+  if (authStore.isAuthenticated && !quizStore.hasAnyProgress) {
+    // Re-check after async boundary to avoid TOCTOU race
+    if (quizStore.quizPhase === 'answering' && quizStore.currentQuestionIndex === 0) {
       await quizStore.restoreProgressFromCloud();
     }
   }

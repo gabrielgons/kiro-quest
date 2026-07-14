@@ -224,7 +224,8 @@ export const useQuizStore = defineStore('quiz', () => {
 
   /**
    * Hydrates store state from a ProgressState object.
-   * Shared by restoreProgress() and restoreProgressFromCloud().
+   * NOTE: Does NOT persist — callers are responsible for ensuring
+   * the state is already persisted (localStorage or cloud).
    */
   function _hydrateFromState(saved: ProgressState): void {
     currentStage.value = saved.currentStage;
