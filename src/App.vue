@@ -32,7 +32,7 @@ async function restoreFromCloudIfNeeded() {
   await authStore.initialize();
   if (authStore.isAuthenticated && !quizStore.hasAnyProgress) {
     // Re-check after async boundary to avoid TOCTOU race
-    if (quizStore.quizPhase === 'answering' && quizStore.currentQuestionIndex === 0) {
+    if (quizStore.quizPhase === 'answering' && quizStore.currentQuestionIndex === 0 && !quizStore.isRestoringFromCloud) {
       await quizStore.restoreProgressFromCloud();
     }
   }

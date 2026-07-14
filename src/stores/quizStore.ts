@@ -37,6 +37,7 @@ export const useQuizStore = defineStore('quiz', () => {
   const errorMessage = ref<string | null>(null);
   const sessionSeed = ref(Date.now());
   const cloudSyncFailed = ref(false);
+  const isRestoringFromCloud = ref(false);
 
   // --- Computed Getters ---
 
@@ -269,10 +270,12 @@ export const useQuizStore = defineStore('quiz', () => {
    * Returns true if progress was successfully restored from cloud.
    */
   async function restoreProgressFromCloud(): Promise<boolean> {
+    isRestoringFromCloud.value = true;
     try {
       const result = await progressTracker.restoreFromCloud();
 
       if (!result.restored || !result.state) {
+        isRestoringFromCloud.value = false;
         return false;
       }
 
@@ -286,9 +289,14 @@ export const useQuizStore = defineStore('quiz', () => {
         }
       }
 
+      // Persist the complete state including computed results
+      _persist();
+
+      isRestoringFromCloud.value = false;
       return true;
     } catch (err) {
       console.warn('[QuizStore] restoreProgressFromCloud failed:', err);
+      isRestoringFromCloud.value = false;
       return false;
     }
   }
@@ -417,6 +425,7 @@ export const useQuizStore = defineStore('quiz', () => {
     errorMessage,
     sessionSeed,
     cloudSyncFailed,
+    isRestoringFromCloud,
 
     // Getters
     currentQuestion,

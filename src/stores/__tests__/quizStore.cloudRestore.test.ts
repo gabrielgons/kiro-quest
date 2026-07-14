@@ -239,4 +239,33 @@ describe('quizStore - restoreProgressFromCloud', () => {
     expect(store.lastAnswerResult!.questionId).toBe('q1');
     expect(store.lastAnswerResult!.isCorrect).toBe(true);
   });
+
+  it('computes stageResults for completed stages after cloud restore', async () => {
+    mockRestoreFromCloud.mockResolvedValue({
+      restored: true,
+      state: {
+        version: 1,
+        currentStage: 'kiro-basics',
+        currentQuestionIndex: 0,
+        quizPhase: 'stage-complete',
+        completedStages: ['kiro-basics'],
+        stageResults: {},
+        userAnswersByStage: {
+          'kiro-basics': [
+            { questionId: 'q1', selectedOptionId: 'a', isCorrect: true, answeredAt: 1000 },
+            { questionId: 'q2', selectedOptionId: 'b', isCorrect: false, answeredAt: 2000 },
+          ],
+        },
+        lastUpdated: Date.now(),
+      },
+    });
+
+    const store = useQuizStore();
+    const result = await store.restoreProgressFromCloud();
+
+    expect(result).toBe(true);
+    expect(store.stageResults['kiro-basics']).toBeDefined();
+    expect(store.stageResults['kiro-basics'].totalCount).toBe(2);
+    expect(store.stageResults['kiro-basics'].correctCount).toBe(1);
+  });
 });
