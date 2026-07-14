@@ -277,6 +277,15 @@ export const useQuizStore = defineStore('quiz', () => {
       }
 
       _hydrateFromState(result.state);
+
+      // Reconstruct stageResults for completed stages (cloud doesn't store computed results)
+      for (const stage of completedStages.value) {
+        const answers = userAnswersByStage.value[stage];
+        if (answers && !stageResults.value[stage]) {
+          stageResults.value[stage] = calculateStageResult(stage, answers);
+        }
+      }
+
       return true;
     } catch (err) {
       console.warn('[QuizStore] restoreProgressFromCloud failed:', err);

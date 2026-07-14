@@ -15,7 +15,6 @@ onMounted(async () => {
       const restored = await quizStore.restoreProgressFromCloud();
       if (!restored) {
         console.warn('[AuthCallback] Cloud progress restore failed or empty');
-        quizStore.cloudSyncFailed = true;
       }
     }
     router.replace({ path: '/stages' });
