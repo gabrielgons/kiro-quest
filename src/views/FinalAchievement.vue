@@ -209,6 +209,7 @@ function handleBackToHome() {
   padding: 0.75rem 2rem;
   font-size: 1rem;
   background: transparent;
+  color: var(--color-text, #1e293b);
   border: 2px solid var(--color-border, #e5e7eb);
   border-radius: 8px;
   cursor: pointer;
