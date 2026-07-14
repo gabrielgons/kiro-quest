@@ -283,6 +283,9 @@ export const useQuizStore = defineStore('quiz', () => {
         _reconstructLastAnswerResult();
       }
 
+      // Persist cloud-restored state to localStorage for offline access
+      progressTracker.persist(saved);
+
       return true;
     } catch {
       return false;
