@@ -11,9 +11,7 @@ const quizStore = useQuizStore();
 onMounted(async () => {
   const success = await authStore.handleCallback(window.location.href);
   if (success) {
-    const hasLocalProgress = quizStore.completedStages.length > 0 ||
-      Object.keys(quizStore.userAnswersByStage).length > 0;
-    if (!hasLocalProgress) {
+    if (!quizStore.hasAnyProgress) {
       const restored = await quizStore.restoreProgressFromCloud();
       if (!restored) {
         console.warn('[AuthCallback] Cloud progress restore failed or empty');

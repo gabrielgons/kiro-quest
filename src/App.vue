@@ -14,7 +14,7 @@ useTheme();
 const showRecoveryError = ref(false);
 const appVersion = version;
 
-onMounted(async () => {
+onMounted(() => {
   const wasCorrupted = quizStore.restoreProgress();
   if (wasCorrupted) {
     showRecoveryError.value = true;
@@ -22,17 +22,18 @@ onMounted(async () => {
     return;
   }
 
-  // Non-blocking: auth init + cloud restore happen in background
-  authStore.initialize().then(async () => {
-    if (authStore.isAuthenticated) {
-      const hasLocalProgress = quizStore.completedStages.length > 0 ||
-        Object.keys(quizStore.userAnswersByStage).length > 0;
-      if (!hasLocalProgress) {
-        await quizStore.restoreProgressFromCloud();
-      }
-    }
-  });
+  // Fire-and-forget: cloud restore runs in background
+  void restoreFromCloudIfNeeded();
 });
+
+async function restoreFromCloudIfNeeded() {
+  await authStore.initialize();
+  if (authStore.isAuthenticated) {
+    if (!quizStore.hasAnyProgress && quizStore.quizPhase === 'answering' && quizStore.currentQuestionIndex === 0) {
+      await quizStore.restoreProgressFromCloud();
+    }
+  }
+}
 
 function dismissError() {
   showRecoveryError.value = false;

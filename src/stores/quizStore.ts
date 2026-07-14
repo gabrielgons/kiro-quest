@@ -102,6 +102,11 @@ export const useQuizStore = defineStore('quiz', () => {
     return getRecommendedNextStage(completedStages.value);
   });
 
+  const hasAnyProgress = computed(() =>
+    completedStages.value.length > 0 ||
+    Object.keys(userAnswersByStage.value).length > 0
+  );
+
   const incorrectAnswers = computed(() => {
     const stageAnswers = userAnswersByStage.value[currentStage.value] ?? [];
     return stageAnswers.filter((a) => !a.isCorrect);
@@ -271,9 +276,9 @@ export const useQuizStore = defineStore('quiz', () => {
       }
 
       _hydrateFromState(result.state);
-
       return true;
-    } catch {
+    } catch (err) {
+      console.warn('[QuizStore] restoreProgressFromCloud failed:', err);
       return false;
     }
   }
@@ -414,6 +419,7 @@ export const useQuizStore = defineStore('quiz', () => {
     isAllComplete,
     recommendedNextStage,
     incorrectAnswers,
+    hasAnyProgress,
 
     // Actions
     startStage,
