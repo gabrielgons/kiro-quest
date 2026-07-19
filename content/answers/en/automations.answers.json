@@ -1,0 +1,11 @@
+{
+  "stage": "automations",
+  "answers": [
+    { "questionId": "au-001", "correctAnswerId": "a" },
+    { "questionId": "au-002", "correctAnswerId": "false" },
+    { "questionId": "au-003", "correctAnswerId": "b" },
+    { "questionId": "au-004", "correctAnswerId": "b" },
+    { "questionId": "au-005", "correctAnswerId": "c" },
+    { "questionId": "au-006", "correctAnswerId": "c" }
+  ]
+}

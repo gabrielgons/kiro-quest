@@ -118,7 +118,7 @@ function handleNext() {
 
       <!-- Aria-live region for question updates -->
       <div aria-live="polite" class="sr-only">
-        Pergunta {{ quizStore.currentQuestionIndex + 1 }} de {{ quizStore.questions.length }}
+        {{ t('a11y.questionUpdate', { current: quizStore.currentQuestionIndex + 1, total: quizStore.questions.length }) }}
       </div>
 
       <!-- Question text -->
@@ -182,7 +182,7 @@ function handleNext() {
             <button
               class="move-button"
               :disabled="index === 0 || quizStore.quizPhase !== 'answering'"
-              :aria-label="`Mover ${(currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label} para cima`"
+              :aria-label="`${t('quiz.moveUp')} ${(currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label}`"
               @click="moveItem(index, 'up')"
             >
               &#9650;
@@ -190,7 +190,7 @@ function handleNext() {
             <button
               class="move-button"
               :disabled="index === (selectedAnswer as string[]).length - 1 || quizStore.quizPhase !== 'answering'"
-              :aria-label="`Mover ${(currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label} para baixo`"
+              :aria-label="`${t('quiz.moveDown')} ${(currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label}`"
               @click="moveItem(index, 'down')"
             >
               &#9660;

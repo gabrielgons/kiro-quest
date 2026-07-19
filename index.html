@@ -1,29 +1,40 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <meta name="theme-color" content="#6366f1" />
-    <meta name="description" content="KiroQuest — quiz interativo para dominar specs, hooks, MCP, steering e o ecossistema Kiro." />
+    <meta name="description" content="KiroQuest — interactive quiz to master specs, hooks, MCP, steering, and the Kiro ecosystem." />
 
     <!-- Open Graph / LinkedIn / Facebook (generic site-level fallback; per-module cards are served from /s/*) -->
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Kiro Quest" />
-    <meta property="og:title" content="Kiro Quest — Trilha de Aprendizado Kiro" />
-    <meta property="og:description" content="Teste seus conhecimentos sobre o Kiro, conquiste badges por módulo e ganhe seu certificado de conclusão!" />
+    <meta property="og:title" content="Kiro Quest — Kiro Learning Trail" />
+    <meta property="og:description" content="Test your knowledge about Kiro, earn module badges, and get your completion certificate!" />
     <meta property="og:url" content="https://kiro-quest.trilha.workers.dev/" />
     <meta property="og:image" content="https://kiro-quest.trilha.workers.dev/og/home.png" />
-    <meta property="og:locale" content="pt_BR" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:locale:alternate" content="pt_BR" />
     <!-- Twitter Card -->
     <meta name="twitter:card" content="summary_large_image" />
-    <meta name="twitter:title" content="Kiro Quest — Trilha de Aprendizado Kiro" />
-    <meta name="twitter:description" content="Teste seus conhecimentos sobre o Kiro, conquiste badges por módulo e ganhe seu certificado de conclusão!" />
+    <meta name="twitter:title" content="Kiro Quest — Kiro Learning Trail" />
+    <meta name="twitter:description" content="Test your knowledge about Kiro, earn module badges, and get your completion certificate!" />
     <meta name="twitter:image" content="https://kiro-quest.trilha.workers.dev/og/home.png" />
 
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="apple-touch-icon" href="/icon.svg" />
 
     <title>KiroQuest</title>
+    <!-- Sync lang attribute with persisted locale before app mounts (avoids flash of wrong lang) -->
+    <script>
+      (function(){
+        try {
+          var s = localStorage.getItem('kiroquest-locale');
+          if (s === 'pt-BR') document.documentElement.lang = 'pt-BR';
+          else if (!s && navigator.language && navigator.language.startsWith('pt')) document.documentElement.lang = 'pt-BR';
+        } catch(e){}
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

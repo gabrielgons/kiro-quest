@@ -3,13 +3,16 @@ import { onMounted, ref } from 'vue';
 import { useQuizStore } from '@/stores/quizStore';
 import { useAuthStore } from '@/stores/authStore';
 import { useTheme } from '@/composables/useTheme';
+import { useLocale } from '@/i18n/useLocale';
 import ThemeToggle from '@/components/ThemeToggle.vue';
+import LocaleSwitcher from '@/components/LocaleSwitcher.vue';
 import LoginButton from '@/components/LoginButton.vue';
 import UserMenu from '@/components/UserMenu.vue';
 import { version } from '../package.json';
 
 const quizStore = useQuizStore();
 const authStore = useAuthStore();
+const { t } = useLocale();
 useTheme();
 const showRecoveryError = ref(false);
 const appVersion = version;
@@ -46,11 +49,12 @@ function dismissError() {
 <template>
   <!-- Recovery error notification -->
   <div v-if="showRecoveryError" class="notification error" role="alert">
-    <p>Progresso anterior não pôde ser recuperado</p>
-    <button @click="dismissError()">Fechar</button>
+    <p>{{ t('progress.corrupted') }}</p>
+    <button @click="dismissError()">{{ t('notification.dismiss') }}</button>
   </div>
 
   <header class="app-header">
+    <LocaleSwitcher />
     <UserMenu />
     <LoginButton />
   </header>

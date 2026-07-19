@@ -1,0 +1,104 @@
+{
+  "stage": "privacy-security",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "ps-001",
+      "category": "Privacy, Security & Control",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What are the configurable network access levels in Kiro's sandbox?",
+      "options": [
+        { "id": "a", "label": "Three levels: Integration Only (GitHub proxy only), Common Dependencies (registries like npm/PyPI/Maven), and Open Internet (full access)" },
+        { "id": "b", "label": "Only two: offline mode and online mode with unrestricted access" },
+        { "id": "c", "label": "A single level with a configurable port-based firewall" },
+        { "id": "d", "label": "Four levels: Blocked, Limited, Standard, and Premium" }
+      ],
+      "explanation": "Kiro offers three network access levels: Integration Only (integration proxy access to GitHub/GitLab only), Common Dependencies (access to registries like npm, PyPI, and Maven), and Open Internet (full internet access). It also supports custom domain allowlists for granular control.",
+      "sourceUrl": "https://kiro.dev/docs/privacy-and-security/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ps-002",
+      "category": "Privacy, Security & Control",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Kiro permanently stores your source code on external servers after the session ends.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Kiro does not permanently store source code on external servers after the session ends. Code data is processed during the session and is not permanently retained, ensuring the privacy and security of developers' code.",
+      "sourceUrl": "https://kiro.dev/docs/privacy-and-security/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ps-003",
+      "category": "Privacy, Security & Control",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "What are VPC endpoints in the context of Kiro enterprise?",
+      "options": [
+        { "id": "a", "label": "Proxy servers that accelerate dependency downloads" },
+        { "id": "b", "label": "Private connections that allow accessing Kiro without traffic going through the public internet, keeping data within the AWS network" },
+        { "id": "c", "label": "API endpoints for integrating Kiro with internal company tools" },
+        { "id": "d", "label": "Self-hosted versions of Kiro that run on company servers" }
+      ],
+      "explanation": "VPC endpoints are private connections that allow enterprises to access Kiro without data traveling through the public internet. Everything stays within the organization's AWS network, providing greater security for enterprise environments.",
+      "sourceUrl": "https://kiro.dev/docs/privacy-and-security/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ps-004",
+      "category": "Privacy, Security & Control",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Your company prohibits external internet access during AI task execution. Which network mode configuration should you use?",
+      "options": [
+        { "id": "a", "label": "Open Internet with corporate firewall" },
+        { "id": "b", "label": "Common Dependencies with empty domain allowlist" },
+        { "id": "c", "label": "Integration Only, where the sandbox only accesses the integration proxy without external access" },
+        { "id": "d", "label": "Disconnect the network cable during sessions" }
+      ],
+      "explanation": "Integration Only mode configures the sandbox to access only the integration proxy (GitHub/GitLab), with no external internet access. This meets corporate policies that prohibit external connections during AI task execution.",
+      "sourceUrl": "https://kiro.dev/docs/privacy-and-security/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ps-005",
+      "category": "Privacy, Security & Control",
+      "difficulty": "avançado",
+      "type": "multiple-choice",
+      "text": "What governance mechanisms does Kiro offer for administrators to control the use of MCP servers and models?",
+      "options": [
+        { "id": "a", "label": "Only control over which users can access Kiro" },
+        { "id": "b", "label": "Extension Registry Governance, MCP governance, Model governance, Web Tools Toggle, and API Keys governance" },
+        { "id": "c", "label": "Only timeout and rate limiting settings for API calls" },
+        { "id": "d", "label": "Only audit logs without blocking capability" }
+      ],
+      "explanation": "Kiro offers multiple governance mechanisms: Extension Registry Governance (curated extension registry), MCP governance (control which MCP servers are allowed), Model governance (control available models), Web Tools Toggle (enable/disable web search and fetch), and API Keys governance.",
+      "sourceUrl": "https://kiro.dev/docs/privacy-and-security/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ps-006",
+      "category": "Privacy, Security & Control",
+      "difficulty": "avançado",
+      "type": "true-false",
+      "text": "Kiro is a HIPAA (Health Insurance Portability and Accountability Act) eligible service.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Kiro is a HIPAA eligible service, as confirmed in the official changelog. This means healthcare organizations can use Kiro in compliance with health data protection requirements established by the HIPAA law.",
+      "sourceUrl": "https://kiro.dev/docs/privacy-and-security/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    }
+  ]
+}

@@ -1,0 +1,138 @@
+{
+  "stage": "chat-modes",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "cm-001",
+      "category": "Chat & Interaction Modes",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What is the difference between Autopilot and Vibe mode in Kiro?",
+      "options": [
+        { "id": "a", "label": "Autopilot executes actions automatically and autonomously, while Vibe mode requires more user intervention and confirmation" },
+        { "id": "b", "label": "Vibe mode is faster because it skips validations, while Autopilot validates each step" },
+        { "id": "c", "label": "Autopilot only works with specs, while Vibe mode works with any prompt" },
+        { "id": "d", "label": "There is no functional difference, only the name changes depending on the Kiro version" }
+      ],
+      "explanation": "In Autopilot, the agent decides and acts autonomously, executing actions automatically without asking for confirmation at each step. In Vibe mode, the flow is more collaborative, requiring more user intervention to approve or direct the agent's actions.",
+      "sourceUrl": "https://kiro.dev/docs/chat/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "cm-002",
+      "category": "Chat & Interaction Modes",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Checkpoints automatically save the complete state of the codebase at every interaction.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Checkpoints save only the changes made by Kiro during the current session, not the complete state of the codebase. This allows reverting specific changes made by the agent without affecting the rest of the project.",
+      "sourceUrl": "https://kiro.dev/docs/chat/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "cm-003",
+      "category": "Chat & Interaction Modes",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "What happens when you restore a checkpoint in Kiro?",
+      "options": [
+        { "id": "a", "label": "Reverts all file changes made by the agent after that point, preserving the conversation history" },
+        { "id": "b", "label": "Erases all conversation history and restores files to the project's initial state" },
+        { "id": "c", "label": "Creates a new git branch with the file state at that checkpoint" },
+        { "id": "d", "label": "Only marks the point in the conversation without reverting any files" }
+      ],
+      "explanation": "When restoring a checkpoint, all file changes made by the agent after that point are reverted. However, conversation history up to that checkpoint is preserved, allowing you to see what was discussed and decided.",
+      "sourceUrl": "https://kiro.dev/docs/chat/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "cm-004",
+      "category": "Chat & Interaction Modes",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "You want to experiment with a risky refactoring without losing current progress. Which Kiro feature is most appropriate?",
+      "options": [
+        { "id": "a", "label": "Create a new git branch before starting" },
+        { "id": "b", "label": "Use Checkpoints to mark the current state and revert if necessary" },
+        { "id": "c", "label": "Manually copy files to a local backup" },
+        { "id": "d", "label": "Use the /undo command to undo each change individually" }
+      ],
+      "explanation": "Checkpoints allow experimenting freely knowing you can revert with one click if the result is unsatisfactory. File state is saved automatically, eliminating the need for manual backups or auxiliary branches.",
+      "sourceUrl": "https://kiro.dev/docs/chat/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "cm-005",
+      "category": "Chat & Interaction Modes",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "What is the role of Subagents in Kiro's flow?",
+      "options": [
+        { "id": "a", "label": "Third-party plugins that add extra functionality to the editor" },
+        { "id": "b", "label": "Specialized agents that handle specific tasks maintaining their own local context, preventing context rot" },
+        { "id": "c", "label": "Smaller versions of the main agent that run in parallel to speed up responses" },
+        { "id": "d", "label": "Debugging tools that monitor the main agent's behavior" }
+      ],
+      "explanation": "Subagents are specialized agents that handle specific tasks maintaining their own local context. This prevents context rot (context degradation) that occurs when a single agent accumulates too much information from different domains.",
+      "sourceUrl": "https://kiro.dev/docs/chat/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "cm-006",
+      "category": "Chat & Interaction Modes",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "Custom subagents allow separating context between frontend and backend, avoiding context window pollution.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Custom subagents allow creating focused agents (e.g., frontend-agent and backend-agent), each with its own isolated context. This prevents information from one domain polluting the other's context, keeping responses more precise and relevant.",
+      "sourceUrl": "https://kiro.dev/docs/chat/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "cm-007",
+      "category": "Chat & Interaction Modes",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "The agent made changes to 5 files but the result was not as expected. You want to return to the previous state without losing conversation history. How to proceed?",
+      "options": [
+        { "id": "a", "label": "Use git reset --hard to revert all files" },
+        { "id": "b", "label": "Ask the agent to manually undo each change" },
+        { "id": "c", "label": "Restore the previous checkpoint, which reverts files but keeps the conversation" },
+        { "id": "d", "label": "Close the session and open a new conversation from scratch" }
+      ],
+      "explanation": "Restoring the previous checkpoint reverts all file changes made by the agent after that point but preserves conversation history. This allows you to keep the context of what was discussed while returning to the previous file state.",
+      "sourceUrl": "https://kiro.dev/docs/chat/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "cm-008",
+      "category": "Chat & Interaction Modes",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Order the validation cycle of \"Run All Tasks\" from first to last step:",
+      "options": [
+        { "id": "step-1", "label": "Property-Based Tests (PBTs)" },
+        { "id": "step-2", "label": "Dev Servers / LSP Diagnostics" },
+        { "id": "step-3", "label": "Subagents (distributed context)" },
+        { "id": "step-4", "label": "Validated result" }
+      ],
+      "explanation": "The 'Run All Tasks' validation cycle follows a logical order: first executes Property-Based Tests to verify invariants, then validates via Dev Servers and LSP Diagnostics for type and runtime errors, then distributes tasks via Subagents with isolated context, and finally produces the validated result.",
+      "sourceUrl": "https://kiro.dev/docs/chat/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    }
+  ]
+}

@@ -121,5 +121,15 @@
   "login.continueWithGoogle": "Continuar com Google",
   "login.securityNote": "Login seguro via Google OAuth",
   "login.loading": "Carregando...",
-  "login.authNotConfigured": "Autenticação não configurada. Verifique as variáveis de ambiente."
+  "login.authNotConfigured": "Autenticação não configurada. Verifique as variáveis de ambiente.",
+
+  "certificate.title": "Personalize seu certificado",
+  "certificate.description": "Digite seu nome para que ele apareça no certificado. Você também pode pular esta etapa.",
+  "certificate.nameLabel": "Seu nome",
+  "certificate.namePlaceholder": "Ex.: Maria Silva",
+  "certificate.charLimit": "O nome deve ter no máximo {max} caracteres.",
+  "certificate.charCount": "{current}/{max} caracteres",
+  "certificate.skip": "Pular",
+  "certificate.confirm": "Confirmar",
+  "certificate.generate": "Gerar Certificado"
 }

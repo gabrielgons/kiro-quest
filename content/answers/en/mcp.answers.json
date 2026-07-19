@@ -1,0 +1,8 @@
+{
+  "stage": "mcp",
+  "answers": [
+    { "questionId": "mcp-001", "correctAnswerId": "a" },
+    { "questionId": "mcp-002", "correctAnswerId": "true" },
+    { "questionId": "mcp-003", "correctAnswerId": "a" }
+  ]
+}

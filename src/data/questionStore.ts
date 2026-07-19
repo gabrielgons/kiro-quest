@@ -1,6 +1,7 @@
 import type { LearningStage } from '@/engine/types';
 import type { QuestionPresentation, AnswerKey, DifficultyLevel } from '@/data/types';
 import { STAGE_ORDER } from '@/engine/stages';
+import { useLocale } from '@/i18n/useLocale';
 
 /**
  * Difficulty ordering for sorting questions within a stage.
@@ -31,43 +32,31 @@ interface AnswerFileData {
 
 /**
  * Load all question JSON files at build time using Vite's glob import (eager mode).
- * Files are expected at content/questions/pt-BR/{stage}.json.
- * Adding new question files requires no application logic changes (Requirement 1.5).
+ * Files are loaded for all locales.
  */
-const questionModules = import.meta.glob<QuestionFileData>(
+const questionModulesPtBR = import.meta.glob<QuestionFileData>(
   '/content/questions/pt-BR/*.json',
+  { eager: true, import: 'default' }
+);
+
+const questionModulesEn = import.meta.glob<QuestionFileData>(
+  '/content/questions/en/*.json',
   { eager: true, import: 'default' }
 );
 
 /**
  * Load all answer JSON files at build time using Vite's glob import (eager mode).
- * Files are expected at content/answers/pt-BR/{stage}.answers.json.
  * Answer data is stored separately from presentation data (Requirement 12.4).
  */
-const answerModules = import.meta.glob<AnswerFileData>(
+const answerModulesPtBR = import.meta.glob<AnswerFileData>(
   '/content/answers/pt-BR/*.answers.json',
   { eager: true, import: 'default' }
 );
 
-/**
- * Build a flat list of all questions with their stage attached.
- */
-function loadAllQuestions(): QuestionPresentation[] {
-  const allQuestions: QuestionPresentation[] = [];
-
-  for (const [path, data] of Object.entries(questionModules)) {
-    // Skip underscore-prefixed files (e.g. _test-invalid.json). The `_` prefix
-    // is a convention for private/fixture files that must not be bundled into
-    // production content.
-    if (isPrivateFile(path)) continue;
-    if (!data || !data.questions) continue;
-    for (const q of data.questions) {
-      allQuestions.push({ ...q, stage: data.stage });
-    }
-  }
-
-  return allQuestions;
-}
+const answerModulesEn = import.meta.glob<AnswerFileData>(
+  '/content/answers/en/*.answers.json',
+  { eager: true, import: 'default' }
+);
 
 /**
  * Returns true when the file name (last path segment) starts with an underscore,
@@ -79,12 +68,29 @@ function isPrivateFile(path: string): boolean {
 }
 
 /**
- * Build a map of questionId → AnswerKey from all answer files.
+ * Build a flat list of all questions with their stage attached for a specific locale.
  */
-function loadAllAnswers(): Map<string, AnswerKey> {
+function loadAllQuestions(modules: Record<string, QuestionFileData>): QuestionPresentation[] {
+  const allQuestions: QuestionPresentation[] = [];
+
+  for (const [path, data] of Object.entries(modules)) {
+    if (isPrivateFile(path)) continue;
+    if (!data || !data.questions) continue;
+    for (const q of data.questions) {
+      allQuestions.push({ ...q, stage: data.stage });
+    }
+  }
+
+  return allQuestions;
+}
+
+/**
+ * Build a map of questionId → AnswerKey from all answer files for a specific locale.
+ */
+function loadAllAnswers(modules: Record<string, AnswerFileData>): Map<string, AnswerKey> {
   const answerMap = new Map<string, AnswerKey>();
 
-  for (const [path, data] of Object.entries(answerModules)) {
+  for (const [path, data] of Object.entries(modules)) {
     if (isPrivateFile(path)) continue;
     if (!data || !data.answers) continue;
     for (const answer of data.answers) {
@@ -95,9 +101,16 @@ function loadAllAnswers(): Map<string, AnswerKey> {
   return answerMap;
 }
 
-// Pre-compute data structures at module load time (build-time bundled data)
-const allQuestions = loadAllQuestions();
-const answerMap = loadAllAnswers();
+// Pre-compute data structures per locale at module load time
+const questionsByLocale: Record<string, QuestionPresentation[]> = {
+  'pt-BR': loadAllQuestions(questionModulesPtBR),
+  'en': loadAllQuestions(questionModulesEn),
+};
+
+const answersByLocale: Record<string, Map<string, AnswerKey>> = {
+  'pt-BR': loadAllAnswers(answerModulesPtBR),
+  'en': loadAllAnswers(answerModulesEn),
+};
 
 /**
  * Sort questions by difficulty level: iniciante → intermediário → avançado.
@@ -109,12 +122,37 @@ function sortByDifficulty(questions: QuestionPresentation[]): QuestionPresentati
 }
 
 /**
+ * Pure helper: get questions for a given locale string, falling back to pt-BR.
+ * Kept pure/testable — reactive locale ref is read at the store method boundary.
+ */
+function getQuestionsForLocale(currentLocale: string): QuestionPresentation[] {
+  return questionsByLocale[currentLocale] ?? questionsByLocale['pt-BR'] ?? [];
+}
+
+/**
+ * Pure helper: get answer map for a given locale string, falling back to pt-BR.
+ * Kept pure/testable — reactive locale ref is read at the store method boundary.
+ */
+function getAnswerMapForLocale(currentLocale: string): Map<string, AnswerKey> {
+  return answersByLocale[currentLocale] ?? answersByLocale['pt-BR'] ?? new Map();
+}
+
+// Extract the reactive locale ref once at module level to avoid recreating
+// the composable return object on every store method call.
+// NOTE: This is safe because useLocale() uses module-scoped ref() state (not
+// provide/inject or component lifecycle hooks). The ref is shared across all
+// callers regardless of whether they are inside a Vue setup() context.
+const { locale: activeLocale } = useLocale();
+
+/**
  * QuestionStore implementation providing access to question data bundled at build time.
  *
  * - getStages(): returns all Learning Stages in defined order (Requirement 3.1)
  * - getQuestionsForStage(stage): returns questions sorted by difficulty (Requirement 3.2)
  * - getQuestionById(id): single question lookup
  * - getAnswerKey(questionId): loads from separate answer files (Requirement 12.4)
+ *
+ * All methods are locale-aware and return content for the active locale.
  */
 export const questionStore = {
   /**
@@ -128,16 +166,20 @@ export const questionStore = {
   /**
    * Returns all questions for a given stage, sorted by difficulty.
    * Requirement 3.2: iniciante → intermediário → avançado
+   * Locale-aware: returns questions for the current active locale.
    */
   getQuestionsForStage(stage: LearningStage): QuestionPresentation[] {
+    const allQuestions = getQuestionsForLocale(activeLocale.value);
     const stageQuestions = allQuestions.filter((q) => q.stage === stage);
     return sortByDifficulty(stageQuestions);
   },
 
   /**
    * Returns a single question by its unique ID, or undefined if not found.
+   * Locale-aware: searches in the current active locale.
    */
   getQuestionById(id: string): QuestionPresentation | undefined {
+    const allQuestions = getQuestionsForLocale(activeLocale.value);
     return allQuestions.find((q) => q.id === id);
   },
 
@@ -147,6 +189,7 @@ export const questionStore = {
    * Throws if no answer key is found for the given question ID.
    */
   getAnswerKey(questionId: string): AnswerKey {
+    const answerMap = getAnswerMapForLocale(activeLocale.value);
     const answer = answerMap.get(questionId);
     if (!answer) {
       throw new Error(`Answer key not found for question: ${questionId}`);

@@ -1,0 +1,55 @@
+{
+  "stage": "enterprise-scenarios",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "es-001",
+      "category": "Enterprise Scenarios",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What main benefit does Kiro offer for enterprise teams?",
+      "options": [
+        { "id": "a", "label": "Standardization of development workflows through shared Specs and Steering" },
+        { "id": "b", "label": "Generation of individual productivity reports for each developer on the team" },
+        { "id": "c", "label": "Automatic management of production infrastructure" },
+        { "id": "d", "label": "Elimination of the need for code review" }
+      ],
+      "explanation": "For enterprise teams, Kiro offers workflow standardization through shared Specs and Steering in the repository, ensuring consistency in development practices.",
+      "sourceUrl": "https://kiro.dev/docs/enterprise/concepts/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "es-002",
+      "category": "Enterprise Scenarios",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "Steering files in the repository (.kiro/steering/) are automatically shared with the entire team via version control.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Steering files in .kiro/steering/ are part of the repository and shared with the entire team via Git, ensuring everyone follows the same development guidelines.",
+      "sourceUrl": "https://kiro.dev/docs/steering/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "es-003",
+      "category": "Enterprise Scenarios",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "A team of 20 developers needs to ensure everyone follows security standards when creating APIs. Which combination of Kiro features is most effective?",
+      "options": [
+        { "id": "a", "label": "Steering files with security rules + Hooks that validate before each code write" },
+        { "id": "b", "label": "Define security rules only in a Skill that each developer manually activates when creating APIs" },
+        { "id": "c", "label": "Monthly in-person training on security" },
+        { "id": "d", "label": "Manual review of each pull request by a security specialist" }
+      ],
+      "explanation": "The combination of Steering files (defining security rules in .kiro/steering/) with Hooks (automatically validating before writes via preToolUse) ensures continuous and automatic enforcement of security standards across the entire team.",
+      "sourceUrl": "https://kiro.dev/docs/steering/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

@@ -84,7 +84,7 @@ function handleBackToHome() {
           class="btn-primary"
           @click="handleOpenNameModal"
         >
-          Gerar Certificado
+          {{ t('certificate.generate') }}
         </button>
 
         <ShareBadgeButton

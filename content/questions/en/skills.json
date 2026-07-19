@@ -1,0 +1,55 @@
+{
+  "stage": "skills",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "sk-001",
+      "category": "Skills",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What are Skills in Kiro?",
+      "options": [
+        { "id": "a", "label": "Reusable instructions that can be activated to load specific context" },
+        { "id": "b", "label": "Markdown guides loaded automatically in every interaction to direct the agent" },
+        { "id": "c", "label": "Installable packages that combine documentation and MCP servers" },
+        { "id": "d", "label": "Automations that trigger agent actions in response to IDE events" }
+      ],
+      "explanation": "Skills in Kiro are reusable instructions that can be activated to load specific context and instructions, enabling specialized behaviors on demand.",
+      "sourceUrl": "https://kiro.dev/docs/skills/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sk-002",
+      "category": "Skills",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "Skills can be defined both at the user level (~/.kiro/skills/) and at the workspace level (.kiro/skills/).",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Skills can be added to ~/.kiro/skills/ for global user use or to .kiro/skills/ for workspace-specific use, offering flexibility in organization.",
+      "sourceUrl": "https://kiro.dev/docs/skills/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sk-003",
+      "category": "Skills",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "You want Kiro to always follow a specific logging pattern when creating services. Which feature is most appropriate?",
+      "options": [
+        { "id": "a", "label": "Create a Skill with logging instructions that can be activated when needed" },
+        { "id": "b", "label": "Add comments in each service file explaining the pattern" },
+        { "id": "c", "label": "Create a custom linter that checks the pattern" },
+        { "id": "d", "label": "Write a script that automatically adds logging after creation" }
+      ],
+      "explanation": "A Skill is ideal for this case as it allows defining reusable instructions about the logging pattern that Kiro will follow whenever the skill is activated during service creation.",
+      "sourceUrl": "https://kiro.dev/docs/skills/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

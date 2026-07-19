@@ -1,0 +1,73 @@
+{
+  "stage": "hooks",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "hk-001",
+      "category": "Hooks",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What are Hooks in Kiro?",
+      "options": [
+        { "id": "a", "label": "Automations that map IDE events to agent actions" },
+        { "id": "b", "label": "Markdown guides that direct the agent's behavior in every interaction" },
+        { "id": "c", "label": "Reusable instructions activated on demand to load specific context" },
+        { "id": "d", "label": "Connections to external tools and services through a standardized protocol" }
+      ],
+      "explanation": "Hooks in Kiro are automations that connect IDE events (like file editing, prompt submission) to agent actions (askAgent or runCommand). When the event occurs, the specified action is executed automatically.",
+      "sourceUrl": "https://kiro.dev/docs/hooks/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "hk-002",
+      "category": "Hooks",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "A Hook in Kiro can be configured to automatically run a lint command whenever a TypeScript file is saved.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Hooks support the `fileEdited` event (displayed as 'File Save' in the UI) with file pattern filtering (filePatterns). Combined with the 'Shell Command' action (runCommand), it's possible to automatically run lint when saving .ts files.",
+      "sourceUrl": "https://kiro.dev/docs/hooks/types/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "hk-003",
+      "category": "Hooks",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "You want Kiro to automatically review every file write operation before executing it. Which Hook configuration is appropriate?",
+      "options": [
+        { "id": "a", "label": "eventType: preToolUse, hookAction: askAgent, toolTypes: write" },
+        { "id": "b", "label": "eventType: fileEdited, hookAction: runCommand, command: git diff" },
+        { "id": "c", "label": "eventType: promptSubmit, hookAction: askAgent" },
+        { "id": "d", "label": "eventType: postToolUse, hookAction: runCommand, command: npm test" }
+      ],
+      "explanation": "The 'preToolUse' event with toolTypes 'write' intercepts write operations before execution. Combined with 'askAgent', Kiro can review and validate the operation before proceeding.",
+      "sourceUrl": "https://kiro.dev/docs/hooks/types/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "hk-004",
+      "category": "Hooks",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Arrange the Hook event types from earliest to latest in the execution cycle:",
+      "options": [
+        { "id": "step-1", "label": "promptSubmit (Prompt Submit) - when the user sends a prompt" },
+        { "id": "step-2", "label": "preTaskExecution (Pre Task Execution) - before starting a spec task" },
+        { "id": "step-3", "label": "preToolUse (Pre Tool Use) - before using a tool" },
+        { "id": "step-4", "label": "postToolUse (Post Tool Use) - after using a tool" },
+        { "id": "step-5", "label": "postTaskExecution (Post Task Execution) - after completing a spec task" }
+      ],
+      "explanation": "The hook execution cycle follows: the user submits a prompt (`promptSubmit`), a spec task starts (`preTaskExecution`), tools are invoked (`preToolUse` / `postToolUse`), and the task completes (`postTaskExecution`). Each event allows automating actions at specific points in the cycle.",
+      "sourceUrl": "https://kiro.dev/docs/hooks/types/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}
