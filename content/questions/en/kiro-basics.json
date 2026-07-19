@@ -1,0 +1,72 @@
+{
+  "stage": "kiro-basics",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "kb-001",
+      "category": "Fundamental Concepts",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What is Kiro?",
+      "options": [
+        { "id": "a", "label": "An AI-powered development environment that helps developers design, implement, and test software" },
+        { "id": "b", "label": "An assistant that only autocompletes code snippets line by line as you type" },
+        { "id": "c", "label": "A chat extension that answers code questions but cannot edit files or execute commands" },
+        { "id": "d", "label": "A CI/CD platform that automates builds, tests, and deploys for the project" }
+      ],
+      "explanation": "Kiro is an intelligent AI-powered development environment that works alongside developers to design systems, explore solutions, and implement code efficiently.",
+      "sourceUrl": "https://kiro.dev/docs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "kb-002",
+      "category": "Fundamental Concepts",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Kiro is capable of editing files and executing terminal commands directly in the development environment.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Kiro has file editing capabilities, terminal command execution, and CLI automation assistance, working directly in the developer's environment.",
+      "sourceUrl": "https://kiro.dev/docs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "kb-003",
+      "category": "Fundamental Concepts",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "You are starting a new project and want Kiro to help structure the architecture. Which approach is most appropriate?",
+      "options": [
+        { "id": "a", "label": "Ask Kiro to create a Spec with requirements, design, and tasks before implementing" },
+        { "id": "b", "label": "Ask for a Spec with only the task list, skipping requirements and design to start coding sooner" },
+        { "id": "c", "label": "Create a Steering file with the desired architecture and request direct implementation without a Spec" },
+        { "id": "d", "label": "Activate an architecture Skill and ask it to generate all the code at once without incremental steps" }
+      ],
+      "explanation": "Kiro works best when used to plan before implementing. The Specs workflow allows defining requirements, creating a design, and generating incremental tasks, resulting in more structured and correct code.",
+      "sourceUrl": "https://kiro.dev/docs/specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "kb-004",
+      "category": "Fundamental Concepts",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "You need to develop a feature involving complex business rules. Arrange the Kiro workflow steps in the correct order:",
+      "options": [
+        { "id": "step-1", "label": "Define requirements and acceptance criteria" },
+        { "id": "step-2", "label": "Create the design document with architecture" },
+        { "id": "step-3", "label": "Generate implementation tasks" },
+        { "id": "step-4", "label": "Execute tasks incrementally with verification" }
+      ],
+      "explanation": "The Kiro workflow follows a structured progression: first define requirements, then create the design, generate tasks, and finally execute each task with continuous verification.",
+      "sourceUrl": "https://kiro.dev/docs/specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "stage": "feature-specs",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "fs-001",
+      "category": "Feature Specs",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What is the difference between the Requirements-First and Design-First flows in Feature Specs?",
+      "options": [
+        { "id": "a", "label": "Requirements-First starts with requirements; Design-First starts with technical architecture" },
+        { "id": "b", "label": "Requirements-First is for small projects; Design-First is for large projects" },
+        { "id": "c", "label": "Requirements-First generates tests before code; Design-First generates code before tests" },
+        { "id": "d", "label": "There is no difference, they are alternative names for the same flow" }
+      ],
+      "explanation": "In the Requirements-First flow, you define requirements and acceptance criteria before the design. In Design-First, you start with the technical architecture and then derive requirements from it.",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "fs-002",
+      "category": "Feature Specs",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "In a Feature Spec, the design document should include correctness properties that can be verified by property-based tests.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "During the design phase of a Feature Spec, Kiro extracts correctness properties from EARS requirements. These properties define universal behaviors verifiable by property-based testing, serving as a bridge between human-readable specifications and machine-testable guarantees.",
+      "sourceUrl": "https://kiro.dev/docs/specs/correctness/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "fs-003",
+      "category": "Feature Specs",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "You are creating a Feature Spec and Kiro detected ambiguities in the requirements. What happens?",
+      "options": [
+        { "id": "a", "label": "Kiro presents clarifying questions and suggests automatic resolutions when possible" },
+        { "id": "b", "label": "Kiro resolves all ambiguities on its own, making assumptions, and proceeds to design without warning" },
+        { "id": "c", "label": "Kiro marks the ambiguous requirements as complete and excludes them from the final design" },
+        { "id": "d", "label": "Kiro blocks the spec until you manually rewrite all requirements from scratch" }
+      ],
+      "explanation": "When Kiro detects ambiguities in requirements, it uses the reasoning service to present clarifying questions. Self-resolvable items are included with recommended answers, while remaining questions are presented to the user.",
+      "sourceUrl": "https://kiro.dev/docs/specs/analyze-requirements/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "fs-004",
+      "category": "Feature Specs",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Arrange the steps of a Feature Spec workflow in the order they occur:",
+      "options": [
+        { "id": "step-1", "label": "Define requirements with user stories and acceptance criteria" },
+        { "id": "step-2", "label": "Create design document with architecture and components" },
+        { "id": "step-3", "label": "Generate plan of discrete and trackable tasks" },
+        { "id": "step-4", "label": "Execute tasks individually or in parallel" }
+      ],
+      "explanation": "The Feature Spec workflow follows three documented phases: Requirements (define requirements and acceptance criteria), Design (create architecture and technical decisions in design.md), and Tasks (generate discrete tasks in tasks.md). Task execution concludes the cycle with verifiable implementation.",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

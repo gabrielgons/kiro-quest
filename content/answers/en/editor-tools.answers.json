@@ -1,0 +1,13 @@
+{
+  "stage": "editor-tools",
+  "answers": [
+    { "questionId": "et-001", "correctAnswerId": "a" },
+    { "questionId": "et-002", "correctAnswerId": "true" },
+    { "questionId": "et-003", "correctAnswerId": "b" },
+    { "questionId": "et-004", "correctAnswerId": "true" },
+    { "questionId": "et-005", "correctAnswerId": "a" },
+    { "questionId": "et-006", "correctAnswerId": "b" },
+    { "questionId": "et-007", "correctAnswerId": "b" },
+    { "questionId": "et-008", "correctAnswerId": ["step-1", "step-2", "step-3", "step-4", "step-5", "step-6"] }
+  ]
+}

@@ -1,0 +1,72 @@
+{
+  "stage": "specs",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "sp-001",
+      "category": "Specs",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What is the main purpose of a Spec in Kiro?",
+      "options": [
+        { "id": "a", "label": "Define requirements, design, and implementation tasks in a structured way" },
+        { "id": "b", "label": "Store team conventions and standards, loading them automatically in every interaction" },
+        { "id": "c", "label": "Package documentation and MCP servers to expand Kiro's capabilities in a modular way" },
+        { "id": "d", "label": "Connect Kiro to external tools and services through a standardized protocol" }
+      ],
+      "explanation": "A Spec in Kiro is a structured document that defines requirements (requirements.md), design (design.md), and tasks (tasks.md), guiding implementation in an incremental and verifiable way.",
+      "sourceUrl": "https://kiro.dev/docs/specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sp-002",
+      "category": "Specs",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "A Spec in Kiro is composed of three main documents: requirements.md, design.md, and tasks.md.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Specs in Kiro follow a three-document structure: requirements.md for acceptance criteria, design.md for architecture and technical decisions, and tasks.md for the implementation plan.",
+      "sourceUrl": "https://kiro.dev/docs/specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sp-003",
+      "category": "Specs",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "You need to add an authentication feature to your project. Which Spec flow is most appropriate?",
+      "options": [
+        { "id": "a", "label": "Feature Spec: start with requirements, then design, and finally tasks" },
+        { "id": "b", "label": "Bugfix Spec: reproduce the missing behavior with a failing test before implementing" },
+        { "id": "c", "label": "Fast Task: implement authentication directly since it's a common and well-known requirement" }
+      ],
+      "explanation": "For new features, the Feature Spec flow is ideal as it allows defining clear requirements, designing the architecture, and generating incremental tasks before implementation.",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "sp-004",
+      "category": "Specs",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Arrange the steps of the Requirements-First flow of a Feature Spec:",
+      "options": [
+        { "id": "step-1", "label": "Write user stories and acceptance criteria" },
+        { "id": "step-2", "label": "Analyze requirements for ambiguities" },
+        { "id": "step-3", "label": "Create design document with architecture" },
+        { "id": "step-4", "label": "Generate incremental task plan" },
+        { "id": "step-5", "label": "Execute tasks with verification" }
+      ],
+      "explanation": "The Requirements-First flow follows the progression: define requirements → analyze ambiguities → create design → generate tasks → execute with verification. Each step informs the next.",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/requirements-first/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

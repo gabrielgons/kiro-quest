@@ -55,9 +55,10 @@ describe('Backwards-compatibility floor preserved (Property 8) — Validates Req
   describe('static index.html root fallback (Req 7.4)', () => {
     const indexHtml = readRepoFile('index.html');
 
-    it('is preserved as the generic pt-BR SPA shell fallback preview', () => {
+    it('is preserved as the generic SPA shell fallback preview', () => {
       // Generic, site-level preview metadata floor is intact.
-      expect(indexHtml).toContain('lang="pt-BR"');
+      // The lang attribute defaults to "en" since the app auto-detects locale at runtime.
+      expect(indexHtml).toMatch(/lang="(en|pt-BR)"/);
       expect(indexHtml).toMatch(/<meta\s+name="description"/i);
       expect(indexHtml).toContain('<title>KiroQuest</title>');
       // SPA shell still mounts the app — index.html is the fallback document.

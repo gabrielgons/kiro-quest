@@ -1,0 +1,55 @@
+{
+  "stage": "powers",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "pow-001",
+      "category": "Powers",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What are Powers in Kiro?",
+      "options": [
+        { "id": "a", "label": "Packages that combine documentation, workflow guides, and optionally MCP servers" },
+        { "id": "b", "label": "Automations that connect IDE events to agent actions" },
+        { "id": "c", "label": "Markdown guides that direct the agent's behavior in every interaction" },
+        { "id": "d", "label": "Reusable instructions that the user activates to load specific context on demand" }
+      ],
+      "explanation": "Powers are packages that combine documentation, workflow guides (steering files), and optionally MCP servers, providing expanded capabilities to Kiro in a modular way.",
+      "sourceUrl": "https://kiro.dev/docs/powers/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "pow-002",
+      "category": "Powers",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "From the user's perspective, Powers in Kiro are loaded automatically when Kiro detects relevant keywords, without the user needing to activate them manually.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "From the user's perspective, Powers activate transparently when Kiro detects relevant keywords in the conversation or task. Internally, the agent executes an activation process before using the Power's tools, but this happens automatically without user intervention.",
+      "sourceUrl": "https://kiro.dev/docs/powers/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "pow-003",
+      "category": "Powers",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Arrange the steps to use a Power in Kiro in the correct order:",
+      "options": [
+        { "id": "step-1", "label": "Install the desired Power (marketplace, GitHub, or local)" },
+        { "id": "step-2", "label": "Mention relevant keywords in the conversation or task" },
+        { "id": "step-3", "label": "Kiro automatically loads the Power's context and tools" },
+        { "id": "step-4", "label": "Use the tools made available in the interaction" }
+      ],
+      "explanation": "From the user's perspective, the flow is: install the Power, mention relevant keywords in conversation, Kiro evaluates and automatically loads the relevant Power (internally executing activation), and then tools become available for use.",
+      "sourceUrl": "https://kiro.dev/docs/powers/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

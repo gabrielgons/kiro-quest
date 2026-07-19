@@ -1,0 +1,9 @@
+{
+  "stage": "steering",
+  "answers": [
+    { "questionId": "st-001", "correctAnswerId": "a" },
+    { "questionId": "st-002", "correctAnswerId": "true" },
+    { "questionId": "st-003", "correctAnswerId": "a" },
+    { "questionId": "st-004", "correctAnswerId": ["step-1", "step-2", "step-3", "step-4"] }
+  ]
+}

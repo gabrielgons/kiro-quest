@@ -1,0 +1,12 @@
+{
+  "stage": "kiro-web",
+  "answers": [
+    { "questionId": "web-001", "correctAnswerId": "a" },
+    { "questionId": "web-002", "correctAnswerId": "true" },
+    { "questionId": "web-003", "correctAnswerId": "a" },
+    { "questionId": "web-004", "correctAnswerId": "a" },
+    { "questionId": "web-005", "correctAnswerId": "a" },
+    { "questionId": "web-006", "correctAnswerId": "true" },
+    { "questionId": "web-007", "correctAnswerId": ["step-1", "step-2", "step-3", "step-4"] }
+  ]
+}

@@ -1,0 +1,11 @@
+{
+  "stage": "custom-agents",
+  "answers": [
+    { "questionId": "ca-001", "correctAnswerId": "a" },
+    { "questionId": "ca-002", "correctAnswerId": "false" },
+    { "questionId": "ca-003", "correctAnswerId": "b" },
+    { "questionId": "ca-004", "correctAnswerId": "b" },
+    { "questionId": "ca-005", "correctAnswerId": "b" },
+    { "questionId": "ca-006", "correctAnswerId": "b" }
+  ]
+}

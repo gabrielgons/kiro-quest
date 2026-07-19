@@ -1,0 +1,106 @@
+{
+  "stage": "custom-agents",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "ca-001",
+      "category": "Custom Agents",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What are Custom Agents in Kiro?",
+      "options": [
+        { "id": "a", "label": "Configurable specialized agents that maintain their own context and can be optimized for specific domains" },
+        { "id": "b", "label": "Automation scripts that run in the background without user interaction" },
+        { "id": "c", "label": "Third-party extensions installed via the editor's marketplace" },
+        { "id": "d", "label": "Saved prompt templates for reuse in future conversations" }
+      ],
+      "explanation": "Custom Agents are configurable specialized agents that maintain their own context and can be optimized for specific domains like frontend, backend, code review, and more. Each agent has its own system prompt and settings.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-002",
+      "category": "Custom Agents",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Custom Agents share the same context as the main chat session.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Each Custom Agent maintains its own isolated context. This is one of the main advantages of Custom Agents: avoiding context pollution between different domains, keeping each agent focused on its area of specialization.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-003",
+      "category": "Custom Agents",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "Where are Custom Agents configured in a Kiro project?",
+      "options": [
+        { "id": "a", "label": "In the editor's settings.json file" },
+        { "id": "b", "label": "In the .kiro/agents/ directory of the project, in configuration files" },
+        { "id": "c", "label": "In the Kiro global preferences panel" },
+        { "id": "d", "label": "In the project's package.json file, in the 'kiro' section" }
+      ],
+      "explanation": "Custom Agents are configured in the .kiro/agents/ directory of the project. Each agent has its own configuration file that defines its system prompt, available tools, and scope of action.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-004",
+      "category": "Custom Agents",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Your team has a React frontend and a Python backend. The agent's context is overloaded with tools from both. How to solve this?",
+      "options": [
+        { "id": "a", "label": "Increase the context token limit in settings" },
+        { "id": "b", "label": "Create separate subagents: a frontend-agent with browser/component tools and a backend-agent with database/API docs" },
+        { "id": "c", "label": "Manually switch between different projects in the editor" },
+        { "id": "d", "label": "Use .kiroignore to hide backend files when working on frontend" }
+      ],
+      "explanation": "The ideal solution is to create separate subagents: a frontend-agent optimized with browser tools and React components, and a backend-agent with database access and API documentation. Each agent maintains isolated context, avoiding overload.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-005",
+      "category": "Custom Agents",
+      "difficulty": "avançado",
+      "type": "multiple-choice",
+      "text": "What is the main difference between Custom Agents, Steering Files, and Skills in Kiro?",
+      "options": [
+        { "id": "a", "label": "There is no difference, they are just different names for the same feature" },
+        { "id": "b", "label": "Steering = always-active rules; Skills = on-demand knowledge; Custom Agents = complete agents with isolated context and own tools" },
+        { "id": "c", "label": "Skills are for frontend, Steering for backend, and Custom Agents for DevOps" },
+        { "id": "d", "label": "Custom Agents completely replace Steering Files and Skills when configured" }
+      ],
+      "explanation": "Each concept has a distinct role: Steering Files define rules that are always active in every interaction; Skills are knowledge packages activated on demand when needed; Custom Agents are complete agents with isolated context, own tools, and dedicated system prompt.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "ca-006",
+      "category": "Custom Agents",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "You want to create a code review agent that validates security standards automatically. Which approach is most appropriate?",
+      "options": [
+        { "id": "a", "label": "Add security rules in the project's global steering file" },
+        { "id": "b", "label": "Create a Custom Agent with a security-focused system prompt, configured in .kiro/agents/" },
+        { "id": "c", "label": "Install a security linting extension in the editor" },
+        { "id": "d", "label": "Create a hook that runs a security scanner after each commit" }
+      ],
+      "explanation": "The most appropriate approach is to create a dedicated Custom Agent for security code review, configured in .kiro/agents/. This agent will have a system prompt focused on security standards, with isolated context and specific tools for vulnerability analysis.",
+      "sourceUrl": "https://kiro.dev/docs/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    }
+  ]
+}

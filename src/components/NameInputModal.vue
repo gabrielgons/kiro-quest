@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, watch, nextTick, computed } from 'vue'
+import { useLocale } from '@/i18n/useLocale'
 
 const props = defineProps<{
   visible: boolean
@@ -11,6 +12,7 @@ const emit = defineEmits<{
   (e: 'close'): void
 }>()
 
+const { t } = useLocale()
 const MAX_LENGTH = 60
 
 const name = ref('')
@@ -130,14 +132,14 @@ function handleKeydown(event: KeyboardEvent): void {
         :aria-describedby="descriptionId"
         @keydown="handleKeydown"
       >
-        <h2 :id="titleId" class="modal-title">Personalize seu certificado</h2>
+        <h2 :id="titleId" class="modal-title">{{ t('certificate.title') }}</h2>
         <p :id="descriptionId" class="modal-description">
-          Digite seu nome para que ele apareça no certificado. Você também pode pular esta etapa.
+          {{ t('certificate.description') }}
         </p>
 
         <div class="modal-field">
           <label :for="'name-input-modal-field'" class="modal-label">
-            Seu nome
+            {{ t('certificate.nameLabel') }}
           </label>
           <input
             :id="'name-input-modal-field'"
@@ -149,13 +151,13 @@ function handleKeydown(event: KeyboardEvent): void {
             :maxlength="MAX_LENGTH"
             :aria-invalid="isTooLong"
             aria-describedby="name-input-modal-hint"
-            placeholder="Ex.: Maria Silva"
+            :placeholder="t('certificate.namePlaceholder')"
             autocomplete="name"
             @keydown.enter.prevent="handleConfirm"
           />
           <p id="name-input-modal-hint" class="modal-hint" :class="{ 'modal-hint--error': isTooLong }">
-            <span v-if="isTooLong">O nome deve ter no máximo {{ MAX_LENGTH }} caracteres.</span>
-            <span v-else>{{ name.length }}/{{ MAX_LENGTH }} caracteres</span>
+            <span v-if="isTooLong">{{ t('certificate.charLimit').replace('{max}', String(MAX_LENGTH)) }}</span>
+            <span v-else>{{ t('certificate.charCount').replace('{current}', String(name.length)).replace('{max}', String(MAX_LENGTH)) }}</span>
           </p>
         </div>
 
@@ -165,7 +167,7 @@ function handleKeydown(event: KeyboardEvent): void {
             class="modal-button modal-button--secondary"
             @click="handleSkip"
           >
-            Pular
+            {{ t('certificate.skip') }}
           </button>
           <button
             type="button"
@@ -173,7 +175,7 @@ function handleKeydown(event: KeyboardEvent): void {
             :disabled="!canConfirm"
             @click="handleConfirm"
           >
-            Confirmar
+            {{ t('certificate.confirm') }}
           </button>
         </div>
       </div>

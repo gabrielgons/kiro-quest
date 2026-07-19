@@ -1,0 +1,55 @@
+{
+  "stage": "real-world-workflows",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "rww-001",
+      "category": "Real-World Workflows",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What is the main advantage of using Specs before implementing a feature?",
+      "options": [
+        { "id": "a", "label": "Ensures alignment between requirements, design, and implementation before writing code" },
+        { "id": "b", "label": "Allows skipping the design phase since requirements contain all technical details" },
+        { "id": "c", "label": "Eliminates the need for automated tests because the Spec already validates all behavior" },
+        { "id": "d", "label": "Guarantees that the implementation won't need code review" }
+      ],
+      "explanation": "Using Specs before implementing ensures that requirements, design, and tasks are aligned, reducing rework and guaranteeing that implementation meets actual needs.",
+      "sourceUrl": "https://kiro.dev/docs/specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "rww-002",
+      "category": "Real-World Workflows",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "In a real workflow with Kiro, it is recommended to execute all tasks at once without intermediate verification.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "The recommended workflow is to execute tasks incrementally with verification after each step, ensuring that errors are detected early and don't propagate to subsequent tasks.",
+      "sourceUrl": "https://kiro.dev/docs/specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "rww-003",
+      "category": "Real-World Workflows",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Arrange the complete bugfix workflow with Kiro in the correct order:",
+      "options": [
+        { "id": "step-1", "label": "Investigate and identify the bug's root cause" },
+        { "id": "step-2", "label": "Write a test that reproduces the bug" },
+        { "id": "step-3", "label": "Implement the fix" },
+        { "id": "step-4", "label": "Verify the test passes with the fix" }
+      ],
+      "explanation": "The bugfix workflow with Kiro follows: investigate the root cause, write an exploration test that confirms the bug, implement the fix, and verify that the test now passes.",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

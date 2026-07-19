@@ -1,0 +1,72 @@
+{
+  "stage": "steering",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "st-001",
+      "category": "Steering",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What are Steering files in Kiro?",
+      "options": [
+        { "id": "a", "label": "Workflow guides that direct the agent's behavior for specific tasks" },
+        { "id": "b", "label": "Automations that trigger agent actions when IDE events occur, like saving a file" },
+        { "id": "c", "label": "Installable packages that bundle documentation and MCP servers to expand Kiro" },
+        { "id": "d", "label": "Specification documents that define requirements, design, and tasks for a feature" }
+      ],
+      "explanation": "Steering files are markdown documents that provide detailed instructions to Kiro on how to execute specific workflows. They direct the agent's behavior toward desired patterns and practices.",
+      "sourceUrl": "https://kiro.dev/docs/steering/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "st-002",
+      "category": "Steering",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Steering files can be defined both at the user level (~/.kiro/steering/) and at the workspace level (.kiro/steering/).",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Steering files can exist at two levels: in the user directory (~/.kiro/steering/) for personal settings, and in the workspace (.kiro/steering/) for settings shared with the team via version control.",
+      "sourceUrl": "https://kiro.dev/docs/steering/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "st-003",
+      "category": "Steering",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Your team wants Kiro to always follow a specific pattern when creating React components. Which approach is most appropriate?",
+      "options": [
+        { "id": "a", "label": "Create a Steering file in the workspace with the team's component conventions" },
+        { "id": "b", "label": "Create a Skill with the conventions and ask each developer to activate it manually before creating components" },
+        { "id": "c", "label": "Configure a Hook that rewrites the component to match the standard every time a file is saved" },
+        { "id": "d", "label": "Document conventions in a root README and trust that Kiro reads it automatically in every task" }
+      ],
+      "explanation": "Steering files in the workspace (.kiro/steering/) are the ideal way to define team conventions. They are loaded automatically and ensure consistency without the need to repeat instructions.",
+      "sourceUrl": "https://kiro.dev/docs/steering/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "st-004",
+      "category": "Steering",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Arrange the Steering inclusion types from most automatic to most manual:",
+      "options": [
+        { "id": "step-1", "label": "always inclusion - loaded in every interaction automatically" },
+        { "id": "step-2", "label": "auto inclusion - loaded on demand when Kiro detects relevance from the description" },
+        { "id": "step-3", "label": "fileMatch inclusion - loaded when file patterns match" },
+        { "id": "step-4", "label": "manual inclusion - loaded via #name reference by the user" }
+      ],
+      "explanation": "Steering files in Kiro have four inclusion modes, from most automatic to most manual: 'always' is loaded in every interaction (default); 'auto' uses name/description for Kiro to activate automatically when relevant; 'fileMatch' loads when matching file patterns are opened; and 'manual' requires explicit reference with #name by the user.",
+      "sourceUrl": "https://kiro.dev/docs/steering/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

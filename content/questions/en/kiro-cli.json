@@ -1,0 +1,122 @@
+{
+  "stage": "kiro-cli",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "cli-001",
+      "category": "Kiro CLI",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What is Kiro CLI?",
+      "options": [
+        { "id": "a", "label": "A terminal-based interface that allows using Kiro directly from the command line" },
+        { "id": "b", "label": "A VS Code exclusive plugin that replaces the integrated terminal" },
+        { "id": "c", "label": "A cloud computing service for running builds remotely" },
+        { "id": "d", "label": "An application performance monitoring tool" }
+      ],
+      "explanation": "Kiro CLI is the terminal-based interface of Kiro, allowing developers to interact with the agent directly from the command line without needing an IDE.",
+      "sourceUrl": "https://kiro.dev/docs/cli/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-06-15"
+    },
+    {
+      "id": "cli-002",
+      "category": "Kiro CLI",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Kiro CLI's headless mode allows non-interactive execution, ideal for CI/CD pipelines.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Kiro CLI's headless mode allows execution without human interaction, being ideal for automation in CI/CD pipelines where no interactive terminal is available.",
+      "sourceUrl": "https://kiro.dev/docs/cli/headless/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-06-15"
+    },
+    {
+      "id": "cli-003",
+      "category": "Kiro CLI",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "What is the function of custom agents in Kiro CLI?",
+      "options": [
+        { "id": "a", "label": "Allow creating specialized agents with custom instructions and tools for specific tasks" },
+        { "id": "b", "label": "Completely replace Kiro's default agent in all operations" },
+        { "id": "c", "label": "Are used exclusively to manage repository access permissions" },
+        { "id": "d", "label": "Function only as visual templates for the graphical interface" }
+      ],
+      "explanation": "Custom agents in Kiro CLI allow creating specialized agents with custom instructions and toolsets suited for specific tasks like code review, data migration, or security analysis.",
+      "sourceUrl": "https://kiro.dev/docs/cli/custom-agents/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-06-15"
+    },
+    {
+      "id": "cli-004",
+      "category": "Kiro CLI",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "A team needs to integrate Kiro into their CI pipeline for automatic PR reviews. Which approach correctly uses the Agent Communication Protocol (ACP)?",
+      "options": [
+        { "id": "a", "label": "Configure Kiro CLI in headless mode with ACP to receive instructions via standardized protocol and return structured results to the pipeline" },
+        { "id": "b", "label": "Install Kiro as a browser extension so reviewers can access it via web interface" },
+        { "id": "c", "label": "Create a custom webhook that sends emails with review suggestions" },
+        { "id": "d", "label": "Run Kiro manually on each developer's machine before opening the PR" }
+      ],
+      "explanation": "The Agent Communication Protocol (ACP) is the standardized protocol that allows Kiro CLI to communicate with external systems in a structured way, ideal for CI/CD pipeline integrations where the agent needs to receive instructions and return results programmatically.",
+      "sourceUrl": "https://kiro.dev/docs/cli/acp/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-06-15"
+    },
+    {
+      "id": "cli-005",
+      "category": "Kiro CLI",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "What are the effort levels available in Kiro CLI?",
+      "options": [
+        { "id": "a", "label": "Low, medium, and high - controlling the depth of analysis and amount of changes" },
+        { "id": "b", "label": "Basic, standard, and premium - defining the user's subscription plan" },
+        { "id": "c", "label": "Fast, normal, and slow - adjusting the agent's response speed" },
+        { "id": "d", "label": "Single, batch, and parallel - determining how many files are processed simultaneously" }
+      ],
+      "explanation": "The effort levels (low, medium, and high) in Kiro CLI control the depth of analysis and the amount of changes the agent makes, allowing behavior to be adjusted based on task complexity.",
+      "sourceUrl": "https://kiro.dev/docs/cli/chat/effort/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-06-15"
+    },
+    {
+      "id": "cli-006",
+      "category": "Kiro CLI",
+      "difficulty": "avançado",
+      "type": "true-false",
+      "text": "Session management in Kiro CLI allows resuming previous conversations while maintaining the complete interaction context.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Kiro CLI supports session management, allowing users to resume previous sessions with all context preserved, facilitating long-running work that spans multiple interactions.",
+      "sourceUrl": "https://kiro.dev/docs/cli/chat/session-management/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-06-15"
+    },
+    {
+      "id": "cli-007",
+      "category": "Kiro CLI",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Arrange the layers of Kiro CLI's permission model from most restrictive to most permissive:",
+      "options": [
+        { "id": "step-1", "label": "Read-only mode - analysis only without modifications" },
+        { "id": "step-2", "label": "File-based permissions - access restricted to specific files" },
+        { "id": "step-3", "label": "Directory permissions - access to selected directories" },
+        { "id": "step-4", "label": "Git-aware selection - permissions based on repository context" },
+        { "id": "step-5", "label": "Full workspace access - all operations permitted" }
+      ],
+      "explanation": "Kiro CLI's permission model operates in progressive layers: from read-only (most restrictive), through granular file and directory permissions, intelligent Git-context-based permissions (git-aware selection), to full workspace access (most permissive).",
+      "sourceUrl": "https://kiro.dev/docs/cli/chat/permissions/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-06-15"
+    }
+  ]
+}

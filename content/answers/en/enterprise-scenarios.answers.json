@@ -1,0 +1,8 @@
+{
+  "stage": "enterprise-scenarios",
+  "answers": [
+    { "questionId": "es-001", "correctAnswerId": "a" },
+    { "questionId": "es-002", "correctAnswerId": "true" },
+    { "questionId": "es-003", "correctAnswerId": "a" }
+  ]
+}

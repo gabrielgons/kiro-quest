@@ -1,0 +1,73 @@
+{
+  "stage": "bugfix-specs",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "bf-001",
+      "category": "Bugfix Specs",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What is the main goal of a Bugfix Spec in Kiro?",
+      "options": [
+        { "id": "a", "label": "Reproduce the bug with an exploration test, identify the root cause, and implement the fix" },
+        { "id": "b", "label": "Apply the quickest fix possible and move on, without first reproducing the bug with a test" },
+        { "id": "c", "label": "Add temporary logs around the error to monitor it in production before taking action" },
+        { "id": "d", "label": "Write regression tests for the entire affected module before locating the bug's cause" }
+      ],
+      "explanation": "The Bugfix Spec uses the bug condition methodology: first write a test that reproduces the problem (expected to fail), then identify the root cause and implement a verifiable fix.",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "bf-002",
+      "category": "Bugfix Specs",
+      "difficulty": "intermediário",
+      "type": "true-false",
+      "text": "In the Bugfix Spec flow, the bug condition exploration test is expected to FAIL on unfixed code, confirming that the bug exists.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "The exploration test is designed to fail on buggy code. When the test fails, it confirms that the bug has been correctly reproduced. If the test passes unexpectedly, it means the bug may not be reproduced properly.",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "bf-003",
+      "category": "Bugfix Specs",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "You wrote an exploration test for a Bugfix Spec, but the test passed unexpectedly. What does this indicate?",
+      "options": [
+        { "id": "a", "label": "The test is not reproducing the bug correctly, or the code has already been fixed" },
+        { "id": "b", "label": "You can proceed and implement the fix, since the green test already validates the spec" },
+        { "id": "c", "label": "It means the bug never existed and the problem report was incorrect" },
+        { "id": "d", "label": "The test environment is outdated and needs to be recreated from scratch" }
+      ],
+      "explanation": "When an exploration test passes unexpectedly, it means the test is not detecting the bug. Possible causes: the code already has a fix, the root cause is incorrect, or the test logic needs adjustment.",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    },
+    {
+      "id": "bf-004",
+      "category": "Bugfix Specs",
+      "difficulty": "avançado",
+      "type": "ordering",
+      "text": "Arrange the steps of the Bugfix Spec flow in the correct order:",
+      "options": [
+        { "id": "step-1", "label": "Investigate and identify the bug's root cause" },
+        { "id": "step-2", "label": "Write a bug condition exploration test" },
+        { "id": "step-3", "label": "Verify the test fails (confirms the bug)" },
+        { "id": "step-4", "label": "Implement the fix in the code" },
+        { "id": "step-5", "label": "Verify the test now passes (confirms the fix)" }
+      ],
+      "explanation": "The Bugfix Spec flow follows: investigate root cause → write exploration test → confirm failure (bug exists) → implement fix → confirm test passes (bug fixed).",
+      "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-01-15"
+    }
+  ]
+}

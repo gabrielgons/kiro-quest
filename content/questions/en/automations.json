@@ -1,0 +1,106 @@
+{
+  "stage": "automations",
+  "locale": "en",
+  "questions": [
+    {
+      "id": "au-001",
+      "category": "Cloud Automations",
+      "difficulty": "iniciante",
+      "type": "multiple-choice",
+      "text": "What are Automations in Kiro Web?",
+      "options": [
+        { "id": "a", "label": "Automated recurring tasks that run in a cloud sandbox, cloning repos and opening PRs with changes" },
+        { "id": "b", "label": "Local scripts that execute on the developer's terminal at scheduled times" },
+        { "id": "c", "label": "CI/CD workflows configured directly in GitHub Actions" },
+        { "id": "d", "label": "Keyboard macros that automate command sequences in the editor" }
+      ],
+      "explanation": "Automations in Kiro Web are automated recurring tasks that run in a cloud sandbox. They clone repositories, execute user-defined tasks, and automatically open Pull Requests with the changes made.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-002",
+      "category": "Cloud Automations",
+      "difficulty": "iniciante",
+      "type": "true-false",
+      "text": "Automations execute tasks in the developer's local machine sandbox.",
+      "options": [
+        { "id": "true", "label": "True" },
+        { "id": "false", "label": "False" }
+      ],
+      "explanation": "Automations run in a cloud sandbox, completely isolated from the developer's local environment. This ensures security, reproducibility, and allows execution even when the developer's machine is not running.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-003",
+      "category": "Cloud Automations",
+      "difficulty": "intermediário",
+      "type": "multiple-choice",
+      "text": "What is the final result of an Automation execution?",
+      "options": [
+        { "id": "a", "label": "A PDF report sent via email to the team" },
+        { "id": "b", "label": "A Pull Request is automatically opened with the changes made" },
+        { "id": "c", "label": "A direct commit to the main branch without review" },
+        { "id": "d", "label": "A Slack notification with a summary of suggested changes" }
+      ],
+      "explanation": "The final result of an Automation execution is a Pull Request automatically opened with the changes made. This maintains the code review flow and allows the team to review changes before merging.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-004",
+      "category": "Cloud Automations",
+      "difficulty": "intermediário",
+      "type": "scenario",
+      "text": "Your documentation becomes outdated every week after merges to main. How to use Automations to solve this?",
+      "options": [
+        { "id": "a", "label": "Configure a postToolUse hook that updates docs after each edit" },
+        { "id": "b", "label": "Create an Automation with a weekly schedule that checks gaps between code and documentation, opening a PR with updates" },
+        { "id": "c", "label": "Add a rule in the steering file to always update docs" },
+        { "id": "d", "label": "Create a GitHub Action that blocks merges without updated docs" }
+      ],
+      "explanation": "The ideal solution is to create an Automation with a daily or weekly schedule that checks gaps between changed code in main and existing documentation, automatically opening a PR when something needs updating.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-005",
+      "category": "Cloud Automations",
+      "difficulty": "avançado",
+      "type": "multiple-choice",
+      "text": "How many schedules can be configured per Automation and which formats are accepted?",
+      "options": [
+        { "id": "a", "label": "Only 1 schedule per automation, only in cron format" },
+        { "id": "b", "label": "Up to 3 schedules per automation, only with built-in options (daily, weekly, monthly)" },
+        { "id": "c", "label": "Up to 5 schedules per automation, accepting built-in options (daily, weekly) or custom cron expressions" },
+        { "id": "d", "label": "Unlimited schedules per automation, but only in ISO 8601 format" }
+      ],
+      "explanation": "Each Automation supports up to 5 schedules, offering flexibility in configuration. Accepted formats include simplified built-in options (like daily and weekly) and custom cron expressions for greater control over execution times.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    },
+    {
+      "id": "au-006",
+      "category": "Cloud Automations",
+      "difficulty": "avançado",
+      "type": "scenario",
+      "text": "You want to detect files changed in main without test coverage and automatically generate tests every Tuesday. How to configure?",
+      "options": [
+        { "id": "a", "label": "Create a hook that runs a coverage report after each push" },
+        { "id": "b", "label": "Configure a GitHub Action with a cron schedule for Tuesdays" },
+        { "id": "c", "label": "Create an Automation selecting the repo, describing the task to detect files without coverage, and configuring a cron schedule for every Tuesday" },
+        { "id": "d", "label": "Add a skill that analyzes coverage when manually invoked" }
+      ],
+      "explanation": "The ideal configuration uses Automations: select the repository, describe the task (detect changed files without test coverage and generate necessary tests), and configure the schedule with a cron expression for execution every Tuesday.",
+      "sourceUrl": "https://kiro.dev/docs/web/automations/",
+      "reviewStatus": "reviewed",
+      "lastReviewedDate": "2025-07-01"
+    }
+  ]
+}
