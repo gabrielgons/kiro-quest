@@ -25,6 +25,16 @@
     <link rel="apple-touch-icon" href="/icon.svg" />
 
     <title>KiroQuest</title>
+    <!-- Sync lang attribute with persisted locale before app mounts (avoids flash of wrong lang) -->
+    <script>
+      (function(){
+        try {
+          var s = localStorage.getItem('kiroquest-locale');
+          if (s === 'pt-BR') document.documentElement.lang = 'pt-BR';
+          else if (!s && navigator.language && navigator.language.startsWith('pt')) document.documentElement.lang = 'pt-BR';
+        } catch(e){}
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>

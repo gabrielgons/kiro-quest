@@ -44,7 +44,7 @@ function detectInitialLocale(): Locale {
 }
 
 // Shared reactive state across all composable instances
-const activeLocale: Ref<string> = ref(detectInitialLocale())
+const activeLocale: Ref<Locale> = ref(detectInitialLocale())
 
 /**
  * Vue composable for accessing localized UI strings.
@@ -64,10 +64,16 @@ export function useLocale() {
    * Set the active locale and persist the choice.
    * If messages for the locale are already loaded, reuses them.
    * Accepts any string to allow future extensibility and testing.
+   * Validates that messages exist (or are provided) before switching.
    */
   function setLocale(newLocale: Locale | string, messages?: LocaleMessages): void {
     if (messages) {
       loadedMessages[newLocale] = messages
+    } else if (!loadedMessages[newLocale]) {
+      if (import.meta.env.DEV) {
+        console.warn(`[i18n] Locale "${newLocale}" has no loaded messages. Ignoring.`)
+      }
+      return
     }
     activeLocale.value = newLocale as Locale
 

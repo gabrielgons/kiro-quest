@@ -139,6 +139,9 @@ function getAnswerMapForLocale(currentLocale: string): Map<string, AnswerKey> {
 
 // Extract the reactive locale ref once at module level to avoid recreating
 // the composable return object on every store method call.
+// NOTE: This is safe because useLocale() uses module-scoped ref() state (not
+// provide/inject or component lifecycle hooks). The ref is shared across all
+// callers regardless of whether they are inside a Vue setup() context.
 const { locale: activeLocale } = useLocale();
 
 /**

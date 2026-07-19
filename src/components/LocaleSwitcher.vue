@@ -9,6 +9,7 @@ function toggleLocale() {
   const newLocale: Locale = locale.value === 'pt-BR' ? 'en' : 'pt-BR';
   setLocale(newLocale);
   announcement.value = newLocale === 'en' ? 'Language changed to English' : 'Idioma alterado para Português';
+  setTimeout(() => { announcement.value = ''; }, 1000);
 }
 </script>
 
