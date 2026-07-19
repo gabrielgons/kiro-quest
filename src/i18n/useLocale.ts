@@ -125,11 +125,13 @@ export function useLocale() {
       return key
     }
 
-    // Interpolate parameters: replace {paramName} with value
+    // Interpolate parameters: replace all occurrences of {paramName} with value
     if (params) {
+      let result = value
       for (const [k, v] of Object.entries(params)) {
-        value = value.replace(`{${k}}`, String(v))
+        result = result.split(`{${k}}`).join(String(v))
       }
+      return result
     }
 
     return value

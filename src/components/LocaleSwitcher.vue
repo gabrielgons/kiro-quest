@@ -1,11 +1,14 @@
 <script setup lang="ts">
+import { ref } from 'vue';
 import { useLocale, type Locale } from '@/i18n/useLocale';
 
 const { locale, setLocale } = useLocale();
+const announcement = ref('');
 
 function toggleLocale() {
   const newLocale: Locale = locale.value === 'pt-BR' ? 'en' : 'pt-BR';
   setLocale(newLocale);
+  announcement.value = newLocale === 'en' ? 'Language changed to English' : 'Idioma alterado para Português';
 }
 </script>
 
@@ -19,6 +22,7 @@ function toggleLocale() {
     <span class="locale-flag" aria-hidden="true">{{ locale === 'pt-BR' ? '🇧🇷' : '🇺🇸' }}</span>
     <span class="locale-label">{{ locale === 'pt-BR' ? 'PT' : 'EN' }}</span>
   </button>
+  <span class="sr-only" aria-live="polite" aria-atomic="true">{{ announcement }}</span>
 </template>
 
 <style scoped>
@@ -55,5 +59,16 @@ function toggleLocale() {
 
 .locale-label {
   letter-spacing: 0.5px;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  border: 0;
 }
 </style>

@@ -123,7 +123,7 @@ function sortByDifficulty(questions: QuestionPresentation[]): QuestionPresentati
 
 /**
  * Pure helper: get questions for a given locale string, falling back to pt-BR.
- * Kept pure/testable — composable call happens at the store method boundary.
+ * Kept pure/testable — reactive locale ref is read at the store method boundary.
  */
 function getQuestionsForLocale(currentLocale: string): QuestionPresentation[] {
   return questionsByLocale[currentLocale] ?? questionsByLocale['pt-BR'] ?? [];
@@ -131,11 +131,15 @@ function getQuestionsForLocale(currentLocale: string): QuestionPresentation[] {
 
 /**
  * Pure helper: get answer map for a given locale string, falling back to pt-BR.
- * Kept pure/testable — composable call happens at the store method boundary.
+ * Kept pure/testable — reactive locale ref is read at the store method boundary.
  */
 function getAnswerMapForLocale(currentLocale: string): Map<string, AnswerKey> {
   return answersByLocale[currentLocale] ?? answersByLocale['pt-BR'] ?? new Map();
 }
+
+// Extract the reactive locale ref once at module level to avoid recreating
+// the composable return object on every store method call.
+const { locale: activeLocale } = useLocale();
 
 /**
  * QuestionStore implementation providing access to question data bundled at build time.
@@ -162,8 +166,7 @@ export const questionStore = {
    * Locale-aware: returns questions for the current active locale.
    */
   getQuestionsForStage(stage: LearningStage): QuestionPresentation[] {
-    const { locale } = useLocale();
-    const allQuestions = getQuestionsForLocale(locale.value);
+    const allQuestions = getQuestionsForLocale(activeLocale.value);
     const stageQuestions = allQuestions.filter((q) => q.stage === stage);
     return sortByDifficulty(stageQuestions);
   },
@@ -173,8 +176,7 @@ export const questionStore = {
    * Locale-aware: searches in the current active locale.
    */
   getQuestionById(id: string): QuestionPresentation | undefined {
-    const { locale } = useLocale();
-    const allQuestions = getQuestionsForLocale(locale.value);
+    const allQuestions = getQuestionsForLocale(activeLocale.value);
     return allQuestions.find((q) => q.id === id);
   },
 
@@ -184,8 +186,7 @@ export const questionStore = {
    * Throws if no answer key is found for the given question ID.
    */
   getAnswerKey(questionId: string): AnswerKey {
-    const { locale } = useLocale();
-    const answerMap = getAnswerMapForLocale(locale.value);
+    const answerMap = getAnswerMapForLocale(activeLocale.value);
     const answer = answerMap.get(questionId);
     if (!answer) {
       throw new Error(`Answer key not found for question: ${questionId}`);
