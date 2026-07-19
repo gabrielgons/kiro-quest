@@ -156,8 +156,8 @@ function handleKeydown(event: KeyboardEvent): void {
             @keydown.enter.prevent="handleConfirm"
           />
           <p id="name-input-modal-hint" class="modal-hint" :class="{ 'modal-hint--error': isTooLong }">
-            <span v-if="isTooLong">{{ t('certificate.charLimit').replace('{max}', String(MAX_LENGTH)) }}</span>
-            <span v-else>{{ t('certificate.charCount').replace('{current}', String(name.length)).replace('{max}', String(MAX_LENGTH)) }}</span>
+            <span v-if="isTooLong">{{ t('certificate.charLimit', { max: MAX_LENGTH }) }}</span>
+            <span v-else>{{ t('certificate.charCount', { current: name.length, max: MAX_LENGTH }) }}</span>
           </p>
         </div>
 

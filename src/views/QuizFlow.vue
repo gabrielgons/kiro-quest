@@ -118,7 +118,7 @@ function handleNext() {
 
       <!-- Aria-live region for question updates -->
       <div aria-live="polite" class="sr-only">
-        {{ t('a11y.questionUpdate').replace('{current}', String(quizStore.currentQuestionIndex + 1)).replace('{total}', String(quizStore.questions.length)) }}
+        {{ t('a11y.questionUpdate', { current: quizStore.currentQuestionIndex + 1, total: quizStore.questions.length }) }}
       </div>
 
       <!-- Question text -->
