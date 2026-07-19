@@ -1,7 +1,9 @@
 <script setup lang="ts">
 import { useAuth } from '@/composables/useAuth';
+import { useLocale } from '@/i18n/useLocale';
 
 const { isConfigured, isAuthenticated, login, isLoading } = useAuth();
+const { t } = useLocale();
 </script>
 
 <template>
@@ -27,7 +29,7 @@ const { isConfigured, isAuthenticated, login, isLoading } = useAuth();
       <polyline points="10 17 15 12 10 7" />
       <line x1="15" y1="12" x2="3" y2="12" />
     </svg>
-    <span class="login-button__text">Entrar</span>
+    <span class="login-button__text">{{ t('login.button') }}</span>
   </button>
 </template>
 

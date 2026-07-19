@@ -32,6 +32,7 @@ import type {
   PerformanceLevel,
 } from '@/badges';
 import { useTheme } from '@/composables/useTheme';
+import { useLocale } from '@/i18n/useLocale';
 
 interface Props {
   /** Whether to generate a stage badge or a full completion certificate. */
@@ -65,6 +66,7 @@ const {
   cleanup,
 } = useBadgeCanvas();
 const { isDark } = useTheme();
+const { t } = useLocale();
 
 /** The most recently generated blob, retained for download/share actions. */
 const generatedBlob = ref<Blob | null>(null);
@@ -87,11 +89,11 @@ watch(isDark, () => {
   generatedBlob.value = null;
 });
 
-/** Default Portuguese label depending on the artifact type. */
+/** Button label depending on the artifact type (localized). */
 const buttonLabel = computed(
   () =>
     props.label ??
-    (props.type === 'badge' ? 'Compartilhar Conquista' : 'Gerar Certificado'),
+    (props.type === 'badge' ? t('share.shareAchievement') : t('share.generateCertificate')),
 );
 
 /** Canonical download filename for the current artifact. */
@@ -115,8 +117,8 @@ const shareText = computed(() => {
 /** Alt text for the generated image preview. */
 const previewAlt = computed(() =>
   props.type === 'badge'
-    ? 'Pré-visualização da conquista'
-    : 'Pré-visualização do certificado',
+    ? t('share.previewBadge')
+    : t('share.previewCertificate'),
 );
 
 /**
@@ -231,7 +233,7 @@ async function handleNativeShare(): Promise<void> {
     >
       <span v-if="isGenerating" class="generating">
         <span class="spinner" aria-hidden="true"></span>
-        Gerando...
+        {{ t('share.generating') }}
       </span>
       <span v-else>{{ buttonLabel }}</span>
     </button>
@@ -248,17 +250,17 @@ async function handleNativeShare(): Promise<void> {
           type="button"
           @click="handleNativeShare"
         >
-          Compartilhar
+          {{ t('share.share') }}
         </button>
         <button class="action-button download" type="button" @click="handleDownload">
-          Baixar
+          {{ t('share.download') }}
         </button>
         <button
           class="action-button linkedin"
           type="button"
           @click="handleLinkedIn"
         >
-          Adicionar ao LinkedIn
+          {{ t('share.addToLinkedIn') }}
         </button>
         <button
           class="action-button twitter"

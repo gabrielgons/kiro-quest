@@ -1,14 +1,17 @@
 <script setup lang="ts">
+import { useLocale } from '@/i18n/useLocale';
 import type { MistakeItem } from './types';
 
 defineProps<{
   mistakes: MistakeItem[];
 }>();
+
+const { t } = useLocale();
 </script>
 
 <template>
   <div class="mistake-review">
-    <h3 class="review-title">Revisão de erros</h3>
+    <h3 class="review-title">{{ t('review.title') }}</h3>
     <div
       v-for="(mistake, index) in mistakes"
       :key="index"
@@ -16,10 +19,10 @@ defineProps<{
     >
       <p class="mistake-question">{{ mistake.questionText }}</p>
       <p class="mistake-user-answer">
-        <span class="label">Sua resposta:</span> {{ mistake.userAnswerLabel }}
+        <span class="label">{{ t('review.yourAnswer') }}</span> {{ mistake.userAnswerLabel }}
       </p>
       <p class="mistake-correct-answer">
-        <span class="label">Resposta correta:</span> {{ mistake.correctAnswerLabel }}
+        <span class="label">{{ t('review.correctAnswer') }}</span> {{ mistake.correctAnswerLabel }}
       </p>
       <p class="mistake-explanation">{{ mistake.explanation }}</p>
       <a
@@ -29,7 +32,7 @@ defineProps<{
         rel="noopener noreferrer"
         class="source-link"
       >
-        Ver documentação
+        {{ t('feedback.source') }}
       </a>
     </div>
   </div>
