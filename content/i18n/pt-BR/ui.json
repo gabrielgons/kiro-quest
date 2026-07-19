@@ -131,5 +131,23 @@
   "certificate.charCount": "{current}/{max} caracteres",
   "certificate.skip": "Pular",
   "certificate.confirm": "Confirmar",
-  "certificate.generate": "Gerar Certificado"
+  "certificate.generate": "Gerar Certificado",
+
+  "review.title": "Revisão de erros",
+  "review.yourAnswer": "Sua resposta:",
+  "review.correctAnswer": "Resposta correta:",
+
+  "login.button": "Entrar",
+
+  "share.generating": "Gerando...",
+  "share.shareAchievement": "Compartilhar Conquista",
+  "share.generateCertificate": "Gerar Certificado",
+  "share.share": "Compartilhar",
+  "share.download": "Baixar",
+  "share.addToLinkedIn": "Adicionar ao LinkedIn",
+  "share.previewBadge": "Pré-visualização da conquista",
+  "share.previewCertificate": "Pré-visualização do certificado",
+
+  "user.profile": "Perfil",
+  "user.logout": "Sair"
 }

@@ -131,5 +131,23 @@
   "certificate.charCount": "{current}/{max} characters",
   "certificate.skip": "Skip",
   "certificate.confirm": "Confirm",
-  "certificate.generate": "Generate Certificate"
+  "certificate.generate": "Generate Certificate",
+
+  "review.title": "Error Review",
+  "review.yourAnswer": "Your answer:",
+  "review.correctAnswer": "Correct answer:",
+
+  "login.button": "Sign in",
+
+  "share.generating": "Generating...",
+  "share.shareAchievement": "Share Achievement",
+  "share.generateCertificate": "Generate Certificate",
+  "share.share": "Share",
+  "share.download": "Download",
+  "share.addToLinkedIn": "Add to LinkedIn",
+  "share.previewBadge": "Achievement preview",
+  "share.previewCertificate": "Certificate preview",
+
+  "user.profile": "Profile",
+  "user.logout": "Sign out"
 }

@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue';
+import { useLocale } from '@/i18n/useLocale';
 import type { AnswerResult } from '@/engine/types';
 import type { QuestionType } from '@/data/types';
 
@@ -8,6 +9,7 @@ defineProps<{
   questionType: QuestionType;
 }>();
 
+const { t } = useLocale();
 const feedbackRef = ref<HTMLElement | null>(null);
 
 onMounted(() => {
@@ -24,15 +26,15 @@ onMounted(() => {
     tabindex="-1"
   >
     <p class="feedback-title">
-      {{ result.isCorrect ? 'Correto!' : 'Incorreto' }}
+      {{ result.isCorrect ? t('feedback.correct') : t('feedback.incorrect') }}
     </p>
 
     <p v-if="!result.isCorrect && questionType !== 'ordering' && result.correctAnswerLabel" class="correct-answer">
-      Resposta correta: {{ result.correctAnswerLabel }}
+      {{ t('feedback.correctAnswer', { answer: result.correctAnswerLabel }) }}
     </p>
 
     <div v-if="!result.isCorrect && questionType === 'ordering' && result.correctOrderLabels" class="correct-order">
-      <p class="correct-order-title">Ordem correta:</p>
+      <p class="correct-order-title">{{ t('feedback.correctOrder') }}</p>
       <ol class="correct-order-list">
         <li v-for="(label, index) in result.correctOrderLabels" :key="index">
           {{ label }}
@@ -49,7 +51,7 @@ onMounted(() => {
       rel="noopener noreferrer"
       class="source-link"
     >
-      Ver documentação
+      {{ t('feedback.source') }}
     </a>
   </div>
 </template>
