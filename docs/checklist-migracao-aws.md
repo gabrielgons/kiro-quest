@@ -75,10 +75,11 @@
   cd infra
   npx cdk deploy KiroQuestAuthStack \
     -c googleClientId=SEU_GOOGLE_CLIENT_ID \
-    -c googleClientSecret=SEU_GOOGLE_CLIENT_SECRET \
+    -c googleClientSecretArn=arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:kiro-quest/google-client-secret \
     -c cognitoDomainPrefix=kiro-quest \
     --require-approval never
   ```
+  > ⚠️ **Nunca passe o Google Client Secret em plaintext via CLI.** Use o ARN do Secrets Manager conforme acima. O secret deve ser criado previamente no AWS Secrets Manager.
 - [ ] Anotar outputs: `UserPoolId`, `UserPoolClientId`, `CognitoDomain`
 - [ ] Configurar o frontend criando `.env.local` na raiz:
   ```
