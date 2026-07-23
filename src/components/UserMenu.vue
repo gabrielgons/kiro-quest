@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { ref, onMounted, onBeforeUnmount } from 'vue';
 import { useAuth } from '@/composables/useAuth';
+import { useLocale } from '@/i18n/useLocale';
 
 const { isConfigured, isAuthenticated, displayName, avatarUrl, logout } = useAuth();
+const { t } = useLocale();
 const isOpen = ref(false);
 const menuRef = ref<HTMLElement | null>(null);
 
@@ -76,14 +78,14 @@ onBeforeUnmount(() => {
         role="menuitem"
         @click="closeMenu"
       >
-        Perfil
+        {{ t('user.profile') }}
       </router-link>
       <button
         class="user-menu__item user-menu__item--danger"
         role="menuitem"
         @click="handleLogout"
       >
-        Sair
+        {{ t('user.logout') }}
       </button>
     </div>
   </div>

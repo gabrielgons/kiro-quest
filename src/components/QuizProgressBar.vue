@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { useLocale } from '@/i18n/useLocale';
 import type { DifficultyLevel } from '@/data/types';
 
 defineProps<{
@@ -7,13 +8,15 @@ defineProps<{
   stageName: string;
   difficulty: DifficultyLevel;
 }>();
+
+const { t } = useLocale();
 </script>
 
 <template>
-  <div class="quiz-progress-bar" :aria-label="`Progresso: pergunta ${current} de ${total}`">
+  <div class="quiz-progress-bar" :aria-label="t('a11y.progressBar', { current, total })">
     <div class="progress-info">
       <span class="stage-name">{{ stageName }}</span>
-      <span class="difficulty-badge" :class="`difficulty-${difficulty}`">{{ difficulty }}</span>
+      <span class="difficulty-badge" :class="`difficulty-${difficulty}`">{{ t(`difficulty.${difficulty}`) }}</span>
     </div>
     <div class="progress-indicator">
       <span class="progress-text">{{ current }} / {{ total }}</span>
