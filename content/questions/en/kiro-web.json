@@ -107,15 +107,14 @@
       "type": "ordering",
       "text": "Arrange the internet access levels of the Kiro Web sandbox from most restrictive to most permissive:",
       "options": [
-        { "id": "step-1", "label": "No access - sandbox completely isolated from the internet" },
-        { "id": "step-2", "label": "Repository only - access only to the connected repository" },
-        { "id": "step-3", "label": "Common dependencies - access to allowed package registries (npm, PyPI, Maven)" },
-        { "id": "step-4", "label": "Open internet - full unrestricted internet access" }
+        { "id": "step-1", "label": "Connections access only - access only via the connections proxy (GitHub/GitLab)" },
+        { "id": "step-2", "label": "Common dependencies - access to allowed package registries (npm, PyPI, Maven)" },
+        { "id": "step-3", "label": "Open internet - full unrestricted internet access" }
       ],
-      "explanation": "The Kiro Web sandbox offers progressive internet access levels: fully isolated, repository-only access (integrations), access to common package registries (dependencies), and full open internet. Authentication is managed via Identity Center.",
+      "explanation": "The Kiro Web sandbox offers three progressive internet access levels: 'Connections access only' allows access only via the connections proxy (GitHub/GitLab); 'Common dependencies' adds access to common package registries; and 'Open internet' allows full unrestricted access.",
       "sourceUrl": "https://kiro.dev/docs/web/sandbox/internet-access/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2025-07-19"
     }
   ]
 }

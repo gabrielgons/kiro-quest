@@ -58,15 +58,15 @@
       "type": "scenario",
       "text": "Uma equipe precisa integrar o Kiro em seu pipeline de CI para revisão automática de PRs. Qual abordagem utiliza corretamente o Agent Communication Protocol (ACP)?",
       "options": [
-        { "id": "a", "label": "Configurar o Kiro CLI em modo headless com ACP para receber instruções via protocolo padronizado e retornar resultados estruturados ao pipeline" },
+        { "id": "a", "label": "Configurar o Kiro CLI em modo headless com ACP, um protocolo aberto que permite editores compatíveis (JetBrains, Zed) usarem o Kiro como agente backend" },
         { "id": "b", "label": "Instalar o Kiro como extensão do navegador para que revisores acessem via interface web" },
         { "id": "c", "label": "Criar um webhook customizado que envia emails com sugestões de revisão" },
         { "id": "d", "label": "Executar o Kiro manualmente em cada máquina de desenvolvedor antes de abrir o PR" }
       ],
-      "explanation": "O Agent Communication Protocol (ACP) é o protocolo padronizado que permite ao Kiro CLI se comunicar com sistemas externos de forma estruturada, ideal para integrações em pipelines de CI/CD onde o agente precisa receber instruções e retornar resultados de forma programática.",
+      "explanation": "O Agent Client Protocol (ACP) é um padrão aberto que permite ao Kiro CLI funcionar como agente backend para editores compatíveis como JetBrains IDEs e Zed. No modo headless, pode ser usado em pipelines de CI/CD para automação de tarefas.",
       "sourceUrl": "https://kiro.dev/docs/cli/acp/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "cli-005",
@@ -75,15 +75,15 @@
       "type": "multiple-choice",
       "text": "Quais são os níveis de esforço (effort levels) disponíveis no Kiro CLI?",
       "options": [
-        { "id": "a", "label": "Low, medium e high - controlando a profundidade de análise e quantidade de alterações" },
+        { "id": "a", "label": "Low, medium, high, xhigh e max" },
         { "id": "b", "label": "Basic, standard e premium - definindo o plano de assinatura do usuário" },
         { "id": "c", "label": "Fast, normal e slow - ajustando a velocidade de resposta do agente" },
         { "id": "d", "label": "Single, batch e parallel - determinando quantos arquivos são processados simultaneamente" }
       ],
-      "explanation": "Os effort levels (low, medium e high) no Kiro CLI controlam a profundidade de análise e a quantidade de alterações que o agente realiza, permitindo ajustar o comportamento conforme a complexidade da tarefa.",
+      "explanation": "Os effort levels (low, medium, high, xhigh e max) no Kiro CLI controlam a profundidade de raciocínio que o modelo aplica aos prompts. Níveis mais baixos produzem respostas mais rápidas e curtas, enquanto níveis mais altos gastam mais tokens em análise profunda e geração de código mais completa.",
       "sourceUrl": "https://kiro.dev/docs/cli/chat/effort/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "cli-006",
@@ -104,19 +104,18 @@
       "id": "cli-007",
       "category": "Kiro CLI",
       "difficulty": "avançado",
-      "type": "ordering",
-      "text": "Organize as camadas do modelo de permissões do Kiro CLI da mais restritiva para a mais permissiva:",
+      "type": "multiple-choice",
+      "text": "Como funciona o modelo de permissões do Kiro CLI em relação ao acesso a ferramentas?",
       "options": [
-        { "id": "step-1", "label": "Modo somente leitura - apenas análise sem modificações" },
-        { "id": "step-2", "label": "Permissões baseadas em arquivo - acesso restrito a arquivos específicos" },
-        { "id": "step-3", "label": "Permissões por diretório - acesso a diretórios selecionados" },
-        { "id": "step-4", "label": "Git-aware selection - permissões baseadas no contexto do repositório" },
-        { "id": "step-5", "label": "Acesso completo ao workspace - todas as operações permitidas" }
+        { "id": "a", "label": "Custom agents declaram categorias de ferramentas (read, write, shell, web, spec) e permissões inline no arquivo de configuração markdown" },
+        { "id": "b", "label": "Todas as ferramentas estão disponíveis por padrão e o usuário bloqueia as indesejadas via .kiroignore" },
+        { "id": "c", "label": "O administrador define permissões globais no painel do Kiro que se aplicam a todos os agentes" },
+        { "id": "d", "label": "Permissões são herdadas do sistema operacional e não podem ser customizadas" }
       ],
-      "explanation": "O modelo de permissões do Kiro CLI opera em camadas progressivas: desde somente leitura (mais restritivo), passando por permissões granulares por arquivo e diretório, permissões inteligentes baseadas no contexto Git (git-aware selection), até acesso completo ao workspace (mais permissivo).",
-      "sourceUrl": "https://kiro.dev/docs/cli/chat/permissions/",
+      "explanation": "No Kiro CLI, custom agents declaram categorias de ferramentas com tags simples como read, write, shell no arquivo de configuração markdown. Regras de permissão e servidores MCP são embutidos inline, e o arquivo pode ser compartilhado via controle de versão.",
+      "sourceUrl": "https://kiro.dev/docs/cli/custom-agents/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2025-07-19"
     }
   ]
 }

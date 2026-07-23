@@ -58,16 +58,15 @@
       "type": "ordering",
       "text": "Arrange the Hook event types from earliest to latest in the execution cycle:",
       "options": [
-        { "id": "step-1", "label": "promptSubmit (Prompt Submit) - when the user sends a prompt" },
-        { "id": "step-2", "label": "preTaskExecution (Pre Task Execution) - before starting a spec task" },
-        { "id": "step-3", "label": "preToolUse (Pre Tool Use) - before using a tool" },
-        { "id": "step-4", "label": "postToolUse (Post Tool Use) - after using a tool" },
-        { "id": "step-5", "label": "postTaskExecution (Post Task Execution) - after completing a spec task" }
+        { "id": "step-1", "label": "Prompt Submit - when the user sends a prompt" },
+        { "id": "step-2", "label": "Pre Tool Use - before the agent uses a tool" },
+        { "id": "step-3", "label": "Post Tool Use - after the agent uses a tool" },
+        { "id": "step-4", "label": "Agent Stop - when the agent finishes its response turn" }
       ],
-      "explanation": "The hook execution cycle follows: the user submits a prompt (`promptSubmit`), a spec task starts (`preTaskExecution`), tools are invoked (`preToolUse` / `postToolUse`), and the task completes (`postTaskExecution`). Each event allows automating actions at specific points in the cycle.",
+      "explanation": "The IDE hook execution cycle follows: the user submits a prompt (Prompt Submit), the agent invokes tools (Pre Tool Use / Post Tool Use intercept before and after each invocation), and finally the agent completes its turn (Agent Stop). File Save (fileEdited) is a separate event triggered when files are saved.",
       "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2025-07-19"
     }
   ]
 }

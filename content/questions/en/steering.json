@@ -58,15 +58,14 @@
       "type": "ordering",
       "text": "Arrange the Steering inclusion types from most automatic to most manual:",
       "options": [
-        { "id": "step-1", "label": "always inclusion - loaded in every interaction automatically" },
-        { "id": "step-2", "label": "auto inclusion - loaded on demand when Kiro detects relevance from the description" },
-        { "id": "step-3", "label": "fileMatch inclusion - loaded when file patterns match" },
-        { "id": "step-4", "label": "manual inclusion - loaded via #name reference by the user" }
+        { "id": "step-1", "label": "always inclusion - loaded in every interaction automatically (default)" },
+        { "id": "step-2", "label": "fileMatch inclusion - loaded when file patterns match" },
+        { "id": "step-3", "label": "manual inclusion - loaded via slash command by the user" }
       ],
-      "explanation": "Steering files in Kiro have four inclusion modes, from most automatic to most manual: 'always' is loaded in every interaction (default); 'auto' uses name/description for Kiro to activate automatically when relevant; 'fileMatch' loads when matching file patterns are opened; and 'manual' requires explicit reference with #name by the user.",
+      "explanation": "Steering files in Kiro have three inclusion modes, from most automatic to most manual: 'always' is the default and is loaded in every interaction; 'fileMatch' loads automatically when matching file patterns are opened; and 'manual' requires the user to explicitly select it via slash command.",
       "sourceUrl": "https://kiro.dev/docs/steering/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2025-07-19"
     }
   ]
 }

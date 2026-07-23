@@ -9,15 +9,15 @@
       "type": "multiple-choice",
       "text": "Quais são os níveis de acesso à rede configuráveis no sandbox do Kiro?",
       "options": [
-        { "id": "a", "label": "Três níveis: Integration Only (apenas GitHub proxy), Common Dependencies (registries como npm/PyPI/Maven), e Open Internet (acesso total)" },
+        { "id": "a", "label": "Três níveis: Connections access only (acesso apenas via proxy de conexões), Common Dependencies (registros como npm/PyPI/Maven), e Open Internet (acesso completo)" },
         { "id": "b", "label": "Apenas dois: modo offline e modo online com acesso irrestrito" },
         { "id": "c", "label": "Um único nível com firewall configurável por porta" },
         { "id": "d", "label": "Quatro níveis: Blocked, Limited, Standard e Premium" }
       ],
-      "explanation": "O Kiro oferece três níveis de acesso à rede: Integration Only (apenas proxy de integração com GitHub/GitLab), Common Dependencies (acesso a registries como npm, PyPI e Maven), e Open Internet (acesso total à internet). Também suporta domain allowlists customizadas para controle granular.",
+      "explanation": "O Kiro oferece três níveis de acesso à rede: Connections access only (acesso apenas via proxy de conexões com GitHub/GitLab), Common Dependencies (acesso a registries como npm, PyPI e Maven), e Open Internet (acesso total à internet). Também suporta domain allowlists customizadas para controle granular.",
       "sourceUrl": "https://kiro.dev/docs/privacy-and-security/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "ps-002",
