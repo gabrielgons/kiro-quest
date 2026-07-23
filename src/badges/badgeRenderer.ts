@@ -50,7 +50,14 @@ export function renderBadge(
   ctx: CanvasRenderingContext2D,
   options: BadgeRendererOptions,
 ): void {
-  const { stage, score, performanceLevel, theme, localizedStageName, localizedPerformanceLevel } = options;
+  const {
+    stage,
+    score,
+    performanceLevel,
+    theme,
+    localizedStageName,
+    localizedPerformanceLevel,
+  } = options;
   const design = BADGE_DESIGNS[stage];
 
   // Step 1: Draw rounded-rectangle gradient background using the stage's
