@@ -78,9 +78,11 @@ npx cdk deploy KiroQuestFrontendStack
 
 ```bash
 # Deploy do Auth Stack com credenciais do Google
+# IMPORTANT: Never pass the Google Client Secret in plaintext via CLI.
+# Store it in AWS Secrets Manager first, then reference the ARN.
 npx cdk deploy KiroQuestAuthStack \
   -c googleClientId=YOUR_GOOGLE_CLIENT_ID \
-  -c googleClientSecret=YOUR_GOOGLE_CLIENT_SECRET \
+  -c googleClientSecretArn=arn:aws:secretsmanager:us-east-1:ACCOUNT_ID:secret:kiro-quest/google-client-secret \
   -c cognitoDomainPrefix=kiro-quest
 ```
 
