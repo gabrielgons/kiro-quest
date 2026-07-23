@@ -33,14 +33,7 @@ import type {
 } from '@/badges';
 import { useTheme } from '@/composables/useTheme';
 import { useLocale } from '@/i18n/useLocale';
-
-/** Maps the internal PerformanceLevel value to the i18n translation key. */
-const PERFORMANCE_LEVEL_KEYS: Record<PerformanceLevel, string> = {
-  'Iniciante em Kiro': 'performance.iniciante',
-  'Praticante de Kiro': 'performance.praticante',
-  'Especialista em Kiro': 'performance.especialista',
-  'Mestre em Kiro': 'performance.mestre',
-};
+import { getPerformanceLevelKey } from '@/i18n/performanceLevelKeys';
 
 interface Props {
   /** Whether to generate a stage badge or a full completion certificate. */
@@ -74,7 +67,7 @@ const {
   cleanup,
 } = useBadgeCanvas();
 const { isDark } = useTheme();
-const { t } = useLocale();
+const { t, locale } = useLocale();
 
 /** The most recently generated blob, retained for download/share actions. */
 const generatedBlob = ref<Blob | null>(null);
@@ -148,7 +141,9 @@ async function handleGenerate(): Promise<void> {
       performanceLevel: props.performanceLevel,
       theme,
       localizedStageName: t(`stage.name.${props.stage}`),
-      localizedPerformanceLevel: t(PERFORMANCE_LEVEL_KEYS[props.performanceLevel]),
+      localizedPerformanceLevel: getPerformanceLevelKey(props.performanceLevel)
+        ? t(getPerformanceLevelKey(props.performanceLevel)!)
+        : props.performanceLevel,
     });
   } else {
     if (!props.stats || !props.performanceLevel) {
@@ -160,8 +155,11 @@ async function handleGenerate(): Promise<void> {
       performanceLevel: props.performanceLevel,
       completionDate: new Date(),
       theme,
-      localizedPerformanceLevel: t(PERFORMANCE_LEVEL_KEYS[props.performanceLevel]),
+      localizedPerformanceLevel: getPerformanceLevelKey(props.performanceLevel)
+        ? t(getPerformanceLevelKey(props.performanceLevel)!)
+        : props.performanceLevel,
       localizedLabels: {
+        locale: locale.value,
         title: t('certificate.completionTitle'),
         certifiesThat: t('certificate.certifiesThat'),
         completionMessage: t('certificate.completionMessage'),

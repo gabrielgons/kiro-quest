@@ -166,7 +166,8 @@ export function renderCertificate(
   // future: if a future date slips in from an external source, clamp it to now.
   const effectiveDate =
     completionDate.getTime() > Date.now() ? new Date() : completionDate;
-  const dateStr = effectiveDate.toLocaleDateString('pt-BR', {
+  const dateLocale = localizedLabels?.locale ?? 'pt-BR';
+  const dateStr = effectiveDate.toLocaleDateString(dateLocale, {
     day: '2-digit',
     month: 'long',
     year: 'numeric',

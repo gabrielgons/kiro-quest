@@ -86,6 +86,8 @@ export interface CertificateRendererOptions {
    * these override the hardcoded Portuguese defaults.
    */
   localizedLabels?: {
+    /** BCP 47 locale tag used for date formatting (e.g. 'en', 'pt-BR'). Defaults to 'pt-BR'. */
+    locale?: string;
     title?: string;
     certifiesThat?: string;
     completionMessage?: string;
