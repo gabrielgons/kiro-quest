@@ -52,7 +52,7 @@ export function renderCertificate(
   ctx: CanvasRenderingContext2D,
   options: CertificateRendererOptions,
 ): void {
-  const { userName, stats, performanceLevel, completionDate, theme } = options;
+  const { userName, stats, performanceLevel, completionDate, theme, localizedPerformanceLevel, localizedLabels } = options;
   const WIDTH = CERTIFICATE_WIDTH;
   const HEIGHT = CERTIFICATE_HEIGHT;
   const isDark = theme === 'dark';
@@ -85,7 +85,7 @@ export function renderCertificate(
   // Step 3: Draw title.
   drawCenteredText(
     ctx,
-    'Certificado de Conclusão',
+    localizedLabels?.title ?? 'Certificado de Conclusão',
     centerX,
     120,
     'bold 42px system-ui, sans-serif',
@@ -103,7 +103,7 @@ export function renderCertificate(
   // Step 5: Draw "certifies that" lead-in text.
   drawCenteredText(
     ctx,
-    'Certifica que',
+    localizedLabels?.certifiesThat ?? 'Certifica que',
     centerX,
     200,
     '20px system-ui, sans-serif',
@@ -121,10 +121,10 @@ export function renderCertificate(
     accentColor,
   );
 
-  // Step 7: Draw completion message (Portuguese).
+  // Step 7: Draw completion message.
   drawCenteredText(
     ctx,
-    'completou a trilha Kiro Quest com sucesso!',
+    localizedLabels?.completionMessage ?? 'completou a trilha Kiro Quest com sucesso!',
     centerX,
     320,
     '22px system-ui, sans-serif',
@@ -133,9 +133,12 @@ export function renderCertificate(
 
   // Step 8: Draw stats section.
   const statsFont = '18px system-ui, sans-serif';
+  const resultLabel = localizedLabels?.resultLabel ?? 'Resultado';
+  const levelLabel = localizedLabels?.levelLabel ?? 'Nível';
+  const modulesLabel = localizedLabels?.modulesLabel ?? 'Módulos completados';
   drawCenteredText(
     ctx,
-    `Resultado: ${stats.totalCorrect}/${stats.totalQuestions} (${stats.percentage}%)`,
+    `${resultLabel}: ${stats.totalCorrect}/${stats.totalQuestions} (${stats.percentage}%)`,
     centerX,
     400,
     statsFont,
@@ -143,7 +146,7 @@ export function renderCertificate(
   );
   drawCenteredText(
     ctx,
-    `Nível: ${performanceLevel}`,
+    `${levelLabel}: ${localizedPerformanceLevel ?? performanceLevel}`,
     centerX,
     435,
     statsFont,
@@ -151,14 +154,14 @@ export function renderCertificate(
   );
   drawCenteredText(
     ctx,
-    `Módulos completados: ${stats.completedStages}/${TOTAL_STAGES}`,
+    `${modulesLabel}: ${stats.completedStages}/${TOTAL_STAGES}`,
     centerX,
     470,
     statsFont,
     mutedColor,
   );
 
-  // Step 9: Draw completion date formatted in pt-BR locale.
+  // Step 9: Draw completion date formatted in the user's locale.
   // Enforce the design precondition that `completionDate` must not be in the
   // future: if a future date slips in from an external source, clamp it to now.
   const effectiveDate =
@@ -168,9 +171,10 @@ export function renderCertificate(
     month: 'long',
     year: 'numeric',
   });
+  const dateLabel = localizedLabels?.dateLabel ?? 'Data';
   drawCenteredText(
     ctx,
-    `Data: ${dateStr}`,
+    `${dateLabel}: ${dateStr}`,
     centerX,
     540,
     '16px system-ui, sans-serif',
@@ -188,7 +192,7 @@ export function renderCertificate(
   );
   drawCenteredText(
     ctx,
-    'Trilha de Aprendizado Kiro',
+    localizedLabels?.brandingSubtitle ?? 'Trilha de Aprendizado Kiro',
     centerX,
     730,
     '14px system-ui, sans-serif',

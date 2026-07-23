@@ -41,6 +41,18 @@ export interface BadgeRendererOptions {
   performanceLevel: PerformanceLevel;
   /** The active app theme, determining overlay/contrast styling. */
   theme: 'light' | 'dark';
+  /**
+   * Localized stage display name. When provided, this overrides the
+   * hardcoded `displayName` from BADGE_DESIGNS so the badge renders
+   * in the user's active locale.
+   */
+  localizedStageName?: string;
+  /**
+   * Localized performance level label. When provided, this overrides
+   * the raw `performanceLevel` value rendered on the badge so it
+   * displays in the user's active locale.
+   */
+  localizedPerformanceLevel?: string;
 }
 
 /**
@@ -63,6 +75,26 @@ export interface CertificateRendererOptions {
   completionDate: Date;
   /** The active app theme, determining background/text colors. */
   theme: 'light' | 'dark';
+  /**
+   * Localized performance level label. When provided, this overrides
+   * the raw `performanceLevel` value rendered on the certificate so it
+   * displays in the user's active locale.
+   */
+  localizedPerformanceLevel?: string;
+  /**
+   * Localized static text labels for the certificate. When provided,
+   * these override the hardcoded Portuguese defaults.
+   */
+  localizedLabels?: {
+    title?: string;
+    certifiesThat?: string;
+    completionMessage?: string;
+    resultLabel?: string;
+    levelLabel?: string;
+    modulesLabel?: string;
+    dateLabel?: string;
+    brandingSubtitle?: string;
+  };
 }
 
 /**

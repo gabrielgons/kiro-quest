@@ -34,6 +34,14 @@ import type {
 import { useTheme } from '@/composables/useTheme';
 import { useLocale } from '@/i18n/useLocale';
 
+/** Maps the internal PerformanceLevel value to the i18n translation key. */
+const PERFORMANCE_LEVEL_KEYS: Record<PerformanceLevel, string> = {
+  'Iniciante em Kiro': 'performance.iniciante',
+  'Praticante de Kiro': 'performance.praticante',
+  'Especialista em Kiro': 'performance.especialista',
+  'Mestre em Kiro': 'performance.mestre',
+};
+
 interface Props {
   /** Whether to generate a stage badge or a full completion certificate. */
   type: 'badge' | 'certificate';
@@ -139,6 +147,8 @@ async function handleGenerate(): Promise<void> {
       score: props.score,
       performanceLevel: props.performanceLevel,
       theme,
+      localizedStageName: t(`stage.name.${props.stage}`),
+      localizedPerformanceLevel: t(PERFORMANCE_LEVEL_KEYS[props.performanceLevel]),
     });
   } else {
     if (!props.stats || !props.performanceLevel) {
@@ -150,6 +160,17 @@ async function handleGenerate(): Promise<void> {
       performanceLevel: props.performanceLevel,
       completionDate: new Date(),
       theme,
+      localizedPerformanceLevel: t(PERFORMANCE_LEVEL_KEYS[props.performanceLevel]),
+      localizedLabels: {
+        title: t('certificate.completionTitle'),
+        certifiesThat: t('certificate.certifiesThat'),
+        completionMessage: t('certificate.completionMessage'),
+        resultLabel: t('certificate.resultLabel'),
+        levelLabel: t('certificate.levelLabel'),
+        modulesLabel: t('certificate.modulesLabel'),
+        dateLabel: t('certificate.dateLabel'),
+        brandingSubtitle: t('certificate.brandingSubtitle'),
+      },
     });
   }
 

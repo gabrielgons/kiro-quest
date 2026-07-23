@@ -50,7 +50,7 @@ export function renderBadge(
   ctx: CanvasRenderingContext2D,
   options: BadgeRendererOptions,
 ): void {
-  const { stage, score, performanceLevel, theme } = options;
+  const { stage, score, performanceLevel, theme, localizedStageName, localizedPerformanceLevel } = options;
   const design = BADGE_DESIGNS[stage];
 
   // Step 1: Draw rounded-rectangle gradient background using the stage's
@@ -84,10 +84,10 @@ export function renderBadge(
   // Subsequent text uses the alphabetic baseline for predictable layout.
   ctx.textBaseline = 'alphabetic';
 
-  // Step 4: Draw the stage display name.
+  // Step 4: Draw the stage display name (localized when available).
   drawCenteredText(
     ctx,
-    design.displayName,
+    localizedStageName ?? design.displayName,
     centerX,
     200,
     'bold 24px system-ui, sans-serif',
@@ -104,10 +104,10 @@ export function renderBadge(
     '#ffffff',
   );
 
-  // Step 6: Draw the performance level label.
+  // Step 6: Draw the performance level label (localized when available).
   drawCenteredText(
     ctx,
-    performanceLevel,
+    localizedPerformanceLevel ?? performanceLevel,
     centerX,
     320,
     '18px system-ui, sans-serif',

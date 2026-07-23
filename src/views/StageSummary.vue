@@ -107,7 +107,7 @@ function toggleMistakes() {
 
     <div v-if="stageResult" class="result-card">
       <p class="stage-name">{{ t(`stage.name.${stage}`) }}</p>
-      <p class="score">{{ stageResult.correctCount }} de {{ stageResult.totalCount }}</p>
+      <p class="score">{{ t('summary.score', { correctCount: stageResult.correctCount, totalCount: stageResult.totalCount }) }}</p>
 
       <!-- All correct congratulation -->
       <p v-if="allCorrect" class="congratulations">{{ t('summary.allCorrect') }}</p>
