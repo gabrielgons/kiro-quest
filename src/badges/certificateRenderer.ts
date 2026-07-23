@@ -52,7 +52,8 @@ export function renderCertificate(
   ctx: CanvasRenderingContext2D,
   options: CertificateRendererOptions,
 ): void {
-  const { userName, stats, performanceLevel, completionDate, theme, localizedPerformanceLevel, localizedLabels } = options;
+  const { userName, stats, performanceLevel, completionDate, theme } = options;
+  const { localizedPerformanceLevel, localizedLabels } = options;
   const WIDTH = CERTIFICATE_WIDTH;
   const HEIGHT = CERTIFICATE_HEIGHT;
   const isDark = theme === 'dark';

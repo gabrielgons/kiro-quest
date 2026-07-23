@@ -321,8 +321,6 @@ describe('Badge Renderer', () => {
       expect(drawnText).toContain('0/1');
     });
   });
-});
-
 
   // -------------------------------------------------------------------------
   // Localized badge rendering (i18n)
@@ -392,3 +390,4 @@ describe('Badge Renderer', () => {
       expect(drawnText).toContain('Iniciante em Kiro');
     });
   });
+});
