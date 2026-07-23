@@ -56,32 +56,32 @@
       "category": "Editor & Integrated Tools",
       "difficulty": "intermediário",
       "type": "true-false",
-      "text": "IDE Diagnostics integration reduced by 29% the need to run build/test commands during development.",
+      "text": "IDE Diagnostics integration helps reduce the need to run build/test commands by catching errors in real-time via the language server.",
       "options": [
         { "id": "true", "label": "True" },
         { "id": "false", "label": "False" }
       ],
-      "explanation": "Real data mentioned in the Kiro blog: IDE Diagnostics integration reduced by 29% the need to run build and test commands during development, since many errors are detected and fixed in real-time via language server.",
+      "explanation": "Data mentioned in the Kiro blog indicates that IDE Diagnostics integration reduced the need to run build and test commands during development, since many errors are detected and fixed in real-time via the language server.",
       "sourceUrl": "https://kiro.dev/docs/editor/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "et-005",
       "category": "Editor & Integrated Tools",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "The agent is generating code with type errors that only appear after running `npm run build`. Which feature resolves this automatically in less than 35ms?",
+      "text": "The agent is generating code with type errors that only appear after running `npm run build`. Which feature resolves this automatically with near-instant feedback?",
       "options": [
         { "id": "a", "label": "IDE Diagnostics / LSP integration that validates in real-time without running build" },
         { "id": "b", "label": "A postToolUse hook that runs the TypeScript compiler after each edit" },
         { "id": "c", "label": "Codebase indexing that pre-compiles all files in the background" },
         { "id": "d", "label": "A custom script in package.json that runs tsc --watch" }
       ],
-      "explanation": "IDE Diagnostics (LSP) integration validates generated code in less than 35ms, detecting type errors, missing imports, and inconsistencies without running the full build. This provides instant feedback to the agent for immediate correction.",
+      "explanation": "IDE Diagnostics (LSP) integration validates generated code in real-time, detecting type errors, missing imports, and inconsistencies without running the full build. This provides near-instant feedback to the agent for immediate correction.",
       "sourceUrl": "https://kiro.dev/docs/editor/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "et-006",
@@ -125,16 +125,16 @@
       "text": "Order the validation flow with IDE Diagnostics from start to finish:",
       "options": [
         { "id": "step-1", "label": "Generate code" },
-        { "id": "step-2", "label": "Check diagnostics (<35ms)" },
+        { "id": "step-2", "label": "Check diagnostics" },
         { "id": "step-3", "label": "Identify errors with line/description" },
         { "id": "step-4", "label": "Generate targeted fix" },
         { "id": "step-5", "label": "Revalidate via diagnostics" },
         { "id": "step-6", "label": "Proceed with validated code" }
       ],
-      "explanation": "The validation flow with IDE Diagnostics follows a logical sequence: first the agent generates code, then checks diagnostics in less than 35ms, identifies errors with line and description, generates a targeted fix for the problem, revalidates via diagnostics again, and only then proceeds with validated code.",
+      "explanation": "The validation flow with IDE Diagnostics follows a logical sequence: first the agent generates code, then checks diagnostics quickly, identifies errors with line and description, generates a targeted fix for the problem, revalidates via diagnostics again, and only then proceeds with validated code.",
       "sourceUrl": "https://kiro.dev/docs/editor/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     }
   ]
 }

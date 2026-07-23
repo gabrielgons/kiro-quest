@@ -7,6 +7,6 @@
     { "questionId": "web-004", "correctAnswerId": "a" },
     { "questionId": "web-005", "correctAnswerId": "a" },
     { "questionId": "web-006", "correctAnswerId": "true" },
-    { "questionId": "web-007", "correctAnswerId": ["step-1", "step-2", "step-3", "step-4"] }
+    { "questionId": "web-007", "correctAnswerId": ["step-1", "step-2", "step-3"] }
   ]
 }

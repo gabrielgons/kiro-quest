@@ -77,13 +77,13 @@
       "options": [
         { "id": "a", "label": "Apenas 1 schedule por automation, somente no formato cron" },
         { "id": "b", "label": "Até 3 schedules por automation, apenas com opções built-in (daily, weekly, monthly)" },
-        { "id": "c", "label": "Até 5 schedules por automation, aceitando opções built-in (daily, weekly) ou expressões cron customizadas" },
+        { "id": "c", "label": "Até 5 schedules por automação, aceitando opções built-in (hourly, daily) ou expressões cron customizadas" },
         { "id": "d", "label": "Schedules ilimitados por automation, mas apenas no formato ISO 8601" }
       ],
-      "explanation": "Cada Automation suporta até 5 schedules, oferecendo flexibilidade na configuração. Os formatos aceitos incluem opções built-in simplificadas (como daily e weekly) e expressões cron customizadas para maior controle sobre os horários de execução.",
+      "explanation": "Cada Automação suporta até 5 schedules, oferecendo flexibilidade na configuração. Os formatos aceitos incluem opções built-in simplificadas (como hourly e daily) e expressões cron customizadas para maior controle sobre os horários de execução.",
       "sourceUrl": "https://kiro.dev/docs/web/automations/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "au-006",

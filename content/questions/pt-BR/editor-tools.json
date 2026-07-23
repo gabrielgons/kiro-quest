@@ -56,32 +56,32 @@
       "category": "Editor & Ferramentas Integradas",
       "difficulty": "intermediário",
       "type": "true-false",
-      "text": "A integração com IDE Diagnostics reduziu em 29% a necessidade de executar comandos de build/test durante o desenvolvimento.",
+      "text": "A integração com IDE Diagnostics ajuda a reduzir a necessidade de executar comandos de build/test ao capturar erros em tempo real via language server.",
       "options": [
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "Dado real mencionado no blog do Kiro: a integração com IDE Diagnostics reduziu em 29% a necessidade de executar comandos de build e test durante o desenvolvimento, já que muitos erros são detectados e corrigidos em tempo real via language server.",
+      "explanation": "Dados mencionados no blog do Kiro indicam que a integração com IDE Diagnostics reduziu a necessidade de executar comandos de build e test durante o desenvolvimento, já que muitos erros são detectados e corrigidos em tempo real via language server.",
       "sourceUrl": "https://kiro.dev/docs/editor/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "et-005",
       "category": "Editor & Ferramentas Integradas",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "O agente está gerando código com erros de tipo que só aparecem após rodar `npm run build`. Qual funcionalidade resolve isso automaticamente em menos de 35ms?",
+      "text": "O agente está gerando código com erros de tipo que só aparecem após rodar `npm run build`. Qual funcionalidade resolve isso automaticamente com feedback quase instantâneo?",
       "options": [
-        { "id": "a", "label": "IDE Diagnostics / integração LSP que valida em tempo real sem precisar rodar build" },
+        { "id": "a", "label": "Integração com IDE Diagnostics / LSP que valida em tempo real sem rodar build" },
         { "id": "b", "label": "Um hook postToolUse que executa o TypeScript compiler após cada edição" },
         { "id": "c", "label": "O codebase indexing que pré-compila todos os arquivos em background" },
         { "id": "d", "label": "Um script customizado no package.json que roda tsc --watch" }
       ],
-      "explanation": "A integração com IDE Diagnostics (LSP) valida o código gerado em menos de 35ms, detectando erros de tipo, imports faltando e inconsistências sem precisar executar o build completo. Isso proporciona feedback instantâneo ao agente para correção imediata.",
+      "explanation": "A integração com IDE Diagnostics (LSP) valida o código gerado em tempo real, detectando erros de tipo, imports faltantes e inconsistências sem rodar o build completo. Isso fornece feedback quase instantâneo ao agente para correção imediata.",
       "sourceUrl": "https://kiro.dev/docs/editor/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "et-006",
@@ -125,16 +125,16 @@
       "text": "Ordene o fluxo de validação com IDE Diagnostics do início ao fim:",
       "options": [
         { "id": "step-1", "label": "Gerar código" },
-        { "id": "step-2", "label": "Checar diagnostics (<35ms)" },
+        { "id": "step-2", "label": "Checar diagnostics" },
         { "id": "step-3", "label": "Identificar erros com linha/descrição" },
         { "id": "step-4", "label": "Gerar fix direcionado" },
         { "id": "step-5", "label": "Revalidar via diagnostics" },
         { "id": "step-6", "label": "Prosseguir com código validado" }
       ],
-      "explanation": "O fluxo de validação com IDE Diagnostics segue uma sequência lógica: primeiro o agente gera código, depois checa diagnostics em menos de 35ms, identifica erros com linha e descrição, gera um fix direcionado para o problema, revalida via diagnostics novamente, e só então prossegue com o código validado.",
+      "explanation": "O fluxo de validação com IDE Diagnostics segue uma sequência lógica: primeiro o agente gera código, depois checa diagnostics rapidamente, identifica erros com linha e descrição, gera um fix direcionado para o problema, revalida via diagnostics novamente, e só então prossegue com o código validado.",
       "sourceUrl": "https://kiro.dev/docs/editor/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     }
   ]
 }

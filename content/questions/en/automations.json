@@ -77,13 +77,13 @@
       "options": [
         { "id": "a", "label": "Only 1 schedule per automation, only in cron format" },
         { "id": "b", "label": "Up to 3 schedules per automation, only with built-in options (daily, weekly, monthly)" },
-        { "id": "c", "label": "Up to 5 schedules per automation, accepting built-in options (daily, weekly) or custom cron expressions" },
+        { "id": "c", "label": "Up to 5 schedules per automation, accepting built-in options (hourly, daily) or custom cron expressions" },
         { "id": "d", "label": "Unlimited schedules per automation, but only in ISO 8601 format" }
       ],
-      "explanation": "Each Automation supports up to 5 schedules, offering flexibility in configuration. Accepted formats include simplified built-in options (like daily and weekly) and custom cron expressions for greater control over execution times.",
+      "explanation": "Each Automation supports up to 5 schedules, offering flexibility in configuration. Accepted formats include simplified built-in options (like hourly and daily) and custom cron expressions for greater control over execution times.",
       "sourceUrl": "https://kiro.dev/docs/web/automations/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "au-006",

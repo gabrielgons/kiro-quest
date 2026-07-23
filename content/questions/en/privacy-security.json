@@ -9,15 +9,15 @@
       "type": "multiple-choice",
       "text": "What are the configurable network access levels in Kiro's sandbox?",
       "options": [
-        { "id": "a", "label": "Three levels: Integration Only (GitHub proxy only), Common Dependencies (registries like npm/PyPI/Maven), and Open Internet (full access)" },
+        { "id": "a", "label": "Three levels: Connections access only (integration proxy access only), Common Dependencies (registries like npm/PyPI/Maven), and Open Internet (full access)" },
         { "id": "b", "label": "Only two: offline mode and online mode with unrestricted access" },
         { "id": "c", "label": "A single level with a configurable port-based firewall" },
         { "id": "d", "label": "Four levels: Blocked, Limited, Standard, and Premium" }
       ],
-      "explanation": "Kiro offers three network access levels: Integration Only (integration proxy access to GitHub/GitLab only), Common Dependencies (access to registries like npm, PyPI, and Maven), and Open Internet (full internet access). It also supports custom domain allowlists for granular control.",
+      "explanation": "Kiro offers three network access levels: Connections access only (connections proxy access to GitHub/GitLab only), Common Dependencies (access to registries like npm, PyPI, and Maven), and Open Internet (full internet access). It also supports custom domain allowlists for granular control.",
       "sourceUrl": "https://kiro.dev/docs/privacy-and-security/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "ps-002",

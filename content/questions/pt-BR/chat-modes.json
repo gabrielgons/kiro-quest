@@ -7,17 +7,17 @@
       "category": "Chat & Modos de Interação",
       "difficulty": "iniciante",
       "type": "multiple-choice",
-      "text": "Qual a diferença entre Autopilot e Vibe mode no Kiro?",
+      "text": "Qual a diferença entre Autopilot e Supervised mode no Kiro?",
       "options": [
-        { "id": "a", "label": "Autopilot executa ações automaticamente de forma autônoma, enquanto Vibe mode requer mais intervenção e confirmação do usuário" },
+        { "id": "a", "label": "Autopilot executa ações automaticamente de forma autônoma, enquanto Supervised mode permite que o usuário revise e aprove ações antes da execução" },
         { "id": "b", "label": "Vibe mode é mais rápido porque pula validações, enquanto Autopilot valida cada passo" },
         { "id": "c", "label": "Autopilot só funciona com specs, enquanto Vibe mode funciona com qualquer prompt" },
         { "id": "d", "label": "Não há diferença funcional, apenas o nome muda conforme a versão do Kiro" }
       ],
-      "explanation": "No Autopilot, o agente decide e age de forma autônoma, executando ações automaticamente sem pedir confirmação a cada passo. No Vibe mode, o fluxo é mais colaborativo, exigindo mais intervenção do usuário para aprovar ou direcionar as ações do agente.",
+      "explanation": "O Kiro oferece dois modos de interação: Autopilot permite que o agente atue de forma autônoma sem confirmação a cada passo, enquanto Supervised mode exige aprovação do usuário antes de executar ações. Vibe sessions são um tipo diferente de sessão (Q&A interativo), não um modo de execução.",
       "sourceUrl": "https://kiro.dev/docs/chat/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     },
     {
       "id": "cm-002",
@@ -121,18 +121,18 @@
       "id": "cm-008",
       "category": "Chat & Modos de Interação",
       "difficulty": "avançado",
-      "type": "ordering",
-      "text": "Ordene o ciclo de validação do \"Run All Tasks\" do primeiro ao último passo:",
+      "type": "multiple-choice",
+      "text": "Qual é a principal vantagem dos Subagents em relação ao agente principal quando executando tarefas complexas em múltiplos domínios?",
       "options": [
-        { "id": "step-1", "label": "Property-Based Tests (PBTs)" },
-        { "id": "step-2", "label": "Dev Servers / LSP Diagnostics" },
-        { "id": "step-3", "label": "Subagents (contexto distribuído)" },
-        { "id": "step-4", "label": "Resultado validado" }
+        { "id": "a", "label": "Subagents mantêm contexto isolado por domínio, evitando context rot e permitindo execução paralela de tarefas" },
+        { "id": "b", "label": "Subagents são mais rápidos porque usam modelos menores e mais baratos" },
+        { "id": "c", "label": "Subagents podem acessar ferramentas que o agente principal não pode" },
+        { "id": "d", "label": "Subagents salvam automaticamente checkpoints entre cada operação" }
       ],
-      "explanation": "O ciclo de validação do 'Run All Tasks' segue uma ordem lógica: primeiro executa Property-Based Tests para verificar invariantes, depois valida via Dev Servers e LSP Diagnostics para erros de tipo e runtime, então distribui tarefas via Subagents com contexto isolado, e finalmente produz o resultado validado.",
-      "sourceUrl": "https://kiro.dev/docs/chat/",
+      "explanation": "Subagents permitem que o Kiro execute múltiplas tarefas em paralelo ou delegue tarefas específicas a agentes especializados. A principal vantagem é o contexto isolado: cada subagent mantém seu próprio contexto, evitando context rot que ocorre quando um único agente acumula muita informação de domínios diferentes.",
+      "sourceUrl": "https://kiro.dev/docs/chat/subagents/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     }
   ]
 }
