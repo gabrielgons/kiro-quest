@@ -5,6 +5,10 @@ import type { PerformanceLevel } from '@/engine/types';
  * translation key. Co-located with i18n utilities so changes to
  * PerformanceLevel are easy to spot and update.
  *
+ * NOTE: Keys must exactly match the PerformanceLevel union values.
+ * The `satisfies` constraint enforces this at compile time — if a level
+ * is added or renamed, this file will produce a type error.
+ *
  * Usage:
  * ```ts
  * const key = getPerformanceLevelKey(level);

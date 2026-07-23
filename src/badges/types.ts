@@ -85,18 +85,24 @@ export interface CertificateRendererOptions {
    * Localized static text labels for the certificate. When provided,
    * these override the hardcoded Portuguese defaults.
    */
-  localizedLabels?: {
-    /** BCP 47 locale tag used for date formatting (e.g. 'en', 'pt-BR'). Defaults to 'pt-BR'. */
-    locale?: string;
-    title?: string;
-    certifiesThat?: string;
-    completionMessage?: string;
-    resultLabel?: string;
-    levelLabel?: string;
-    modulesLabel?: string;
-    dateLabel?: string;
-    brandingSubtitle?: string;
-  };
+  localizedLabels?: CertificateLocalizedLabels;
+}
+
+/**
+ * Static text labels for the certificate, overriding Portuguese defaults.
+ * Extracted as a named interface for reuse in tests and consumers.
+ */
+export interface CertificateLocalizedLabels {
+  /** BCP 47 locale tag used for date formatting (e.g. 'en', 'pt-BR'). Defaults to 'pt-BR'. */
+  locale?: string;
+  title?: string;
+  certifiesThat?: string;
+  completionMessage?: string;
+  resultLabel?: string;
+  levelLabel?: string;
+  modulesLabel?: string;
+  dateLabel?: string;
+  brandingSubtitle?: string;
 }
 
 /**
