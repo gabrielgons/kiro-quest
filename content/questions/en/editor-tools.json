@@ -56,7 +56,7 @@
       "category": "Editor & Integrated Tools",
       "difficulty": "intermediário",
       "type": "true-false",
-      "text": "IDE Diagnostics integration significantly reduced the need to run build/test commands during development.",
+      "text": "IDE Diagnostics integration helps reduce the need to run build/test commands by catching errors in real-time via the language server.",
       "options": [
         { "id": "true", "label": "True" },
         { "id": "false", "label": "False" }

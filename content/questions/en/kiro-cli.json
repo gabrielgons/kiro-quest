@@ -56,14 +56,14 @@
       "category": "Kiro CLI",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "A team needs to integrate Kiro into their CI pipeline for automatic PR reviews. Which approach correctly uses the Agent Communication Protocol (ACP)?",
+      "text": "What is the Agent Client Protocol (ACP) and how does it relate to Kiro CLI?",
       "options": [
-        { "id": "a", "label": "Configure Kiro CLI with ACP, an open standard that enables compatible editors (JetBrains, Zed) to use Kiro as an AI agent backend" },
-        { "id": "b", "label": "Install Kiro as a browser extension so reviewers can access it via web interface" },
-        { "id": "c", "label": "Create a custom webhook that sends emails with review suggestions" },
-        { "id": "d", "label": "Run Kiro manually on each developer's machine before opening the PR" }
+        { "id": "a", "label": "An open standard that enables compatible editors (JetBrains, Zed) to use Kiro CLI as an AI agent backend, also usable in headless mode for CI/CD pipelines" },
+        { "id": "b", "label": "A browser extension so reviewers can access Kiro via web interface" },
+        { "id": "c", "label": "A custom webhook that sends emails with review suggestions" },
+        { "id": "d", "label": "A proprietary protocol that only works with VS Code" }
       ],
-      "explanation": "The Agent Client Protocol (ACP) is an open standard that enables Kiro CLI to work as an AI agent backend for compatible editors like JetBrains IDEs and Zed. In headless mode, it can also be used in CI/CD pipelines for task automation.",
+      "explanation": "The Agent Client Protocol (ACP) is an open standard that enables Kiro CLI to work as an AI agent backend for compatible editors like JetBrains IDEs and Zed. This means you can use Kiro's agentic capabilities in any ACP-compatible editor. In headless mode, the CLI can also be used in CI/CD pipelines.",
       "sourceUrl": "https://kiro.dev/docs/cli/acp/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-07-19"

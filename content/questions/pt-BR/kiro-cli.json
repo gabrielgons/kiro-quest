@@ -56,14 +56,14 @@
       "category": "Kiro CLI",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "Uma equipe precisa integrar o Kiro em seu pipeline de CI para revisão automática de PRs. Qual abordagem utiliza corretamente o Agent Communication Protocol (ACP)?",
+      "text": "O que é o Agent Client Protocol (ACP) e como ele se relaciona com o Kiro CLI?",
       "options": [
-        { "id": "a", "label": "Configurar o Kiro CLI em modo headless com ACP, um protocolo aberto que permite editores compatíveis (JetBrains, Zed) usarem o Kiro como agente backend" },
-        { "id": "b", "label": "Instalar o Kiro como extensão do navegador para que revisores acessem via interface web" },
-        { "id": "c", "label": "Criar um webhook customizado que envia emails com sugestões de revisão" },
-        { "id": "d", "label": "Executar o Kiro manualmente em cada máquina de desenvolvedor antes de abrir o PR" }
+        { "id": "a", "label": "Um padrão aberto que permite editores compatíveis (JetBrains, Zed) usarem o Kiro CLI como agente backend de IA, também utilizável em modo headless para pipelines CI/CD" },
+        { "id": "b", "label": "Uma extensão do navegador para revisores acessarem o Kiro via interface web" },
+        { "id": "c", "label": "Um webhook customizado que envia emails com sugestões de revisão" },
+        { "id": "d", "label": "Um protocolo proprietário que só funciona com o VS Code" }
       ],
-      "explanation": "O Agent Client Protocol (ACP) é um padrão aberto que permite ao Kiro CLI funcionar como agente backend para editores compatíveis como JetBrains IDEs e Zed. No modo headless, pode ser usado em pipelines de CI/CD para automação de tarefas.",
+      "explanation": "O Agent Client Protocol (ACP) é um padrão aberto que permite ao Kiro CLI funcionar como agente backend para editores compatíveis como JetBrains IDEs e Zed. Isso significa que você pode usar as capacidades agênticas do Kiro em qualquer editor compatível com ACP. No modo headless, o CLI também pode ser usado em pipelines de CI/CD.",
       "sourceUrl": "https://kiro.dev/docs/cli/acp/",
       "reviewStatus": "reviewed",
       "lastReviewedDate": "2025-07-19"
