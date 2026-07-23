@@ -134,7 +134,7 @@
       "explanation": "The validation flow with IDE Diagnostics follows a logical sequence: first the agent generates code, then checks diagnostics quickly, identifies errors with line and description, generates a targeted fix for the problem, revalidates via diagnostics again, and only then proceeds with validated code.",
       "sourceUrl": "https://kiro.dev/docs/editor/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     }
   ]
 }

@@ -134,7 +134,7 @@
       "explanation": "O fluxo de validação com IDE Diagnostics segue uma sequência lógica: primeiro o agente gera código, depois checa diagnostics rapidamente, identifica erros com linha e descrição, gera um fix direcionado para o problema, revalida via diagnostics novamente, e só então prossegue com o código validado.",
       "sourceUrl": "https://kiro.dev/docs/editor/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2025-07-19"
     }
   ]
 }
