@@ -69,6 +69,12 @@ const {
 const { isDark } = useTheme();
 const { t, locale } = useLocale();
 
+/** Resolve a PerformanceLevel to its localized display string, with graceful fallback. */
+function localizedLevel(level: PerformanceLevel): string {
+  const key = getPerformanceLevelKey(level);
+  return key ? t(key) : level;
+}
+
 /** The most recently generated blob, retained for download/share actions. */
 const generatedBlob = ref<Blob | null>(null);
 
@@ -141,9 +147,7 @@ async function handleGenerate(): Promise<void> {
       performanceLevel: props.performanceLevel,
       theme,
       localizedStageName: t(`stage.name.${props.stage}`),
-      localizedPerformanceLevel: getPerformanceLevelKey(props.performanceLevel)
-        ? t(getPerformanceLevelKey(props.performanceLevel)!)
-        : props.performanceLevel,
+      localizedPerformanceLevel: localizedLevel(props.performanceLevel),
     });
   } else {
     if (!props.stats || !props.performanceLevel) {
@@ -155,9 +159,7 @@ async function handleGenerate(): Promise<void> {
       performanceLevel: props.performanceLevel,
       completionDate: new Date(),
       theme,
-      localizedPerformanceLevel: getPerformanceLevelKey(props.performanceLevel)
-        ? t(getPerformanceLevelKey(props.performanceLevel)!)
-        : props.performanceLevel,
+      localizedPerformanceLevel: localizedLevel(props.performanceLevel),
       localizedLabels: {
         locale: locale.value,
         title: t('certificate.completionTitle'),

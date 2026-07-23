@@ -11,12 +11,12 @@ import type { PerformanceLevel } from '@/engine/types';
  * const localized = key ? t(key) : level;
  * ```
  */
-const PERFORMANCE_LEVEL_KEYS: Record<PerformanceLevel, string> = {
+const PERFORMANCE_LEVEL_KEYS = {
   'Iniciante em Kiro': 'performance.iniciante',
   'Praticante de Kiro': 'performance.praticante',
   'Especialista em Kiro': 'performance.especialista',
   'Mestre em Kiro': 'performance.mestre',
-};
+} as const satisfies Record<PerformanceLevel, string>;
 
 /**
  * Returns the i18n translation key for a given PerformanceLevel.

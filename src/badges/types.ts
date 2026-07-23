@@ -71,7 +71,7 @@ export interface CertificateRendererOptions {
   };
   /** The computed overall performance tier label. */
   performanceLevel: PerformanceLevel;
-  /** The date the trail was completed (formatted in pt-BR locale). */
+  /** The date the trail was completed. Formatted using `localizedLabels.locale` (defaults to pt-BR). */
   completionDate: Date;
   /** The active app theme, determining background/text colors. */
   theme: 'light' | 'dark';

@@ -321,3 +321,123 @@ describe('Property 12: Certificate Theme Consistency', () => {
     },
   );
 });
+
+
+
+// ---------------------------------------------------------------------------
+// Localized certificate rendering (i18n)
+// ---------------------------------------------------------------------------
+
+describe('Localized certificate rendering', () => {
+  const baseOptions: CertificateRendererOptions = {
+    userName: 'Test User',
+    stats: { totalCorrect: 10, totalQuestions: 13, percentage: 77, completedStages: 13 },
+    performanceLevel: 'Especialista em Kiro',
+    completionDate: new Date(2025, 5, 15),
+    theme: 'light',
+  };
+
+  it('renders localizedPerformanceLevel instead of raw performanceLevel when provided', () => {
+    const ctx = renderWith({
+      ...baseOptions,
+      localizedPerformanceLevel: 'Kiro Expert',
+    });
+
+    const levelText = ctx.fillTextCalls.find((c) => c.text.includes('Kiro Expert'));
+    expect(levelText).toBeDefined();
+
+    const rawText = ctx.fillTextCalls.find((c) => c.text.includes('Especialista em Kiro'));
+    expect(rawText).toBeUndefined();
+  });
+
+  it('falls back to raw performanceLevel when localizedPerformanceLevel is undefined', () => {
+    const ctx = renderWith(baseOptions);
+
+    const levelText = ctx.fillTextCalls.find((c) => c.text.includes('Especialista em Kiro'));
+    expect(levelText).toBeDefined();
+  });
+
+  it('renders all localizedLabels when fully provided', () => {
+    const ctx = renderWith({
+      ...baseOptions,
+      localizedLabels: {
+        locale: 'en',
+        title: 'Certificate of Completion',
+        certifiesThat: 'Certifies that',
+        completionMessage: 'successfully completed the Kiro Quest trail!',
+        resultLabel: 'Result',
+        levelLabel: 'Level',
+        modulesLabel: 'Modules completed',
+        dateLabel: 'Date',
+        brandingSubtitle: 'Kiro Learning Trail',
+      },
+    });
+
+    expect(findText(ctx, 'Certificate of Completion')).toBeDefined();
+    expect(findText(ctx, 'Certifies that')).toBeDefined();
+    expect(findText(ctx, 'successfully completed the Kiro Quest trail!')).toBeDefined();
+    expect(findText(ctx, 'Kiro Learning Trail')).toBeDefined();
+
+    // Verify English labels in stats
+    const resultText = ctx.fillTextCalls.find((c) => c.text.startsWith('Result:'));
+    expect(resultText).toBeDefined();
+
+    const levelText = ctx.fillTextCalls.find((c) => c.text.startsWith('Level:'));
+    expect(levelText).toBeDefined();
+
+    const modulesText = ctx.fillTextCalls.find((c) => c.text.startsWith('Modules completed:'));
+    expect(modulesText).toBeDefined();
+
+    // Verify Portuguese defaults do NOT appear
+    expect(findText(ctx, 'Certificado de Conclusão')).toBeUndefined();
+    expect(findText(ctx, 'Certifica que')).toBeUndefined();
+    expect(findText(ctx, 'Trilha de Aprendizado Kiro')).toBeUndefined();
+  });
+
+  it('falls back to Portuguese defaults when localizedLabels is partially provided', () => {
+    const ctx = renderWith({
+      ...baseOptions,
+      localizedLabels: {
+        title: 'Certificate of Completion',
+        // Other fields omitted — should fall back to Portuguese
+      },
+    });
+
+    // The title should be the provided English version
+    expect(findText(ctx, 'Certificate of Completion')).toBeDefined();
+
+    // The other labels should fall back to Portuguese
+    expect(findText(ctx, 'Certifica que')).toBeDefined();
+    expect(findText(ctx, 'Trilha de Aprendizado Kiro')).toBeDefined();
+  });
+
+  it('formats date using the locale from localizedLabels', () => {
+    const ctx = renderWith({
+      ...baseOptions,
+      completionDate: new Date(2025, 0, 15), // Jan 15, 2025
+      localizedLabels: {
+        locale: 'en',
+        dateLabel: 'Date',
+      },
+    });
+
+    // Find the date text entry
+    const dateText = ctx.fillTextCalls.find((c) => c.text.startsWith('Date:'));
+    expect(dateText).toBeDefined();
+    // In en locale, January should appear (not "janeiro")
+    expect(dateText!.text).toContain('January');
+    expect(dateText!.text).not.toContain('janeiro');
+  });
+
+  it('formats date in pt-BR by default when no locale specified', () => {
+    const ctx = renderWith({
+      ...baseOptions,
+      completionDate: new Date(2025, 0, 15), // Jan 15, 2025
+    });
+
+    // Find the date text entry (uses Portuguese "Data" default)
+    const dateText = ctx.fillTextCalls.find((c) => c.text.startsWith('Data:'));
+    expect(dateText).toBeDefined();
+    expect(dateText!.text).toContain('janeiro');
+  });
+});
