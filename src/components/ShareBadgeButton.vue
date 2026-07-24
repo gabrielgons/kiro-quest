@@ -33,6 +33,7 @@ import type {
 } from '@/badges';
 import { useTheme } from '@/composables/useTheme';
 import { useLocale } from '@/i18n/useLocale';
+import { getPerformanceLevelKey } from '@/i18n/performanceLevelKeys';
 
 interface Props {
   /** Whether to generate a stage badge or a full completion certificate. */
@@ -66,7 +67,13 @@ const {
   cleanup,
 } = useBadgeCanvas();
 const { isDark } = useTheme();
-const { t } = useLocale();
+const { t, locale } = useLocale();
+
+/** Resolve a PerformanceLevel to its localized display string, with graceful fallback. */
+function localizedLevel(level: PerformanceLevel): string {
+  const key = getPerformanceLevelKey(level);
+  return key ? t(key) : level;
+}
 
 /** The most recently generated blob, retained for download/share actions. */
 const generatedBlob = ref<Blob | null>(null);
@@ -139,6 +146,8 @@ async function handleGenerate(): Promise<void> {
       score: props.score,
       performanceLevel: props.performanceLevel,
       theme,
+      localizedStageName: t(`stage.name.${props.stage}`),
+      localizedPerformanceLevel: localizedLevel(props.performanceLevel),
     });
   } else {
     if (!props.stats || !props.performanceLevel) {
@@ -150,6 +159,18 @@ async function handleGenerate(): Promise<void> {
       performanceLevel: props.performanceLevel,
       completionDate: new Date(),
       theme,
+      localizedPerformanceLevel: localizedLevel(props.performanceLevel),
+      localizedLabels: {
+        locale: locale.value,
+        title: t('certificate.completionTitle'),
+        certifiesThat: t('certificate.certifiesThat'),
+        completionMessage: t('certificate.completionMessage'),
+        resultLabel: t('certificate.resultLabel'),
+        levelLabel: t('certificate.levelLabel'),
+        modulesLabel: t('certificate.modulesLabel'),
+        dateLabel: t('certificate.dateLabel'),
+        brandingSubtitle: t('certificate.brandingSubtitle'),
+      },
     });
   }
 

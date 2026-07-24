@@ -41,6 +41,18 @@ export interface BadgeRendererOptions {
   performanceLevel: PerformanceLevel;
   /** The active app theme, determining overlay/contrast styling. */
   theme: 'light' | 'dark';
+  /**
+   * Localized stage display name. When provided, this overrides the
+   * hardcoded `displayName` from BADGE_DESIGNS so the badge renders
+   * in the user's active locale.
+   */
+  localizedStageName?: string;
+  /**
+   * Localized performance level label. When provided, this overrides
+   * the raw `performanceLevel` value rendered on the badge so it
+   * displays in the user's active locale.
+   */
+  localizedPerformanceLevel?: string;
 }
 
 /**
@@ -59,10 +71,38 @@ export interface CertificateRendererOptions {
   };
   /** The computed overall performance tier label. */
   performanceLevel: PerformanceLevel;
-  /** The date the trail was completed (formatted in pt-BR locale). */
+  /** The date the trail was completed. Formatted using `localizedLabels.locale` (defaults to pt-BR). */
   completionDate: Date;
   /** The active app theme, determining background/text colors. */
   theme: 'light' | 'dark';
+  /**
+   * Localized performance level label. When provided, this overrides
+   * the raw `performanceLevel` value rendered on the certificate so it
+   * displays in the user's active locale.
+   */
+  localizedPerformanceLevel?: string;
+  /**
+   * Localized static text labels for the certificate. When provided,
+   * these override the hardcoded Portuguese defaults.
+   */
+  localizedLabels?: CertificateLocalizedLabels;
+}
+
+/**
+ * Static text labels for the certificate, overriding Portuguese defaults.
+ * Extracted as a named interface for reuse in tests and consumers.
+ */
+export interface CertificateLocalizedLabels {
+  /** BCP 47 locale tag used for date formatting (e.g. 'en', 'pt-BR'). Defaults to 'pt-BR'. */
+  locale?: string;
+  title?: string;
+  certifiesThat?: string;
+  completionMessage?: string;
+  resultLabel?: string;
+  levelLabel?: string;
+  modulesLabel?: string;
+  dateLabel?: string;
+  brandingSubtitle?: string;
 }
 
 /**

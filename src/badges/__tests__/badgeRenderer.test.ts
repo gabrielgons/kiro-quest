@@ -321,4 +321,73 @@ describe('Badge Renderer', () => {
       expect(drawnText).toContain('0/1');
     });
   });
+
+  // -------------------------------------------------------------------------
+  // Localized badge rendering (i18n)
+  // -------------------------------------------------------------------------
+  describe('localized badge rendering', () => {
+    it('renders localizedStageName instead of design.displayName when provided', () => {
+      const mock = createMockContext();
+      renderBadge(mock.ctx, {
+        stage: 'kiro-basics',
+        score: { correct: 3, total: 4 },
+        performanceLevel: 'Especialista em Kiro',
+        theme: 'light',
+        localizedStageName: 'Kiro Basics',
+      });
+
+      const fillText = mock.ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+      const drawnText = fillText.mock.calls.map((call: unknown[]) => call[0]);
+
+      expect(drawnText).toContain('Kiro Basics');
+      expect(drawnText).not.toContain(BADGE_DESIGNS['kiro-basics'].displayName);
+    });
+
+    it('renders localizedPerformanceLevel instead of raw performanceLevel when provided', () => {
+      const mock = createMockContext();
+      renderBadge(mock.ctx, {
+        stage: 'specs',
+        score: { correct: 9, total: 10 },
+        performanceLevel: 'Mestre em Kiro',
+        theme: 'dark',
+        localizedPerformanceLevel: 'Kiro Master',
+      });
+
+      const fillText = mock.ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+      const drawnText = fillText.mock.calls.map((call: unknown[]) => call[0]);
+
+      expect(drawnText).toContain('Kiro Master');
+      expect(drawnText).not.toContain('Mestre em Kiro');
+    });
+
+    it('falls back to design.displayName when localizedStageName is undefined', () => {
+      const mock = createMockContext();
+      renderBadge(mock.ctx, {
+        stage: 'mcp',
+        score: { correct: 5, total: 10 },
+        performanceLevel: 'Praticante de Kiro',
+        theme: 'light',
+      });
+
+      const fillText = mock.ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+      const drawnText = fillText.mock.calls.map((call: unknown[]) => call[0]);
+
+      expect(drawnText).toContain(BADGE_DESIGNS['mcp'].displayName);
+    });
+
+    it('falls back to raw performanceLevel when localizedPerformanceLevel is undefined', () => {
+      const mock = createMockContext();
+      renderBadge(mock.ctx, {
+        stage: 'hooks',
+        score: { correct: 2, total: 10 },
+        performanceLevel: 'Iniciante em Kiro',
+        theme: 'dark',
+      });
+
+      const fillText = mock.ctx.fillText as unknown as ReturnType<typeof vi.fn>;
+      const drawnText = fillText.mock.calls.map((call: unknown[]) => call[0]);
+
+      expect(drawnText).toContain('Iniciante em Kiro');
+    });
+  });
 });
