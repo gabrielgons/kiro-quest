@@ -28,7 +28,12 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    # The environment is what makes this job deployable: the AWS_* / VITE_* /
+    # S3_* / CLOUDFRONT_* configuration is scoped to it, and the OIDC trust
+    # policy only accepts the environment:production subject.
+    # The branch guard stays as defense in depth for workflow_dispatch.
     environment: production
+    if: github.ref == 'refs/heads/main'
 
     steps:
       - name: Checkout repository

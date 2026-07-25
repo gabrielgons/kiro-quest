@@ -1,0 +1,58 @@
+name: Kiro Code Review (Publish)
+
+# Stage 2 of 2. Runs on workflow_run, which always executes the definition from
+# the default branch, so a pull request cannot alter this job or the publishing
+# script. It holds the write token but never runs an agent and never sees
+# KIRO_API_KEY: the payload produced by the analysis job is validated field by
+# field before it reaches the API.
+on:
+  workflow_run:
+    workflows: ['Kiro Code Review (Analyze)']
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+  pull-requests: write
+
+concurrency:
+  group: code-review-publish-${{ github.event.workflow_run.id }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    if: >-
+      github.event.workflow_run.event == 'pull_request_target' &&
+      github.event.workflow_run.conclusion == 'success'
+    runs-on: ubuntu-latest
+
+    steps:
+      # Default branch checkout: only the publishing script is needed, and it
+      # must never come from the pull request under review.
+      - name: Checkout default branch (trusted)
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+          sparse-checkout: .github/scripts
+          sparse-checkout-cone-mode: false
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+
+      - name: Download review payload
+        uses: actions/download-artifact@v4
+        with:
+          name: kiro-code-review
+          path: payload
+          run-id: ${{ github.event.workflow_run.id }}
+          github-token: ${{ github.token }}
+
+      - name: Publish review
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          WORKFLOW_RUN_ID: ${{ github.event.workflow_run.id }}
+          PAYLOAD_PATH: payload/review.json
+          METADATA_PATH: payload/metadata.json
+        run: node .github/scripts/publish-review.mjs

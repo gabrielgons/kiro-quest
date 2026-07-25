@@ -20,7 +20,19 @@ const hostedZoneName = app.node.tryGetContext('hostedZoneName') || process.env.H
 const googleClientId = app.node.tryGetContext('googleClientId') || process.env.GOOGLE_CLIENT_ID;
 const googleClientSecretArn = app.node.tryGetContext('googleClientSecretArn') || process.env.GOOGLE_CLIENT_SECRET_ARN;
 const cognitoDomainPrefix = app.node.tryGetContext('cognitoDomainPrefix') || process.env.COGNITO_DOMAIN_PREFIX || 'kiro-quest';
-const githubRepo = app.node.tryGetContext('githubRepo') || process.env.GITHUB_REPOSITORY || 'owner/kiro-quest';
+const githubRepoValue = app.node.tryGetContext('githubRepo') ?? process.env.GITHUB_REPOSITORY;
+
+if (
+  typeof githubRepoValue !== 'string'
+  || githubRepoValue.startsWith('owner/')
+  || !/^[A-Za-z0-9_.-]+\/[A-Za-z0-9_.-]+$/.test(githubRepoValue)
+) {
+  throw new Error(
+    'githubRepo must be configured as "owner/repository" via CDK context or GITHUB_REPOSITORY',
+  );
+}
+
+const githubRepo = githubRepoValue;
 
 const env: cdk.Environment = {
   account,
