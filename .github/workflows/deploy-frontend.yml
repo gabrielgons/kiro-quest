@@ -13,6 +13,7 @@ on:
       - 'package-lock.json'
       - 'vite.config.ts'
       - 'tsconfig*.json'
+      - '.github/workflows/deploy-frontend.yml'
 
 permissions:
   id-token: write
@@ -30,9 +31,10 @@ jobs:
     runs-on: ubuntu-latest
     # The environment is what makes this job deployable: the AWS_* / VITE_* /
     # S3_* / CLOUDFRONT_* configuration is scoped to it, and the OIDC trust
-    # policy only accepts the environment:production subject.
+    # policy only accepts the environment:production-frontend subject and this
+    # exact workflow name on main.
     # The branch guard stays as defense in depth for workflow_dispatch.
-    environment: production
+    environment: production-frontend
     if: github.ref == 'refs/heads/main'
 
     steps:
@@ -61,8 +63,11 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/KiroQuestGitHubActionsRole
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/KiroQuestFrontendDeployRole
+          role-session-name: GitHubActions-Frontend-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          unset-current-credentials: true
 
       - name: Sync to S3
         run: |

@@ -24,10 +24,10 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     # The environment is what makes this job deployable: the AWS_* / GOOGLE_*
-    # configuration and the GOOGLE_CLIENT_SECRET_ARN secret are scoped to it, and
-    # the OIDC trust policy only accepts the environment:production subject.
+    # configuration is scoped to it, and the OIDC trust policy only accepts the
+    # environment:production-infra subject and this exact workflow name on main.
     # The branch guard stays as defense in depth for workflow_dispatch.
-    environment: production
+    environment: production-infra
     if: github.ref == 'refs/heads/main'
 
     steps:
@@ -55,13 +55,17 @@ jobs:
       - name: Configure AWS credentials (OIDC)
         uses: aws-actions/configure-aws-credentials@v4
         with:
-          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/KiroQuestGitHubActionsRole
+          role-to-assume: arn:aws:iam::${{ vars.AWS_ACCOUNT_ID }}:role/KiroQuestInfraDeployRole
+          role-session-name: GitHubActions-Infra-${{ github.run_id }}
           aws-region: ${{ env.AWS_REGION }}
+          allowed-account-ids: ${{ vars.AWS_ACCOUNT_ID }}
+          unset-current-credentials: true
 
       - name: Deploy stacks
         env:
           GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
-          GOOGLE_CLIENT_SECRET_ARN: ${{ secrets.GOOGLE_CLIENT_SECRET_ARN }}
+          # The ARN identifies the secret but is not the secret value.
+          GOOGLE_CLIENT_SECRET_ARN: ${{ vars.GOOGLE_CLIENT_SECRET_ARN }}
         run: >-
           npx cdk deploy
           KiroQuestGitHubOidcStack

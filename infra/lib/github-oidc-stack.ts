@@ -10,19 +10,26 @@ export interface GitHubOidcStackProps extends cdk.StackProps {
   repositoryName: string;
 
   /**
+   * Immutable GitHub repository and owner IDs used to prevent name reuse from
+   * satisfying the OIDC trust policy.
+   */
+  repositoryId: string;
+  repositoryOwnerId: string;
+
+  /**
    * S3 bucket ARN for frontend deployment permissions.
    */
-  siteBucketArn?: string;
+  siteBucketArn: string;
 
   /**
    * CloudFront distribution ID to scope cache invalidation permissions.
-   * If not provided, no CloudFront permissions are granted.
    */
-  distributionId?: string;
+  distributionId: string;
 }
 
 export class GitHubOidcStack extends cdk.Stack {
-  public readonly role: iam.Role;
+  public readonly frontendDeployRole: iam.Role;
+  public readonly infraDeployRole: iam.Role;
 
   constructor(scope: Construct, id: string, props: GitHubOidcStackProps) {
     super(scope, id, props);
@@ -35,150 +42,112 @@ export class GitHubOidcStack extends cdk.Stack {
       thumbprints: ['6938fd4d98bab03faadb97b34396831e3780aea1'],
     });
 
-    // IAM Role for GitHub Actions.
-    //
-    // The trust policy accepts a single OIDC subject: a job that declares
-    // `environment: production`. This is tighter than scoping by branch, because
-    // a new workflow added to main cannot assume the role unless it also opts
-    // into the environment, which is where the deployment configuration and the
-    // approval rules live. Pull request validation deliberately runs without AWS
-    // credentials.
-    //
-    // This depends on the GitHub environment restricting its deployment branches
-    // to `main`; otherwise any branch could obtain the environment subject.
-    this.role = new iam.Role(this, 'GitHubActionsRole', {
-      roleName: 'KiroQuestGitHubActionsRole',
-      assumedBy: new iam.FederatedPrincipal(
-        githubOidcProvider.openIdConnectProviderArn,
-        {
-          StringEquals: {
-            'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
-            'token.actions.githubusercontent.com:sub':
-              `repo:${props.repositoryName}:environment:production`,
-          },
+    const githubEnvironmentPrincipal = (
+      environmentName: string,
+      workflowName: string,
+    ): iam.FederatedPrincipal => new iam.FederatedPrincipal(
+      githubOidcProvider.openIdConnectProviderArn,
+      {
+        StringEquals: {
+          'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
+          'token.actions.githubusercontent.com:sub':
+            `repo:${props.repositoryName}:environment:${environmentName}`,
+          'token.actions.githubusercontent.com:repository': props.repositoryName,
+          'token.actions.githubusercontent.com:repository_id': props.repositoryId,
+          'token.actions.githubusercontent.com:repository_owner_id':
+            props.repositoryOwnerId,
+          'token.actions.githubusercontent.com:ref': 'refs/heads/main',
+          'token.actions.githubusercontent.com:environment': environmentName,
+          'token.actions.githubusercontent.com:workflow': workflowName,
         },
-        'sts:AssumeRoleWithWebIdentity',
+      },
+      'sts:AssumeRoleWithWebIdentity',
+    );
+
+    this.frontendDeployRole = new iam.Role(this, 'FrontendDeployRole', {
+      roleName: 'KiroQuestFrontendDeployRole',
+      assumedBy: githubEnvironmentPrincipal(
+        'production-frontend',
+        'Deploy Frontend',
       ),
-      description: 'Role assumed by GitHub Actions for CI/CD deployments',
+      description: 'Least-privilege role for GitHub Actions frontend deployments',
       maxSessionDuration: cdk.Duration.hours(1),
     });
 
-    // S3 permissions for frontend deployment
-    this.role.addToPolicy(
+    this.frontendDeployRole.addToPolicy(
       new iam.PolicyStatement({
-        sid: 'S3FrontendDeploy',
+        sid: 'ListFrontendBucket',
+        effect: iam.Effect.ALLOW,
+        actions: ['s3:ListBucket', 's3:GetBucketLocation'],
+        resources: [props.siteBucketArn],
+      }),
+    );
+
+    this.frontendDeployRole.addToPolicy(
+      new iam.PolicyStatement({
+        sid: 'DeployFrontendObjects',
         effect: iam.Effect.ALLOW,
         actions: [
           's3:PutObject',
           's3:GetObject',
           's3:DeleteObject',
-          's3:ListBucket',
         ],
-        resources: [
-          `arn:aws:s3:::kiro-quest-site-${this.account}`,
-          `arn:aws:s3:::kiro-quest-site-${this.account}/*`,
-        ],
+        resources: [`${props.siteBucketArn}/*`],
       }),
     );
 
-    // CloudFront permissions for cache invalidation (scoped to specific distribution)
-    const distributionArn = props.distributionId
-      ? `arn:aws:cloudfront::${this.account}:distribution/${props.distributionId}`
-      : `arn:aws:cloudfront::${this.account}:distribution/*`;
-
-    this.role.addToPolicy(
+    this.frontendDeployRole.addToPolicy(
       new iam.PolicyStatement({
-        sid: 'CloudFrontInvalidation',
+        sid: 'InvalidateFrontendDistribution',
         effect: iam.Effect.ALLOW,
         actions: [
           'cloudfront:CreateInvalidation',
           'cloudfront:GetInvalidation',
         ],
-        resources: [distributionArn],
-      }),
-    );
-
-    // CDK deployment permissions (for backend and infra stacks)
-    this.role.addToPolicy(
-      new iam.PolicyStatement({
-        sid: 'CDKDeploy',
-        effect: iam.Effect.ALLOW,
-        actions: [
-          'cloudformation:DescribeStacks',
-          'cloudformation:DescribeStackEvents',
-          'cloudformation:GetTemplate',
-          'cloudformation:CreateStack',
-          'cloudformation:UpdateStack',
-          'cloudformation:DeleteStack',
-          'cloudformation:CreateChangeSet',
-          'cloudformation:ExecuteChangeSet',
-          'cloudformation:DescribeChangeSet',
-          'cloudformation:DeleteChangeSet',
-          'cloudformation:GetTemplateSummary',
-        ],
         resources: [
-          `arn:aws:cloudformation:${this.region}:${this.account}:stack/KiroQuest*/*`,
-          `arn:aws:cloudformation:${this.region}:${this.account}:stack/CDKToolkit/*`,
+          `arn:aws:cloudfront::${this.account}:distribution/${props.distributionId}`,
         ],
       }),
     );
 
-    // SSM parameter access for CDK context lookups
-    this.role.addToPolicy(
-      new iam.PolicyStatement({
-        sid: 'SSMParameterRead',
-        effect: iam.Effect.ALLOW,
-        actions: ['ssm:GetParameter'],
-        resources: [`arn:aws:ssm:${this.region}:${this.account}:parameter/cdk-bootstrap/*`],
-      }),
-    );
+    this.infraDeployRole = new iam.Role(this, 'InfraDeployRole', {
+      roleName: 'KiroQuestInfraDeployRole',
+      assumedBy: githubEnvironmentPrincipal(
+        'production-infra',
+        'Deploy Infrastructure',
+      ),
+      description: 'Least-privilege entry role for GitHub Actions CDK deployments',
+      maxSessionDuration: cdk.Duration.hours(1),
+    });
 
-    // S3 access for CDK asset bucket
-    this.role.addToPolicy(
-      new iam.PolicyStatement({
-        sid: 'CDKAssetBucket',
-        effect: iam.Effect.ALLOW,
-        actions: [
-          's3:GetObject',
-          's3:PutObject',
-          's3:ListBucket',
-          's3:GetBucketLocation',
-        ],
-        resources: [
-          `arn:aws:s3:::cdk-*-assets-${this.account}-${this.region}`,
-          `arn:aws:s3:::cdk-*-assets-${this.account}-${this.region}/*`,
-        ],
-      }),
-    );
+    const cdkRolePrefix = `arn:aws:iam::${this.account}:role/cdk-hnb659fds`;
 
-    // IAM pass role for CDK deployment roles
-    this.role.addToPolicy(
+    // The CDK CLI assumes these bootstrap roles for deployment, lookups, and
+    // asset publication. CloudFormation and iam:PassRole permissions stay on
+    // the bootstrap roles instead of being granted to GitHub directly.
+    this.infraDeployRole.addToPolicy(
       new iam.PolicyStatement({
-        sid: 'CDKPassRole',
-        effect: iam.Effect.ALLOW,
-        actions: ['iam:PassRole'],
-        resources: [
-          `arn:aws:iam::${this.account}:role/cdk-*`,
-        ],
-      }),
-    );
-
-    // STS assume role for CDK (needed for cross-account/cross-region operations)
-    this.role.addToPolicy(
-      new iam.PolicyStatement({
-        sid: 'CDKAssumeRole',
+        sid: 'AssumeCdkBootstrapRoles',
         effect: iam.Effect.ALLOW,
         actions: ['sts:AssumeRole'],
         resources: [
-          `arn:aws:iam::${this.account}:role/cdk-*`,
+          `${cdkRolePrefix}-deploy-role-${this.account}-${this.region}`,
+          `${cdkRolePrefix}-file-publishing-role-${this.account}-${this.region}`,
+          `${cdkRolePrefix}-image-publishing-role-${this.account}-${this.region}`,
+          `${cdkRolePrefix}-lookup-role-${this.account}-${this.region}`,
         ],
       }),
     );
 
     // Outputs
-    new cdk.CfnOutput(this, 'RoleArn', {
-      value: this.role.roleArn,
-      description: 'IAM Role ARN for GitHub Actions OIDC authentication',
+    new cdk.CfnOutput(this, 'FrontendDeployRoleArn', {
+      value: this.frontendDeployRole.roleArn,
+      description: 'IAM role ARN for frontend deployments',
+    });
+
+    new cdk.CfnOutput(this, 'InfraDeployRoleArn', {
+      value: this.infraDeployRole.roleArn,
+      description: 'IAM role ARN for infrastructure deployments',
     });
 
     new cdk.CfnOutput(this, 'OidcProviderArn', {
