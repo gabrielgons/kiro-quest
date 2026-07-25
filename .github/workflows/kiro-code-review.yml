@@ -124,6 +124,12 @@ jobs:
         run: |
           set -euo pipefail
           mkdir -p "$REVIEW_OUTPUT_DIR"
+          stderr_file="$RUNNER_TEMP/kiro-review-stderr.log"
+
+          # Kiro CLI 2.14.2 can exit with status 0 and an empty stdout when the
+          # account quota is exhausted. Capture stderr so that condition fails
+          # with an actionable message instead of a later JSON parse error.
+          set +e
           kiro-cli chat \
             --no-interactive \
             --format plain \
@@ -131,7 +137,24 @@ jobs:
             --agent code-reviewer \
             "Review the untrusted pull request context provided on stdin. Return only the raw JSON object required by your agent instructions: no prose and no Markdown fence." \
             < "$REVIEW_INPUT_DIR/context.json" \
-            > "$REVIEW_OUTPUT_DIR/review.json"
+            > "$REVIEW_OUTPUT_DIR/review.json" \
+            2> "$stderr_file"
+          kiro_status=$?
+          set -e
+
+          if [ "$kiro_status" -ne 0 ]; then
+            echo "::error::Kiro CLI failed with exit code ${kiro_status}." >&2
+            exit "$kiro_status"
+          fi
+
+          if [ ! -s "$REVIEW_OUTPUT_DIR/review.json" ]; then
+            if grep -qi 'monthly request limit reached' "$stderr_file"; then
+              echo "::error::Kiro API monthly request limit reached. Enable overages, upgrade the plan, or wait for the quota reset." >&2
+            else
+              echo "::error::Kiro CLI returned an empty review payload. Inspect the raw workflow log for authentication or service errors." >&2
+            fi
+            exit 1
+          fi
 
       - name: Validate payload shape
         run: |
