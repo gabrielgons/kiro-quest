@@ -7,6 +7,7 @@ on:
     paths:
       - 'backend/**'
       - 'infra/**'
+      - '.github/workflows/deploy-infra.yml'
 
 permissions:
   id-token: write
@@ -61,5 +62,11 @@ jobs:
         env:
           GOOGLE_CLIENT_ID: ${{ vars.GOOGLE_CLIENT_ID }}
           GOOGLE_CLIENT_SECRET_ARN: ${{ secrets.GOOGLE_CLIENT_SECRET_ARN }}
-        run: npx cdk deploy KiroQuestFrontendStack KiroQuestAuthStack KiroQuestBackendStack --require-approval never
+        run: >-
+          npx cdk deploy
+          KiroQuestGitHubOidcStack
+          KiroQuestFrontendStack
+          KiroQuestAuthStack
+          KiroQuestBackendStack
+          --require-approval never
         working-directory: infra
