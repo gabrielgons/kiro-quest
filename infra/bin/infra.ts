@@ -21,6 +21,8 @@ const googleClientId = app.node.tryGetContext('googleClientId') || process.env.G
 const googleClientSecretArn = app.node.tryGetContext('googleClientSecretArn') || process.env.GOOGLE_CLIENT_SECRET_ARN;
 const cognitoDomainPrefix = app.node.tryGetContext('cognitoDomainPrefix') || process.env.COGNITO_DOMAIN_PREFIX || 'kiro-quest';
 const githubRepoValue = app.node.tryGetContext('githubRepo') ?? process.env.GITHUB_REPOSITORY;
+const githubRepoIdValue = app.node.tryGetContext('githubRepoId') ?? process.env.GITHUB_REPOSITORY_ID;
+const githubRepoOwnerIdValue = app.node.tryGetContext('githubRepoOwnerId') ?? process.env.GITHUB_REPOSITORY_OWNER_ID;
 
 if (
   typeof githubRepoValue !== 'string'
@@ -33,6 +35,17 @@ if (
 }
 
 const githubRepo = githubRepoValue;
+
+if (
+  typeof githubRepoIdValue !== 'string'
+  || !/^\d+$/.test(githubRepoIdValue)
+  || typeof githubRepoOwnerIdValue !== 'string'
+  || !/^\d+$/.test(githubRepoOwnerIdValue)
+) {
+  throw new Error(
+    'githubRepoId and githubRepoOwnerId must be configured with immutable numeric GitHub IDs',
+  );
+}
 
 const env: cdk.Environment = {
   account,
@@ -106,6 +119,9 @@ new GitHubOidcStack(app, 'KiroQuestGitHubOidcStack', {
   env,
   description: 'Kiro Quest - GitHub Actions OIDC authentication for CI/CD',
   repositoryName: githubRepo,
+  repositoryId: githubRepoIdValue,
+  repositoryOwnerId: githubRepoOwnerIdValue,
+  siteBucketArn: frontendStack.siteBucket.bucketArn,
   distributionId: frontendStack.distribution.distributionId,
 });
 

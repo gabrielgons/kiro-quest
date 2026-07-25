@@ -243,14 +243,15 @@ A autenticacao e feita via GitHub OIDC Provider, eliminando a necessidade de arm
 
 #### Pre-requisitos
 
-1. Faca o deploy do stack `KiroQuestGitHubOidcStack` para criar o OIDC provider e a IAM role:
+1. Faca o deploy do stack `KiroQuestGitHubOidcStack` para criar o OIDC
+   provider e as roles separadas de frontend e infraestrutura:
 
 ```bash
 cd infra
 npx cdk deploy KiroQuestGitHubOidcStack -c githubRepo=seu-usuario/kiro-quest
 ```
 
-2. Configure as seguintes **Repository Variables** no GitHub (`Settings > Secrets and variables > Actions > Variables`):
+2. Configure as variaveis abaixo no environment `production-frontend`:
 
 | Variavel | Descricao | Exemplo |
 | --- | --- | --- |
@@ -258,38 +259,45 @@ npx cdk deploy KiroQuestGitHubOidcStack -c githubRepo=seu-usuario/kiro-quest
 | `AWS_REGION` | Regiao AWS principal | `us-east-1` |
 | `S3_BUCKET_NAME` | Nome do bucket S3 do frontend | `kiro-quest-site-123456789012` |
 | `CLOUDFRONT_DISTRIBUTION_ID` | ID da distribuicao CloudFront | `E1234567890ABC` |
+| `VITE_*` | Configuracao publica usada no build do frontend | Conforme o ambiente |
 
-3. Mantenha as variaveis e o secret `GOOGLE_CLIENT_SECRET_ARN` no escopo do
-   **Environment `production`**. Os jobs de deploy declaram `environment:
-   production`, e a trust policy OIDC aceita apenas o subject desse environment.
+3. No environment `production-infra`, configure `AWS_ACCOUNT_ID`, `AWS_REGION`,
+   `GOOGLE_CLIENT_ID` e `GOOGLE_CLIENT_SECRET_ARN`. O ARN apenas identifica o
+   secret no Secrets Manager; o valor do client secret continua somente na AWS.
 
-4. No environment `production` (`Settings > Environments > production`), defina
-   **Deployment branches and tags** como `main`. Sem essa restricao, qualquer
-   branch que declare o environment obtem o subject OIDC e o gate perde efeito.
-   Esse e tambem o lugar para ativar `Required reviewers` se quiser aprovacao
-   manual antes de cada deploy.
+4. Restrinja os environments `production-frontend` e `production-infra` a
+   branches protegidas e proteja `main`. Esse e tambem o lugar para ativar
+   `Required reviewers` se quiser aprovacao manual antes de cada deploy.
 
 #### Trust Relationship
 
-A role `KiroQuestGitHubActionsRole` confia apenas em tokens OIDC emitidos pelo repositorio configurado, via condicao:
+As roles `KiroQuestFrontendDeployRole` e `KiroQuestInfraDeployRole` usam
+subjects diferentes e tambem validam repositorio, branch, environment e nome
+do workflow. Exemplo da role de frontend:
 
 ```json
 {
   "StringEquals": {
-    "token.actions.githubusercontent.com:sub": "repo:seu-usuario/kiro-quest:environment:production"
+    "token.actions.githubusercontent.com:aud": "sts.amazonaws.com",
+    "token.actions.githubusercontent.com:sub": "repo:seu-usuario/kiro-quest:environment:production-frontend",
+    "token.actions.githubusercontent.com:repository": "seu-usuario/kiro-quest",
+    "token.actions.githubusercontent.com:repository_id": "<ID imutavel do repositorio>",
+    "token.actions.githubusercontent.com:repository_owner_id": "<ID imutavel do owner>",
+    "token.actions.githubusercontent.com:ref": "refs/heads/main",
+    "token.actions.githubusercontent.com:environment": "production-frontend",
+    "token.actions.githubusercontent.com:workflow": "Deploy Frontend"
   }
 }
 ```
 
-Somente jobs que declaram `environment: production` podem assumir a role. Isso e
-mais restrito que limitar por branch: um workflow novo adicionado a `main` nao
-consegue credenciais AWS sem optar pelo environment. Workflows de pull request
-nao recebem credenciais.
+O frontend recebe somente acesso ao bucket e a distribuicao CloudFront exatos.
+A infraestrutura recebe somente `sts:AssumeRole` para as roles de bootstrap do
+CDK; CloudFormation e `iam:PassRole` nao sao concedidos diretamente ao GitHub.
+Workflows de pull request nao recebem credenciais AWS.
 
-> **Ordem de aplicacao.** Ao alterar o subject da trust policy, faca
-> `npx cdk deploy KiroQuestGitHubOidcStack` **antes** de mergear a mudanca nos
-> workflows. Se o subject na AWS e o declarado no workflow divergirem, o step
-> `Configure AWS credentials` falha com `Not authorized to perform
+> **Ordem de aplicacao.** Crie as novas roles e os environments antes de
+> mergear a mudanca dos workflows. Valide os dois deploys antes de remover uma
+> role anterior; subjects divergentes falham com `Not authorized to perform
 > sts:AssumeRoleWithWebIdentity`.
 
 ### Estrutura dos workflows
