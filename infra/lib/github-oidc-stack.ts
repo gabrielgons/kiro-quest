@@ -35,8 +35,17 @@ export class GitHubOidcStack extends cdk.Stack {
       thumbprints: ['6938fd4d98bab03faadb97b34396831e3780aea1'],
     });
 
-    // IAM Role for GitHub Actions
-    // Scoped to the specific repository for least privilege
+    // IAM Role for GitHub Actions.
+    //
+    // The trust policy accepts a single OIDC subject: a job that declares
+    // `environment: production`. This is tighter than scoping by branch, because
+    // a new workflow added to main cannot assume the role unless it also opts
+    // into the environment, which is where the deployment configuration and the
+    // approval rules live. Pull request validation deliberately runs without AWS
+    // credentials.
+    //
+    // This depends on the GitHub environment restricting its deployment branches
+    // to `main`; otherwise any branch could obtain the environment subject.
     this.role = new iam.Role(this, 'GitHubActionsRole', {
       roleName: 'KiroQuestGitHubActionsRole',
       assumedBy: new iam.FederatedPrincipal(
@@ -44,9 +53,8 @@ export class GitHubOidcStack extends cdk.Stack {
         {
           StringEquals: {
             'token.actions.githubusercontent.com:aud': 'sts.amazonaws.com',
-          },
-          StringLike: {
-            'token.actions.githubusercontent.com:sub': `repo:${props.repositoryName}:*`,
+            'token.actions.githubusercontent.com:sub':
+              `repo:${props.repositoryName}:environment:production`,
           },
         },
         'sts:AssumeRoleWithWebIdentity',

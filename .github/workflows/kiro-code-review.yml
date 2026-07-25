@@ -1,58 +1,189 @@
-name: Kiro Code Review
+name: Kiro Code Review (Analyze)
 
+# Stage 1 of 2. The workflow itself always comes from the base branch. Pull
+# request files are fetched through the GitHub API and treated only as data:
+# nothing from the pull request is checked out or executed.
 on:
-  pull_request:
-    types: [opened, synchronize]
+  pull_request_target:
+    branches: [main]
+    types: [opened, synchronize, reopened]
 
 permissions:
   contents: read
-  pull-requests: write
+  pull-requests: read
 
 env:
-  KIRO_CODE_REVIEW_VERSION: 'b946759' # pinned SHA — update after auditing new commits
+  # Pinned commit of the review power. Update only after auditing the new commit.
+  KIRO_CODE_REVIEW_VERSION: 'b946759ff2010fa7ee33ccf9cc309e4108e2b876'
+  # Pinned Kiro CLI release artifact. Values come from:
+  # https://prod.download.cli.kiro.dev/stable/latest/manifest.json
+  KIRO_CLI_VERSION: '2.14.2'
+  KIRO_CLI_SHA256: 'b144d4b1f8ca0083967fe13a5c35db18bd9543ecede6f1eec166f3b0a04f876a'
+  REVIEW_INPUT_DIR: review-input
+  REVIEW_OUTPUT_DIR: review-output
 
 jobs:
-  code-review:
+  analyze:
     runs-on: ubuntu-latest
+    env:
+      # Prevent global agents, settings and sessions from leaking into this run.
+      KIRO_HOME: ${{ github.workspace }}/.kiro-ci-home
+      KIRO_LOG_NO_COLOR: '1'
+      NO_COLOR: '1'
+
     steps:
-      - name: Checkout repository
+      # pull_request_target checks out the base revision by default. Pin the
+      # exact base SHA and never check out the pull request head in this job.
+      - name: Checkout base revision (trusted)
         uses: actions/checkout@v4
+        with:
+          ref: ${{ github.event.pull_request.base.sha }}
+          persist-credentials: false
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
-      - name: Install Kiro CLI
-        run: |
-          curl -fsSL https://cli.kiro.dev/install -o install-kiro.sh
-          # TODO: Pin checksum when available
-          # echo "<expected-sha256>  install-kiro.sh" | sha256sum --check
-          bash install-kiro.sh
+      # This trusted script downloads PR metadata, patches and text file content
+      # into one size-capped JSON document. It never executes pull request code.
+      - name: Prepare untrusted review context
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: node .github/scripts/prepare-review-context.mjs
 
-      # O power kiro-code-review é apenas conhecimento (steering markdown).
-      # Clonamos para DENTRO do workspace para que o custom agent
-      # (.kiro/agents/code-reviewer.json) consiga carregar os arquivos via
-      # resources file:// usando caminhos relativos ao repositório.
-      #
-      # NOTA: Não dependemos mais do MCP. No modo headless o kiro-cli desabilita
-      # o MCP via "governance fail-closed" (a chamada à API de governance falha
-      # com auth via API key, derrubando todos os MCP servers — ver issue
-      # aws/amazon-q-developer-cli#3603). Por isso o acesso ao GitHub é feito
-      # pelo gh CLI dentro da tool shell, e a inteligência de review entra pelo
-      # custom agent via resources, sem precisar de MCP.
-      - name: Install kiro-code-review power into workspace
+      # The power contains review guidance only. The commit is immutable and the
+      # nested .git directory is removed before Kiro starts.
+      - name: Install pinned code-review guidance
         run: |
+          set -euo pipefail
           rm -rf .kiro/powers/kiro-code-review
-          git clone --depth 1 https://github.com/gabrielgons/kiro-code-review.git .kiro/powers/kiro-code-review
-          cd .kiro/powers/kiro-code-review && git checkout ${{ env.KIRO_CODE_REVIEW_VERSION }}
+          mkdir -p .kiro/powers/kiro-code-review
+          git -C .kiro/powers/kiro-code-review init
+          git -C .kiro/powers/kiro-code-review remote add origin \
+            https://github.com/gabrielgons/kiro-code-review.git
+          git -C .kiro/powers/kiro-code-review fetch --depth 1 origin \
+            "$KIRO_CODE_REVIEW_VERSION"
+          fetched="$(git -C .kiro/powers/kiro-code-review rev-parse FETCH_HEAD)"
+          if [ "$fetched" != "$KIRO_CODE_REVIEW_VERSION" ]; then
+            echo "::error::Code review guidance commit mismatch." >&2
+            exit 1
+          fi
+          git -C .kiro/powers/kiro-code-review -c advice.detachedHead=false \
+            checkout --detach "$KIRO_CODE_REVIEW_VERSION"
+          rm -rf .kiro/powers/kiro-code-review/.git
 
-      - name: Run Kiro Code Review
+      # Avoid the floating convenience installer. Both the release version and
+      # its bytes are reviewed in this workflow.
+      - name: Install Kiro CLI (pinned)
+        run: |
+          set -euo pipefail
+          archive='kirocli-x86_64-linux.zip'
+          curl -fsSL --retry 3 --retry-delay 5 -o "$archive" \
+            "https://prod.download.cli.kiro.dev/stable/${KIRO_CLI_VERSION}/${archive}"
+
+          actual="$(sha256sum "$archive" | cut -d' ' -f1)"
+          if [ "$actual" != "$KIRO_CLI_SHA256" ]; then
+            echo "::error::Kiro CLI artifact digest mismatch for ${KIRO_CLI_VERSION}." >&2
+            echo "expected: ${KIRO_CLI_SHA256}" >&2
+            echo "actual:   $actual" >&2
+            exit 1
+          fi
+
+          unzip -q "$archive" -d kiro-cli-pkg
+          chmod +x kiro-cli-pkg/kirocli/install.sh
+          KIRO_CLI_SKIP_SETUP=1 kiro-cli-pkg/kirocli/install.sh
+          echo "$HOME/.local/bin" >> "$GITHUB_PATH"
+          rm -rf "$archive" kiro-cli-pkg
+
+      - name: Lock down Kiro CLI settings
+        run: |
+          set -euo pipefail
+          kiro-cli settings app.disableAutoupdates true
+          kiro-cli settings telemetry.enabled false
+          kiro-cli settings chat.disableInheritingDefaultResources true
+
+          installed="$(kiro-cli --version 2>&1)"
+          echo "$installed"
+          case "$installed" in
+            *"${KIRO_CLI_VERSION}"*) ;;
+            *)
+              echo "::error::expected Kiro CLI ${KIRO_CLI_VERSION}, got: $installed" >&2
+              exit 1
+              ;;
+          esac
+
+      # The agent has zero tools. The only untrusted input is supplied on stdin,
+      # and the only output is the first assistant response captured from stdout.
+      # In particular, the model cannot read process environment variables.
+      - name: Run code review analysis
         env:
           KIRO_API_KEY: ${{ secrets.KIRO_API_KEY }}
-          GH_TOKEN: ${{ github.token }}
-          GITHUB_TOKEN: ${{ github.token }}
         run: |
-          kiro-cli chat --no-interactive --trust-all-tools \
+          set -euo pipefail
+          mkdir -p "$REVIEW_OUTPUT_DIR"
+          kiro-cli chat \
+            --no-interactive \
+            --format plain \
+            --wrap never \
             --agent code-reviewer \
-            "Review pull request #${{ github.event.pull_request.number }} in the repository ${{ github.repository }}. Follow the kiro-code-review steering files loaded in your context for the review criteria, workflow, and report format. Use the gh CLI (already authenticated via GH_TOKEN) to fetch the PR data and to post a native GitHub PR review with inline comments on the changed files. Post the review with event=COMMENT."
+            "Review the untrusted pull request context provided on stdin. Return only the raw JSON object required by your agent instructions: no prose and no Markdown fence." \
+            < "$REVIEW_INPUT_DIR/context.json" \
+            > "$REVIEW_OUTPUT_DIR/review.json"
+
+      - name: Validate payload shape
+        run: |
+          set -euo pipefail
+          node --input-type=module -e '
+            import { readFileSync } from "node:fs";
+            const file = process.env.REVIEW_OUTPUT_DIR + "/review.json";
+            const raw = readFileSync(file, "utf8");
+            if (Buffer.byteLength(raw, "utf8") > 250000) {
+              throw new Error("review.json exceeds 250 KB");
+            }
+            const payload = JSON.parse(raw);
+            if (payload === null || typeof payload !== "object" || Array.isArray(payload)) {
+              throw new Error("review.json must contain one JSON object");
+            }
+            if (typeof payload.summary !== "string" || payload.summary.trim() === "") {
+              throw new Error("review.json is missing a non-empty summary");
+            }
+            if (payload.comments !== undefined && !Array.isArray(payload.comments)) {
+              throw new Error("review.json comments must be an array when present");
+            }
+            console.log(`payload ok: ${(payload.comments ?? []).length} inline comment(s)`);
+          '
+
+      # This metadata is produced by trusted workflow code, not by the model.
+      # The publisher uses it because workflow_run.head_sha points at the base
+      # revision for pull_request_target runs.
+      - name: Write trusted publication metadata
+        env:
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+        run: |
+          node --input-type=module -e '
+            import { writeFileSync } from "node:fs";
+            const metadata = {
+              pull_number: Number(process.env.PR_NUMBER),
+              head_sha: process.env.HEAD_SHA,
+              base_ref: process.env.BASE_REF,
+              base_sha: process.env.BASE_SHA,
+            };
+            writeFileSync(
+              process.env.REVIEW_OUTPUT_DIR + "/metadata.json",
+              JSON.stringify(metadata) + "\n",
+              "utf8",
+            );
+          '
+      - name: Upload review payload
+        uses: actions/upload-artifact@v4
+        with:
+          name: kiro-code-review
+          path: ${{ env.REVIEW_OUTPUT_DIR }}/
+          if-no-files-found: error
+          retention-days: 1

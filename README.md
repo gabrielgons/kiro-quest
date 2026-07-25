@@ -232,9 +232,10 @@ O projeto utiliza GitHub Actions para integracao continua e deploy automatizado.
 | --- | --- | --- |
 | `ci.yml` | Pull Request para `main` | Valida build, testes e typecheck (frontend, backend, infra) |
 | `deploy-frontend.yml` | Push para `main` (paths: src/, content/, public/) | Build Vue app, sync S3, invalidate CloudFront |
-| `deploy-backend.yml` | Push para `main` (paths: backend/, infra/) | Bundle Lambdas, CDK deploy backend stack |
-| `cdk-diff.yml` | Pull Request (paths: infra/) | Roda `cdk diff` e posta resultado como comentario no PR |
-| `kiro-code-review.yml` | Pull Request (opened/synchronize) | Code review automatizado com Kiro |
+| `deploy-infra.yml` | Push para `main` (paths: backend/, infra/) | Bundle Lambdas e deploy das stacks de infraestrutura |
+| `cdk-diff.yml` | Pull Request (paths: backend/, infra/) | Typecheck e `cdk synth` offline, sem credenciais AWS |
+| `kiro-code-review.yml` | `pull_request_target` (opened/synchronize/reopened) | Estagio 1: trata o PR somente como dados, analisa sem tools e publica um artefato JSON |
+| `kiro-code-review-publish.yml` | `workflow_run` do estagio 1 | Estagio 2: valida o artefato e publica o review com `event=COMMENT` |
 
 ### Configuracao do OIDC
 
@@ -246,7 +247,7 @@ A autenticacao e feita via GitHub OIDC Provider, eliminando a necessidade de arm
 
 ```bash
 cd infra
-npx cdk deploy KiroQuestGitHubOidcStack -c githubRepo=owner/kiro-quest
+npx cdk deploy KiroQuestGitHubOidcStack -c githubRepo=seu-usuario/kiro-quest
 ```
 
 2. Configure as seguintes **Repository Variables** no GitHub (`Settings > Secrets and variables > Actions > Variables`):
@@ -258,7 +259,15 @@ npx cdk deploy KiroQuestGitHubOidcStack -c githubRepo=owner/kiro-quest
 | `S3_BUCKET_NAME` | Nome do bucket S3 do frontend | `kiro-quest-site-123456789012` |
 | `CLOUDFRONT_DISTRIBUTION_ID` | ID da distribuicao CloudFront | `E1234567890ABC` |
 
-3. Crie um **Environment** chamado `production` no GitHub (`Settings > Environments > New environment`). Os workflows de deploy referenciam este environment.
+3. Mantenha as variaveis e o secret `GOOGLE_CLIENT_SECRET_ARN` no escopo do
+   **Environment `production`**. Os jobs de deploy declaram `environment:
+   production`, e a trust policy OIDC aceita apenas o subject desse environment.
+
+4. No environment `production` (`Settings > Environments > production`), defina
+   **Deployment branches and tags** como `main`. Sem essa restricao, qualquer
+   branch que declare o environment obtem o subject OIDC e o gate perde efeito.
+   Esse e tambem o lugar para ativar `Required reviewers` se quiser aprovacao
+   manual antes de cada deploy.
 
 #### Trust Relationship
 
@@ -266,13 +275,22 @@ A role `KiroQuestGitHubActionsRole` confia apenas em tokens OIDC emitidos pelo r
 
 ```json
 {
-  "StringLike": {
-    "token.actions.githubusercontent.com:sub": "repo:owner/kiro-quest:*"
+  "StringEquals": {
+    "token.actions.githubusercontent.com:sub": "repo:seu-usuario/kiro-quest:environment:production"
   }
 }
 ```
 
-Isso garante que apenas GitHub Actions rodando neste repositorio podem assumir a role.
+Somente jobs que declaram `environment: production` podem assumir a role. Isso e
+mais restrito que limitar por branch: um workflow novo adicionado a `main` nao
+consegue credenciais AWS sem optar pelo environment. Workflows de pull request
+nao recebem credenciais.
+
+> **Ordem de aplicacao.** Ao alterar o subject da trust policy, faca
+> `npx cdk deploy KiroQuestGitHubOidcStack` **antes** de mergear a mudanca nos
+> workflows. Se o subject na AWS e o declarado no workflow divergirem, o step
+> `Configure AWS credentials` falha com `Not authorized to perform
+> sts:AssumeRoleWithWebIdentity`.
 
 ### Estrutura dos workflows
 
@@ -280,10 +298,75 @@ Isso garante que apenas GitHub Actions rodando neste repositorio podem assumir a
 .github/workflows/
 ├── ci.yml                  # Validacao em PRs
 ├── deploy-frontend.yml     # Deploy frontend (S3 + CloudFront)
-├── deploy-backend.yml      # Deploy backend (Lambda + CDK)
-├── cdk-diff.yml            # CDK diff em PRs com mudancas em infra/
-└── kiro-code-review.yml    # Code review automatizado
+├── deploy-infra.yml        # Deploy backend e infraestrutura (Lambda + CDK)
+├── cdk-diff.yml            # CDK synth offline em PRs
+├── kiro-code-review.yml    # Revisao automatizada: analise (sem token de escrita)
+└── kiro-code-review-publish.yml  # Revisao automatizada: publicacao validada
 ```
+
+### Revisao automatizada de codigo
+
+A revisao roda em dois estagios, porque o conteudo de um pull request nao e
+confiavel e um agente que o le nao pode ter acesso simultaneo a segredos de CI e
+a um token de escrita.
+
+**Estagio 1 - `kiro-code-review.yml`** (evento `pull_request_target`)
+
+- O workflow, a definicao do agente e os scripts vem sempre da **base** do PR.
+- O head do PR nao e baixado para o workspace. Um script confiavel busca
+  metadados, patches e conteudo textual pela API e monta um `context.json` com
+  limites de arquivos e tamanho; nenhum codigo do PR e executado.
+- `permissions` sao apenas de leitura. O token automatico do GitHub e usado pelo
+  script preparador, mas nao e exportado ao processo do Kiro.
+- O agente roda com `tools: []`: sem `read`, `write`, `shell`, ferramenta de
+  rede, AWS ou MCP. O processo do CLI ainda usa a rede para falar com o servico
+  Kiro; o contexto entra por `stdin` e a resposta JSON e capturada de `stdout`.
+- O `KIRO_HOME` e efemero, recursos herdados e auto-update ficam desativados.
+- A telemetria do CLI fica desativada neste job.
+- Saida unica: `review-output/review.json`, validada e publicada como artefato.
+
+**Estagio 2 - `kiro-code-review-publish.yml`** (evento `workflow_run`)
+
+- Executa sempre a definicao da branch default, entao um PR nao consegue alterar
+  este job nem o script de publicacao.
+- Recebe `pull-requests: write`, mas nao recebe `KIRO_API_KEY` e nao roda agente.
+- `.github/scripts/publish-review.mjs` valida o payload antes de chamar a API:
+  usa o numero e o head SHA de um metadata separado, criado pelo workflow
+  confiavel e nunca pelo modelo, confirma a origem do `workflow_run`, recusa
+  publicar se o PR avancou, aceita comentarios apenas em paths e linhas que
+  existem no diff, aplica limites de tamanho e quantidade, remove caracteres de
+  controle e bidi, forca `event=COMMENT` e adiciona o rodape de atribuicao.
+  Achados que nao ancoram no diff vao para o corpo do review.
+
+**Pin do Kiro CLI.** O estagio 1 nao usa o instalador de conveniencia
+(`cli.kiro.dev/install`), porque ele resolve sempre para `stable/latest` e o
+binario mudaria entre execucoes. O workflow baixa o artefato versionado e confere
+o digest; as duas constantes ficam no proprio arquivo, entao qualquer atualizacao
+passa por code review:
+
+```yaml
+KIRO_CLI_VERSION: '2.14.2'
+KIRO_CLI_SHA256: 'b144d4b1f8ca0083967fe13a5c35db18bd9543ecede6f1eec166f3b0a04f876a'
+```
+
+Para atualizar, leia a versao e o `sha256` da entrada
+`kirocli-x86_64-linux.zip` em
+`https://prod.download.cli.kiro.dev/stable/latest/manifest.json`, revise as
+mudancas do CLI e abra um PR alterando os dois valores. Um step posterior roda
+`kiro-cli --version` e falha se o pin nao tiver surtido efeito.
+
+Nenhuma Repository Variable e necessaria para a revisao automatizada. O unico
+segredo usado e `KIRO_API_KEY`, que precisa estar no escopo **Repository** (nao
+em um Environment), porque o job de analise nao declara `environment:`.
+
+**Limite de rede:** o desenho atual remove rede acionavel pelo modelo, mas nao
+instala um firewall no runner hospedado pelo GitHub. Os steps confiaveis ainda
+precisam acessar a API e o Git do GitHub, baixar o artefato versionado do Kiro e
+chamar o servico Kiro. Para uma allowlist de egress efetiva, use um runner
+self-hosted efemero atras de proxy/firewall, primeiro em modo de auditoria para
+identificar todos os endpoints do Kiro. O conteudo textual do PR e enviado ao
+servico Kiro por definicao; isso deve ser aceito pela politica de dados do
+repositorio.
 
 ---
 

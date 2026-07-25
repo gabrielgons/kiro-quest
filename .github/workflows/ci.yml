@@ -43,6 +43,9 @@ jobs:
         run: npm run build
         working-directory: infra
 
+      - name: Test code review pipeline
+        run: node --test .github/scripts/review-pipeline-tests.mjs
+
       - name: Run frontend tests
         run: npm test
 
