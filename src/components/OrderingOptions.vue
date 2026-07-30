@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, nextTick, ref, useId } from 'vue';
+import { computed, nextTick, onBeforeUnmount, ref, useId } from 'vue';
 import type { OrderingItem } from '@/data/types';
 import { useLocale } from '@/i18n/useLocale';
 
@@ -22,6 +22,8 @@ const dropTargetId = ref<string | null>(null);
 const dragStartIndex = ref<number | null>(null);
 const keyboardGrabbedItemId = ref<string | null>(null);
 const keyboardOriginalOrderIds = ref<string[] | null>(null);
+const activePointerId = ref<number | null>(null);
+let activeDragHandle: HTMLElement | null = null;
 
 const orderedItems = computed<OrderingItem[]>(() => {
   const itemsById = new Map(props.items.map((item) => [item.id, item]));
@@ -63,6 +65,7 @@ function startDrag(itemId: string, event: PointerEvent): void {
   if (
     props.disabled ||
     keyboardGrabbedItemId.value !== null ||
+    activePointerId.value !== null ||
     (event.pointerType === 'mouse' && event.button !== 0)
   ) {
     return;
@@ -76,9 +79,12 @@ function startDrag(itemId: string, event: PointerEvent): void {
   draggedItemId.value = itemId;
   dropTargetId.value = itemId;
   dragStartIndex.value = itemIndex;
+  activePointerId.value = event.pointerId;
 
   const handle = event.currentTarget as HTMLElement;
+  activeDragHandle = handle;
   handle.setPointerCapture?.(event.pointerId);
+  addGlobalDragListeners();
 }
 
 function handlePointerMove(event: PointerEvent): void {
@@ -88,6 +94,8 @@ function handlePointerMove(event: PointerEvent): void {
     !draggedId ||
     !currentOrder ||
     props.disabled ||
+    activePointerId.value === null ||
+    event.pointerId !== activePointerId.value ||
     keyboardGrabbedItemId.value !== null
   ) {
     return;
@@ -112,26 +120,64 @@ function handlePointerMove(event: PointerEvent): void {
   emit('reorder', newOrder);
 }
 
-async function finishDrag(event: PointerEvent): Promise<void> {
-  const draggedId = draggedItemId.value;
-  const finalOrder = dragOrderIds.value;
-  const initialIndex = dragStartIndex.value;
+function addGlobalDragListeners(): void {
+  window.addEventListener('pointerup', handleGlobalPointerEnd, true);
+  window.addEventListener('pointercancel', handleGlobalPointerEnd, true);
+  window.addEventListener('blur', handleWindowBlur);
+  document.addEventListener('visibilitychange', handleVisibilityChange);
+}
+
+function removeGlobalDragListeners(): void {
+  window.removeEventListener('pointerup', handleGlobalPointerEnd, true);
+  window.removeEventListener('pointercancel', handleGlobalPointerEnd, true);
+  window.removeEventListener('blur', handleWindowBlur);
+  document.removeEventListener('visibilitychange', handleVisibilityChange);
+}
+
+function handleGlobalPointerEnd(event: PointerEvent): void {
+  void finishDrag(event.pointerId);
+}
+
+function handleWindowBlur(): void {
+  void finishDrag();
+}
+
+function handleVisibilityChange(): void {
+  if (document.hidden) {
+    void finishDrag();
+  }
+}
+
+function handleLostPointerCapture(event: PointerEvent): void {
+  void finishDrag(event.pointerId);
+}
+
+async function finishDrag(pointerId?: number): Promise<void> {
+  const currentPointerId = activePointerId.value;
   if (
-    !draggedId ||
-    !finalOrder ||
-    initialIndex === null ||
-    keyboardGrabbedItemId.value !== null
+    currentPointerId === null ||
+    (pointerId !== undefined && pointerId !== currentPointerId)
   ) {
     return;
   }
 
-  const handle = event.currentTarget as HTMLElement;
-  if (handle.hasPointerCapture?.(event.pointerId)) {
-    handle.releasePointerCapture?.(event.pointerId);
+  const draggedId = draggedItemId.value;
+  const finalOrder = dragOrderIds.value;
+  const initialIndex = dragStartIndex.value;
+
+  removeGlobalDragListeners();
+  activePointerId.value = null;
+
+  const handle = activeDragHandle;
+  activeDragHandle = null;
+  if (handle?.hasPointerCapture?.(currentPointerId)) {
+    handle.releasePointerCapture?.(currentPointerId);
   }
 
-  const finalIndex = finalOrder.indexOf(draggedId);
-  const movedItem = props.items.find((item) => item.id === draggedId);
+  const finalIndex = draggedId && finalOrder ? finalOrder.indexOf(draggedId) : -1;
+  const movedItem = draggedId
+    ? props.items.find((item) => item.id === draggedId)
+    : undefined;
 
   draggedItemId.value = null;
   dropTargetId.value = null;
@@ -140,10 +186,24 @@ async function finishDrag(event: PointerEvent): Promise<void> {
   await nextTick();
   dragOrderIds.value = null;
 
-  if (movedItem && finalIndex !== -1 && finalIndex !== initialIndex) {
+  if (
+    draggedId &&
+    finalOrder &&
+    initialIndex !== null &&
+    keyboardGrabbedItemId.value === null &&
+    movedItem &&
+    finalIndex !== -1 &&
+    finalIndex !== initialIndex
+  ) {
     await announceMovement(movedItem, finalIndex);
   }
 }
+
+onBeforeUnmount(() => {
+  removeGlobalDragListeners();
+  activePointerId.value = null;
+  activeDragHandle = null;
+});
 
 function startKeyboardMove(itemId: string): void {
   if (props.disabled || draggedItemId.value !== null) return;
@@ -276,8 +336,6 @@ function handleHandleBlur(itemId: string): void {
       role="list"
       :aria-describedby="instructionsId"
       @pointermove="handlePointerMove"
-      @pointerup="finishDrag"
-      @pointercancel="finishDrag"
     >
       <div
         v-for="(item, index) in orderedItems"
@@ -304,6 +362,7 @@ function handleHandleBlur(itemId: string): void {
           )"
           :data-testid="`drag-handle-${item.id}`"
           @pointerdown.prevent="startDrag(item.id, $event)"
+          @lostpointercapture="handleLostPointerCapture"
           @keydown="handleHandleKeydown(item.id, $event)"
           @blur="handleHandleBlur(item.id)"
         >
