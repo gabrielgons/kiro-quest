@@ -1,4 +1,4 @@
-import { beforeEach, describe, expect, it } from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import OrderingOptions from '@/components/OrderingOptions.vue';
 import { useLocale } from '@/i18n/useLocale';
@@ -31,7 +31,7 @@ describe('OrderingOptions', () => {
     ]);
   });
 
-  it('moves an item directly to the selected position and announces the change', async () => {
+  it('reorders an item by touch drag and announces the change', async () => {
     const wrapper = mount(OrderingOptions, {
       props: {
         items,
@@ -40,16 +40,43 @@ describe('OrderingOptions', () => {
       },
     });
 
-    await wrapper.get('[data-testid="position-select-step-a"]').setValue('3');
+    const targetItem = wrapper.get('[data-order-id="step-c"]').element;
+    const originalDescriptor = Object.getOwnPropertyDescriptor(document, 'elementFromPoint');
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn(() => targetItem),
+    });
 
-    expect(wrapper.emitted('reorder')?.[0]?.[0]).toEqual([
-      'step-b',
-      'step-c',
-      'step-a',
-    ]);
-    expect(wrapper.get('[aria-live="polite"]').text()).toBe(
-      'Etapa A agora está na posição 3 de 3.',
-    );
+    try {
+      await wrapper.get('[data-testid="drag-handle-step-a"]').trigger('pointerdown', {
+        pointerId: 1,
+        pointerType: 'touch',
+        button: 0,
+      });
+      await wrapper.get('.order-list').trigger('pointermove', {
+        pointerId: 1,
+        clientX: 20,
+        clientY: 120,
+      });
+      await wrapper.get('.order-list').trigger('pointerup', { pointerId: 1 });
+
+      expect(wrapper.emitted('reorder')?.[0]?.[0]).toEqual([
+        'step-b',
+        'step-c',
+        'step-a',
+      ]);
+      await vi.waitFor(() => {
+        expect(wrapper.get('[aria-live="polite"]').text()).toBe(
+          'Etapa A agora está na posição 3 de 3.',
+        );
+      });
+    } finally {
+      if (originalDescriptor) {
+        Object.defineProperty(document, 'elementFromPoint', originalDescriptor);
+      } else {
+        Reflect.deleteProperty(document, 'elementFromPoint');
+      }
+    }
   });
 
   it('keeps arrow controls as an accessible alternative', async () => {
@@ -84,9 +111,8 @@ describe('OrderingOptions', () => {
       },
     });
 
-    expect(wrapper.findAll('select').every((select) => select.attributes('disabled') !== undefined))
-      .toBe(true);
     expect(wrapper.findAll('button').every((button) => button.attributes('disabled') !== undefined))
       .toBe(true);
+    expect(wrapper.get('.order-list').classes()).toContain('is-disabled');
   });
 });

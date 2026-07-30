@@ -61,7 +61,7 @@ describe('QuizFlow safe exit', () => {
     wrapper.unmount();
   });
 
-  it('submits the order chosen through the position control', async () => {
+  it('submits the order chosen through drag and drop', async () => {
     const store = useQuizStore();
     store.startStage('kiro-basics');
     store.currentQuestionIndex = 3;
@@ -70,16 +70,41 @@ describe('QuizFlow safe exit', () => {
     const itemIdsBeforeMove = wrapper.findAll('[data-testid^="order-item-"]').map(
       (item) => item.attributes('data-testid')!.replace('order-item-', ''),
     );
-    expect(itemIdsBeforeMove).toContain('step-1');
+    const draggedId = itemIdsBeforeMove[0]!;
+    const targetId = itemIdsBeforeMove[itemIdsBeforeMove.length - 1]!;
+    const targetItem = wrapper.get(`[data-order-id="${targetId}"]`).element;
+    const originalDescriptor = Object.getOwnPropertyDescriptor(document, 'elementFromPoint');
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: vi.fn(() => targetItem),
+    });
 
-    await wrapper.get('[data-testid="position-select-step-1"]').setValue('4');
-    await wrapper.get('button.btn-primary').trigger('click');
+    try {
+      await wrapper.get(`[data-testid="drag-handle-${draggedId}"]`).trigger('pointerdown', {
+        pointerId: 1,
+        pointerType: 'mouse',
+        button: 0,
+      });
+      await wrapper.get('.order-list').trigger('pointermove', {
+        pointerId: 1,
+        clientX: 20,
+        clientY: 300,
+      });
+      await wrapper.get('.order-list').trigger('pointerup', { pointerId: 1 });
+      await wrapper.get('button.btn-primary').trigger('click');
 
-    const expectedOrder = itemIdsBeforeMove.filter((id) => id !== 'step-1');
-    expectedOrder.push('step-1');
-    expect(store.userAnswersByStage['kiro-basics']?.[0]?.selectedOptionId).toEqual(
-      expectedOrder,
-    );
+      const expectedOrder = itemIdsBeforeMove.slice(1);
+      expectedOrder.push(draggedId);
+      expect(store.userAnswersByStage['kiro-basics']?.[0]?.selectedOptionId).toEqual(
+        expectedOrder,
+      );
+    } finally {
+      if (originalDescriptor) {
+        Object.defineProperty(document, 'elementFromPoint', originalDescriptor);
+      } else {
+        Reflect.deleteProperty(document, 'elementFromPoint');
+      }
+    }
     wrapper.unmount();
   });
 });
