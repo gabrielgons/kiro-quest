@@ -60,4 +60,26 @@ describe('QuizFlow safe exit', () => {
     expect(store.userAnswersByStage['kiro-basics']).toEqual(savedAnswers);
     wrapper.unmount();
   });
+
+  it('submits the order chosen through the position control', async () => {
+    const store = useQuizStore();
+    store.startStage('kiro-basics');
+    store.currentQuestionIndex = 3;
+    const wrapper = mount(QuizFlow);
+
+    const itemIdsBeforeMove = wrapper.findAll('[data-testid^="order-item-"]').map(
+      (item) => item.attributes('data-testid')!.replace('order-item-', ''),
+    );
+    expect(itemIdsBeforeMove).toContain('step-1');
+
+    await wrapper.get('[data-testid="position-select-step-1"]').setValue('4');
+    await wrapper.get('button.btn-primary').trigger('click');
+
+    const expectedOrder = itemIdsBeforeMove.filter((id) => id !== 'step-1');
+    expectedOrder.push('step-1');
+    expect(store.userAnswersByStage['kiro-basics']?.[0]?.selectedOptionId).toEqual(
+      expectedOrder,
+    );
+    wrapper.unmount();
+  });
 });

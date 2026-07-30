@@ -48,6 +48,7 @@ function handleReorder(orderedIds: string[]) {
     <OrderingOptions
       v-else-if="question.type === 'ordering'"
       :items="(question.options as OrderingItem[])"
+      :ordered-ids="Array.isArray(selectedAnswer) ? selectedAnswer : []"
       :disabled="disabled"
       @reorder="handleReorder"
     />
