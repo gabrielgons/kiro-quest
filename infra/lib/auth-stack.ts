@@ -69,7 +69,7 @@ export class AuthStack extends cdk.Stack {
     // Free Tier: 50,000 MAUs for users who sign in directly or with social identity providers
     this.userPool = new cognito.UserPool(this, 'UserPool', {
       userPoolName: 'KiroQuestUserPool',
-      selfSignUpEnabled: true,
+      selfSignUpEnabled: false,
       signInAliases: {
         email: true,
       },
@@ -98,9 +98,7 @@ export class AuthStack extends cdk.Stack {
     });
 
     // Google Identity Provider (optional - only configured if credentials are provided)
-    let supportedIdentityProviders: cognito.UserPoolClientIdentityProvider[] = [
-      cognito.UserPoolClientIdentityProvider.COGNITO,
-    ];
+    const supportedIdentityProviders: cognito.UserPoolClientIdentityProvider[] = [];
 
     if (googleClientId && googleClientSecretArn) {
       const clientSecretValue = cdk.SecretValue.secretsManager(googleClientSecretArn);
@@ -121,9 +119,7 @@ export class AuthStack extends cdk.Stack {
         },
       );
 
-      supportedIdentityProviders.push(
-        cognito.UserPoolClientIdentityProvider.GOOGLE,
-      );
+      supportedIdentityProviders.push(cognito.UserPoolClientIdentityProvider.GOOGLE);
 
       // Ensure the provider is created before the client
       this.userPoolClient = this.createUserPoolClient(
@@ -133,6 +129,9 @@ export class AuthStack extends cdk.Stack {
       );
       this.userPoolClient.node.addDependency(googleProvider);
     } else {
+      // Keep synth/dev usable without Google credentials, but native sign-up
+      // remains disabled by the User Pool.
+      supportedIdentityProviders.push(cognito.UserPoolClientIdentityProvider.COGNITO);
       this.userPoolClient = this.createUserPoolClient(
         callbackUrls,
         logoutUrls,
@@ -182,7 +181,9 @@ export class AuthStack extends cdk.Stack {
       userPoolClientName: 'KiroQuestWebApp',
       generateSecret: false, // SPA - no client secret (PKCE flow)
       authFlows: {
-        userSrp: true,
+        userSrp: supportedIdentityProviders.includes(
+          cognito.UserPoolClientIdentityProvider.COGNITO,
+        ),
       },
       oAuth: {
         flows: {

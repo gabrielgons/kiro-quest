@@ -1,7 +1,13 @@
 import { UpdateCommand } from '@aws-sdk/lib-dynamodb';
 import { docClient, TABLE_NAME } from '../models/dynamodb.js';
 import type { SaveProgressRequest } from '../models/types.js';
-import { getUserId, jsonResponse, errorResponse, validateBodySize, isValidStageId } from './utils.js';
+import {
+  getUserId,
+  jsonResponse,
+  errorResponse,
+  validateBodySize,
+  isValidSaveProgressRequest,
+} from './utils.js';
 import type { ApiEvent, ApiResponse } from './utils.js';
 
 export async function handler(event: ApiEvent): Promise<ApiResponse> {
@@ -13,20 +19,17 @@ export async function handler(event: ApiEvent): Promise<ApiResponse> {
   const bodySizeError = validateBodySize(event);
   if (bodySizeError) return bodySizeError;
 
-  let body: SaveProgressRequest;
+  let parsedBody: unknown;
   try {
-    body = JSON.parse(event.body || '{}') as SaveProgressRequest;
+    parsedBody = JSON.parse(event.body || '{}') as unknown;
   } catch {
     return errorResponse(400, 'Invalid request body', event);
   }
 
-  if (!body.stageId || body.currentQuestionIndex === undefined || !body.quizPhase) {
-    return errorResponse(400, 'Missing required fields: stageId, currentQuestionIndex, quizPhase', event);
+  if (!isValidSaveProgressRequest(parsedBody)) {
+    return errorResponse(400, 'Invalid progress payload', event);
   }
-
-  if (!isValidStageId(body.stageId)) {
-    return errorResponse(400, 'Invalid stageId format', event);
-  }
+  const body: SaveProgressRequest = parsedBody;
 
   try {
     const now = new Date().toISOString();
@@ -44,7 +47,7 @@ export async function handler(event: ApiEvent): Promise<ApiResponse> {
           ':sid': body.stageId,
           ':qi': body.currentQuestionIndex,
           ':qp': body.quizPhase,
-          ':ua': body.userAnswers || [],
+          ':ua': body.userAnswers,
           ':lu': lastUpdated,
           ':now': now,
         },

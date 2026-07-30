@@ -1,7 +1,7 @@
 import { QueryCommand } from '@aws-sdk/lib-dynamodb';
 import { docClient, TABLE_NAME } from '../models/dynamodb.js';
 import type { UserProgressItem, GetProgressResponse } from '../models/types.js';
-import { getUserId, jsonResponse, errorResponse } from './utils.js';
+import { getUserId, jsonResponse, errorResponse, isValidStageId } from './utils.js';
 import type { ApiEvent, ApiResponse } from './utils.js';
 
 export async function handler(event: ApiEvent): Promise<ApiResponse> {
@@ -12,6 +12,9 @@ export async function handler(event: ApiEvent): Promise<ApiResponse> {
 
   // Optional stageId filter from query params
   const stageId = event.queryStringParameters?.stageId;
+  if (stageId !== undefined && !isValidStageId(stageId)) {
+    return errorResponse(400, 'Invalid stageId', event);
+  }
 
   try {
     if (stageId) {

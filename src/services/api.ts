@@ -23,32 +23,6 @@ export interface ApiProgressEntry {
   lastUpdated: number;
 }
 
-export interface ApiSubmitResultRequest {
-  stageId: string;
-  correctCount: number;
-  totalCount: number;
-}
-
-export interface ApiSubmitResultResponse {
-  stageId: string;
-  correctCount: number;
-  totalCount: number;
-  completedAt: number;
-}
-
-export interface ApiRankingEntry {
-  userId: string;
-  userName: string;
-  score: number;
-  totalQuestions: number;
-  completedAt: number;
-}
-
-export interface ApiRankingsResponse {
-  stageId: string;
-  rankings: ApiRankingEntry[];
-}
-
 export interface ApiUserProfile {
   userId: string;
   email: string;
@@ -140,32 +114,6 @@ export async function getProgress(stageId?: string): Promise<ApiProgressEntry[]>
 }
 
 /**
- * Submit a stage result (score).
- */
-export async function submitResult(
-  data: ApiSubmitResultRequest,
-): Promise<ApiSubmitResultResponse> {
-  const response = await authenticatedFetch('/api/results', {
-    method: 'POST',
-    body: JSON.stringify(data),
-  });
-  return (await response.json()) as ApiSubmitResultResponse;
-}
-
-/**
- * Get rankings for a stage.
- */
-export async function getRankings(
-  stageId: string,
-  limit?: number,
-): Promise<ApiRankingsResponse> {
-  const params = new URLSearchParams({ stageId });
-  if (limit) params.set('limit', String(limit));
-  const response = await authenticatedFetch(`/api/rankings?${params.toString()}`);
-  return (await response.json()) as ApiRankingsResponse;
-}
-
-/**
  * Get the current user's profile.
  */
 export async function getProfile(): Promise<ApiUserProfile> {
@@ -177,7 +125,5 @@ export const api = {
   isConfigured: isApiConfigured,
   saveProgress,
   getProgress,
-  submitResult,
-  getRankings,
   getProfile,
 };

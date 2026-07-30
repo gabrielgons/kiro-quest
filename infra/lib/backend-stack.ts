@@ -1,6 +1,7 @@
 import * as cdk from 'aws-cdk-lib';
 import * as dynamodb from 'aws-cdk-lib/aws-dynamodb';
 import * as lambda from 'aws-cdk-lib/aws-lambda';
+import * as logs from 'aws-cdk-lib/aws-logs';
 import * as apigatewayv2 from 'aws-cdk-lib/aws-apigatewayv2';
 import * as apigatewayv2Integrations from 'aws-cdk-lib/aws-apigatewayv2-integrations';
 import * as apigatewayv2Authorizers from 'aws-cdk-lib/aws-apigatewayv2-authorizers';
@@ -43,17 +44,10 @@ export class BackendStack extends cdk.Stack {
       readCapacity: 5,
       writeCapacity: 5,
       removalPolicy: cdk.RemovalPolicy.RETAIN,
-      pointInTimeRecovery: false, // Keep costs at zero
-    });
-
-    // GSI for rankings queries (optional, for more flexible access patterns)
-    this.table.addGlobalSecondaryIndex({
-      indexName: 'GSI1',
-      partitionKey: { name: 'gsi1pk', type: dynamodb.AttributeType.STRING },
-      sortKey: { name: 'gsi1sk', type: dynamodb.AttributeType.STRING },
-      readCapacity: 5,
-      writeCapacity: 5,
-      projectionType: dynamodb.ProjectionType.ALL,
+      deletionProtection: true,
+      pointInTimeRecoverySpecification: {
+        pointInTimeRecoveryEnabled: false, // Keep costs at zero
+      },
     });
 
     // Allowed CORS origins - restrict to specific domains instead of wildcard
@@ -69,63 +63,48 @@ export class BackendStack extends cdk.Stack {
       ALLOWED_ORIGINS: allowedOrigins.join(','),
     };
 
-    // Lambda functions - Node.js 20 runtime
+    // Low concurrency protects the account from runaway invocation volume.
+    // Reserved concurrency does not pre-warm functions and has no hourly charge.
     const saveProgressFn = new lambda.Function(this, 'SaveProgressFn', {
       functionName: 'KiroQuest-SaveProgress',
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       handler: 'saveProgress.handler',
       code: lambda.Code.fromAsset('../backend/dist'),
       environment: lambdaEnvironment,
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
+      reservedConcurrentExecutions: 2,
+      logRetention: logs.RetentionDays.ONE_WEEK,
     });
 
     const getProgressFn = new lambda.Function(this, 'GetProgressFn', {
       functionName: 'KiroQuest-GetProgress',
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       handler: 'getProgress.handler',
       code: lambda.Code.fromAsset('../backend/dist'),
       environment: lambdaEnvironment,
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
-    });
-
-    const submitResultFn = new lambda.Function(this, 'SubmitResultFn', {
-      functionName: 'KiroQuest-SubmitResult',
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'submitResult.handler',
-      code: lambda.Code.fromAsset('../backend/dist'),
-      environment: lambdaEnvironment,
-      memorySize: 128,
-      timeout: cdk.Duration.seconds(10),
-    });
-
-    const getRankingsFn = new lambda.Function(this, 'GetRankingsFn', {
-      functionName: 'KiroQuest-GetRankings',
-      runtime: lambda.Runtime.NODEJS_20_X,
-      handler: 'getRankings.handler',
-      code: lambda.Code.fromAsset('../backend/dist'),
-      environment: lambdaEnvironment,
-      memorySize: 128,
-      timeout: cdk.Duration.seconds(10),
+      reservedConcurrentExecutions: 2,
+      logRetention: logs.RetentionDays.ONE_WEEK,
     });
 
     const getProfileFn = new lambda.Function(this, 'GetProfileFn', {
       functionName: 'KiroQuest-GetProfile',
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       handler: 'getProfile.handler',
       code: lambda.Code.fromAsset('../backend/dist'),
       environment: lambdaEnvironment,
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
+      reservedConcurrentExecutions: 2,
+      logRetention: logs.RetentionDays.ONE_WEEK,
     });
 
     // Grant DynamoDB permissions (least privilege)
     this.table.grantReadWriteData(saveProgressFn);
     this.table.grantReadData(getProgressFn);
-    this.table.grantReadWriteData(submitResultFn);
-    this.table.grantReadData(getRankingsFn);
-    this.table.grantReadWriteData(getProfileFn);
+    this.table.grantReadData(getProfileFn);
 
     // API Gateway HTTP API (cheaper than REST API)
     this.httpApi = new apigatewayv2.HttpApi(this, 'KiroQuestApi', {
@@ -176,26 +155,6 @@ export class BackendStack extends cdk.Stack {
     });
 
     this.httpApi.addRoutes({
-      path: '/api/results',
-      methods: [apigatewayv2.HttpMethod.POST],
-      integration: new apigatewayv2Integrations.HttpLambdaIntegration(
-        'SubmitResultIntegration',
-        submitResultFn,
-      ),
-      authorizer: jwtAuthorizer,
-    });
-
-    this.httpApi.addRoutes({
-      path: '/api/rankings',
-      methods: [apigatewayv2.HttpMethod.GET],
-      integration: new apigatewayv2Integrations.HttpLambdaIntegration(
-        'GetRankingsIntegration',
-        getRankingsFn,
-      ),
-      authorizer: jwtAuthorizer,
-    });
-
-    this.httpApi.addRoutes({
       path: '/api/profile',
       methods: [apigatewayv2.HttpMethod.GET],
       integration: new apigatewayv2Integrations.HttpLambdaIntegration(
@@ -203,6 +162,38 @@ export class BackendStack extends cdk.Stack {
         getProfileFn,
       ),
       authorizer: jwtAuthorizer,
+    });
+
+    // Stage/route throttling is free to configure and rejects bursts before
+    // Lambda or DynamoDB work is performed. Detailed metrics stay disabled.
+    const defaultStage = this.httpApi.defaultStage?.node.defaultChild as
+      | apigatewayv2.CfnStage
+      | undefined;
+    if (!defaultStage) {
+      throw new Error('HTTP API default stage was not created');
+    }
+
+    defaultStage.defaultRouteSettings = {
+      detailedMetricsEnabled: false,
+      throttlingBurstLimit: 5,
+      throttlingRateLimit: 2,
+    };
+    defaultStage.addPropertyOverride('RouteSettings', {
+      'POST /api/progress': {
+        DetailedMetricsEnabled: false,
+        ThrottlingBurstLimit: 3,
+        ThrottlingRateLimit: 1,
+      },
+      'GET /api/progress': {
+        DetailedMetricsEnabled: false,
+        ThrottlingBurstLimit: 5,
+        ThrottlingRateLimit: 2,
+      },
+      'GET /api/profile': {
+        DetailedMetricsEnabled: false,
+        ThrottlingBurstLimit: 5,
+        ThrottlingRateLimit: 2,
+      },
     });
 
     // Store API URL

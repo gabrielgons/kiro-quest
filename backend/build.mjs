@@ -11,7 +11,7 @@ await build({
   entryPoints: handlers,
   bundle: true,
   platform: 'node',
-  target: 'node20',
+  target: 'node22',
   format: 'esm',
   outdir: 'dist',
   external: ['@aws-sdk/*'],
@@ -22,7 +22,7 @@ await build({
   },
 });
 
-// Lambda Node.js 20 needs a package.json with "type": "module" in the
+// Lambda Node.js needs a package.json with "type": "module" in the
 // deployment bundle to treat .js files as ESM. Without this, the runtime
 // defaults to CommonJS and fails to parse import/export syntax.
 writeFileSync(
