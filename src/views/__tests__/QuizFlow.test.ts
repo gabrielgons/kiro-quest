@@ -1,6 +1,7 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
 import { createPinia, setActivePinia } from 'pinia';
+import { VueDraggable } from 'vue-draggable-plus';
 import QuizFlow from '@/views/QuizFlow.vue';
 import { useQuizStore } from '@/stores/quizStore';
 import { useLocale } from '@/i18n/useLocale';
@@ -71,40 +72,35 @@ describe('QuizFlow safe exit', () => {
       (item) => item.attributes('data-testid')!.replace('order-item-', ''),
     );
     const draggedId = itemIdsBeforeMove[0]!;
-    const targetId = itemIdsBeforeMove[itemIdsBeforeMove.length - 1]!;
-    const targetItem = wrapper.get(`[data-order-id="${targetId}"]`).element;
-    const originalDescriptor = Object.getOwnPropertyDescriptor(document, 'elementFromPoint');
-    Object.defineProperty(document, 'elementFromPoint', {
-      configurable: true,
-      value: vi.fn(() => targetItem),
+    const expectedOrder = itemIdsBeforeMove.slice(1);
+    expectedOrder.push(draggedId);
+
+    const draggable = wrapper.getComponent(VueDraggable);
+    const values = draggable.props('modelValue');
+    const reorderedValues = [...values.slice(1), values[0]];
+    const draggedElement = wrapper.get(`[data-order-id="${draggedId}"]`).element;
+
+    draggable.vm.$emit('start', {
+      item: draggedElement,
+      oldIndex: 0,
     });
+    draggable.vm.$emit('update:modelValue', reorderedValues);
+    await wrapper.vm.$nextTick();
+    draggable.vm.$emit('end', {
+      item: draggedElement,
+      oldIndex: 0,
+      newIndex: values.length - 1,
+    });
+    await vi.waitFor(() => {
+      expect(wrapper.findAll('[data-testid^="order-item-"]').map(
+        (item) => item.attributes('data-testid')!.replace('order-item-', ''),
+      )).toEqual(expectedOrder);
+    });
+    await wrapper.get('button.btn-primary').trigger('click');
 
-    try {
-      await wrapper.get(`[data-testid="drag-handle-${draggedId}"]`).trigger('pointerdown', {
-        pointerId: 1,
-        pointerType: 'mouse',
-        button: 0,
-      });
-      await wrapper.get('.order-list').trigger('pointermove', {
-        pointerId: 1,
-        clientX: 20,
-        clientY: 300,
-      });
-      await wrapper.get('.order-list').trigger('pointerup', { pointerId: 1 });
-      await wrapper.get('button.btn-primary').trigger('click');
-
-      const expectedOrder = itemIdsBeforeMove.slice(1);
-      expectedOrder.push(draggedId);
-      expect(store.userAnswersByStage['kiro-basics']?.[0]?.selectedOptionId).toEqual(
-        expectedOrder,
-      );
-    } finally {
-      if (originalDescriptor) {
-        Object.defineProperty(document, 'elementFromPoint', originalDescriptor);
-      } else {
-        Reflect.deleteProperty(document, 'elementFromPoint');
-      }
-    }
+    expect(store.userAnswersByStage['kiro-basics']?.[0]?.selectedOptionId).toEqual(
+      expectedOrder,
+    );
     wrapper.unmount();
   });
 });

@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { mount } from '@vue/test-utils';
+import { VueDraggable } from 'vue-draggable-plus';
 import OrderingOptions from '@/components/OrderingOptions.vue';
 import { useLocale } from '@/i18n/useLocale';
 import type { OrderingItem } from '@/data/types';
@@ -31,7 +32,7 @@ describe('OrderingOptions', () => {
     ]);
   });
 
-  it('reorders an item by touch drag and announces the change', async () => {
+  it('moves the last item to the first position in one drag lifecycle', async () => {
     const wrapper = mount(OrderingOptions, {
       props: {
         items,
@@ -40,168 +41,40 @@ describe('OrderingOptions', () => {
       },
     });
 
-    const targetItem = wrapper.get('[data-order-id="step-c"]').element;
-    const originalDescriptor = Object.getOwnPropertyDescriptor(document, 'elementFromPoint');
-    Object.defineProperty(document, 'elementFromPoint', {
-      configurable: true,
-      value: vi.fn(() => targetItem),
+    const draggable = wrapper.getComponent(VueDraggable);
+    expect(draggable.props('handle')).toBe('.drag-handle');
+    expect(draggable.props('animation')).toBe(180);
+
+    const draggedElement = wrapper.get('[data-order-id="step-c"]').element;
+    const values = draggable.props('modelValue') as OrderingItem[];
+    const reorderedValues = [values[2]!, values[0]!, values[1]!];
+
+    draggable.vm.$emit('start', {
+      item: draggedElement,
+      oldIndex: 2,
+    });
+    draggable.vm.$emit('update:modelValue', reorderedValues);
+    await wrapper.vm.$nextTick();
+    draggable.vm.$emit('end', {
+      item: draggedElement,
+      oldIndex: 2,
+      newIndex: 0,
     });
 
-    try {
-      await wrapper.get('[data-testid="drag-handle-step-a"]').trigger('pointerdown', {
-        pointerId: 1,
-        pointerType: 'touch',
-        button: 0,
-      });
-      await wrapper.get('.order-list').trigger('pointermove', {
-        pointerId: 1,
-        clientX: 20,
-        clientY: 120,
-      });
-      const pointerUp = new Event('pointerup');
-      Object.defineProperty(pointerUp, 'pointerId', { value: 1 });
-      window.dispatchEvent(pointerUp);
-      await wrapper.vm.$nextTick();
-
+    await vi.waitFor(() => {
+      expect(wrapper.emitted('reorder')).toHaveLength(1);
       expect(wrapper.emitted('reorder')?.[0]?.[0]).toEqual([
-        'step-b',
         'step-c',
         'step-a',
+        'step-b',
       ]);
-      await vi.waitFor(() => {
-        expect(wrapper.get('[aria-live="polite"]').text()).toBe(
-          'Etapa A agora está na posição 3 de 3.',
-        );
-      });
-    } finally {
-      if (originalDescriptor) {
-        Object.defineProperty(document, 'elementFromPoint', originalDescriptor);
-      } else {
-        Reflect.deleteProperty(document, 'elementFromPoint');
-      }
-    }
-  });
-
-  it('stops reordering after the pointer is released outside the list', async () => {
-    const wrapper = mount(OrderingOptions, {
-      props: {
-        items,
-        orderedIds: ['step-a', 'step-b', 'step-c'],
-        disabled: false,
-      },
-    });
-
-    const lastItem = wrapper.get('[data-order-id="step-c"]').element;
-    const firstItem = wrapper.get('[data-order-id="step-a"]').element;
-    const elementFromPoint = vi.fn(() => lastItem);
-    const originalDescriptor = Object.getOwnPropertyDescriptor(document, 'elementFromPoint');
-    Object.defineProperty(document, 'elementFromPoint', {
-      configurable: true,
-      value: elementFromPoint,
-    });
-
-    try {
-      await wrapper.get('[data-testid="drag-handle-step-a"]').trigger('pointerdown', {
-        pointerId: 7,
-        pointerType: 'mouse',
-        button: 0,
-      });
-      await wrapper.get('.order-list').trigger('pointermove', {
-        pointerId: 7,
-        clientX: 20,
-        clientY: 120,
-      });
-
-      const pointerUp = new Event('pointerup');
-      Object.defineProperty(pointerUp, 'pointerId', { value: 7 });
-      window.dispatchEvent(pointerUp);
-      await wrapper.vm.$nextTick();
-
-      expect(wrapper.get('.order-list').classes()).not.toContain('is-dragging');
-      expect(wrapper.find('.order-item.is-dragging').exists()).toBe(false);
-
-      elementFromPoint.mockReturnValue(firstItem);
-      await wrapper.get('.order-list').trigger('pointermove', {
-        pointerId: 7,
-        clientX: 20,
-        clientY: 20,
-      });
-
-      expect(wrapper.emitted('reorder')).toHaveLength(1);
-    } finally {
-      wrapper.unmount();
-      if (originalDescriptor) {
-        Object.defineProperty(document, 'elementFromPoint', originalDescriptor);
-      } else {
-        Reflect.deleteProperty(document, 'elementFromPoint');
-      }
-    }
-  });
-
-  it('supports grab, move and drop using only the keyboard', async () => {
-    const wrapper = mount(OrderingOptions, {
-      props: {
-        items,
-        orderedIds: ['step-a', 'step-b', 'step-c'],
-        disabled: false,
-      },
-    });
-
-    const handle = wrapper.get('[data-testid="drag-handle-step-b"]');
-    await handle.trigger('keydown', { key: ' ' });
-
-    expect(handle.attributes('aria-pressed')).toBe('true');
-    expect(handle.attributes('aria-label')).toBe('Soltar Etapa B');
-
-    await handle.trigger('keydown', { key: 'ArrowUp' });
-
-    expect(wrapper.emitted('reorder')?.[0]?.[0]).toEqual([
-      'step-b',
-      'step-a',
-      'step-c',
-    ]);
-
-    await handle.trigger('keydown', { key: 'Enter' });
-    await vi.waitFor(() => {
       expect(wrapper.get('[aria-live="polite"]').text()).toBe(
-        'Ordem confirmada. Etapa B está na posição 1 de 3.',
-      );
-    });
-    expect(handle.attributes('aria-pressed')).toBe('false');
-  });
-
-  it('restores the original order when keyboard reordering is cancelled', async () => {
-    const wrapper = mount(OrderingOptions, {
-      props: {
-        items,
-        orderedIds: ['step-a', 'step-b', 'step-c'],
-        disabled: false,
-      },
-    });
-
-    const handle = wrapper.get('[data-testid="drag-handle-step-b"]');
-    await handle.trigger('keydown', { key: ' ' });
-    await handle.trigger('keydown', { key: 'ArrowDown' });
-    await handle.trigger('keydown', { key: 'Escape' });
-
-    expect(wrapper.emitted('reorder')?.[0]?.[0]).toEqual([
-      'step-a',
-      'step-c',
-      'step-b',
-    ]);
-    expect(wrapper.emitted('reorder')?.[1]?.[0]).toEqual([
-      'step-a',
-      'step-b',
-      'step-c',
-    ]);
-    await vi.waitFor(() => {
-      expect(wrapper.get('[aria-live="polite"]').text()).toBe(
-        'Reordenação cancelada. Etapa B voltou para a posição 2 de 3.',
+        'Etapa C agora está na posição 1 de 3.',
       );
     });
   });
 
-  it('disables every reorder control after the answer is confirmed', () => {
+  it('disables drag and drop after the answer is confirmed', async () => {
     const wrapper = mount(OrderingOptions, {
       props: {
         items,
@@ -210,8 +83,7 @@ describe('OrderingOptions', () => {
       },
     });
 
-    expect(wrapper.findAll('button').every((button) => button.attributes('disabled') !== undefined))
-      .toBe(true);
+    expect(wrapper.getComponent(VueDraggable).props('disabled')).toBe(true);
     expect(wrapper.get('.order-list').classes()).toContain('is-disabled');
   });
 });
