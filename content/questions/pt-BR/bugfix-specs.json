@@ -9,47 +9,47 @@
       "type": "multiple-choice",
       "text": "Qual é o objetivo principal de um Bugfix Spec no Kiro?",
       "options": [
-        { "id": "a", "label": "Reproduzir o bug com um teste de exploração, identificar a causa raiz e implementar a correção" },
-        { "id": "b", "label": "Aplicar a correção mais rápida possível e seguir em frente, sem antes reproduzir o bug com um teste" },
-        { "id": "c", "label": "Adicionar logs temporários ao redor do erro para monitorá-lo em produção antes de agir" },
-        { "id": "d", "label": "Escrever testes de regressão para todo o módulo afetado antes de localizar a causa do bug" }
+        { "id": "a", "label": "Transformar o relato do defeito em comportamento atual, esperado e inalterado, investigar a causa raiz e planejar uma correção verificável" },
+        { "id": "b", "label": "Começar pela solução técnica proposta e derivar depois quais comportamentos existentes podem mudar" },
+        { "id": "c", "label": "Gerar somente um teste de regressão e deixar a análise de causa raiz para a execução das tarefas" },
+        { "id": "d", "label": "Aplicar a menor alteração possível sem documentar o comportamento que deve permanecer inalterado" }
       ],
-      "explanation": "O Bugfix Spec usa a metodologia de condição de bug: primeiro escreve um teste que reproduz o problema (esperado falhar), depois identifica a causa raiz e implementa a correção verificável.",
+      "explanation": "Um Bugfix Spec documenta em bugfix.md o comportamento atual (defeito), o comportamento esperado e o comportamento que não deve mudar. Depois, o Kiro explora a codebase para registrar a causa raiz e a correção proposta em design.md e gera tarefas verificáveis em tasks.md.",
       "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "bf-002",
       "category": "Bugfix Specs",
       "difficulty": "intermediário",
       "type": "true-false",
-      "text": "No fluxo de Bugfix Spec, o teste de exploração de condição de bug é esperado FALHAR no código não corrigido, confirmando que o bug existe.",
+      "text": "O arquivo bugfix.md deve registrar não apenas o defeito e o resultado esperado, mas também comportamentos existentes que precisam permanecer inalterados.",
       "options": [
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "O teste de exploração é projetado para falhar no código com bug. Quando o teste falha, isso confirma que o bug foi reproduzido corretamente. Se o teste passa inesperadamente, significa que o bug pode não estar sendo reproduzido adequadamente.",
+      "explanation": "Verdadeiro. A fase de análise do bug separa Current Behavior, Expected Behavior e Unchanged Behavior. A última seção explicita limites de regressão para que a correção não danifique funcionalidades relacionadas.",
       "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "bf-003",
       "category": "Bugfix Specs",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "Você escreveu um teste de exploração para um Bugfix Spec, mas o teste passou inesperadamente. O que isso indica?",
+      "text": "Ao gerar o design de um Bugfix Spec, o Kiro terminou de explorar a codebase. O que o design.md deve registrar?",
       "options": [
-        { "id": "a", "label": "O teste não está reproduzindo o bug corretamente ou o código já foi corrigido" },
-        { "id": "b", "label": "Você pode prosseguir e implementar a correção, pois o teste verde já valida o spec" },
-        { "id": "c", "label": "Significa que o bug nunca existiu e o relato do problema estava equivocado" },
-        { "id": "d", "label": "O ambiente de testes está desatualizado e precisa ser recriado do zero" }
+        { "id": "a", "label": "A causa raiz, a correção proposta e propriedades que cubram o comportamento incorreto, o corrigido e o que não deve regredir" },
+        { "id": "b", "label": "Somente o stack trace original e uma lista de arquivos possivelmente relacionados, sem decidir a abordagem de correção" },
+        { "id": "c", "label": "A implementação final da correção e os resultados de todos os testes, dispensando o tasks.md" },
+        { "id": "d", "label": "Apenas os critérios de aceitação reescritos no formato EARS, repetindo o conteúdo de bugfix.md" }
       ],
-      "explanation": "Quando um teste de exploração passa inesperadamente, significa que o teste não está detectando o bug. Possíveis causas: o código já tem uma correção, a causa raiz está incorreta, ou a lógica do teste precisa ser ajustada.",
+      "explanation": "Na fase de design, o Kiro explora a codebase e documenta a causa raiz e a correção proposta. O design também define propriedades para capturar o comportamento incorreto, validar o comportamento corrigido e proteger o comportamento inalterado.",
       "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "bf-004",
@@ -58,16 +58,16 @@
       "type": "ordering",
       "text": "Organize as etapas do fluxo de Bugfix Spec na ordem correta:",
       "options": [
-        { "id": "step-1", "label": "Investigar e identificar a causa raiz do bug" },
-        { "id": "step-2", "label": "Escrever teste de exploração de condição de bug" },
-        { "id": "step-3", "label": "Verificar que o teste falha (confirma o bug)" },
-        { "id": "step-4", "label": "Implementar a correção no código" },
-        { "id": "step-5", "label": "Verificar que o teste agora passa (confirma a correção)" }
+        { "id": "step-1", "label": "Gerar bugfix.md com comportamento atual, esperado e inalterado" },
+        { "id": "step-2", "label": "Explorar a codebase e identificar a causa raiz" },
+        { "id": "step-3", "label": "Gerar design.md com a correção proposta e propriedades de corretude" },
+        { "id": "step-4", "label": "Gerar tasks.md com tarefas e testes baseados em propriedades" },
+        { "id": "step-5", "label": "Executar as tarefas para implementar e validar a correção sem regressões" }
       ],
-      "explanation": "O fluxo de Bugfix Spec segue: investigar causa raiz → escrever teste de exploração → confirmar falha (bug existe) → implementar correção → confirmar que teste passa (bug corrigido).",
+      "explanation": "O fluxo documentado tem três fases: Bug Analysis (bugfix.md), Design (exploração, causa raiz, solução e propriedades) e Tasks (plano com testes). A implementação acontece ao executar as tarefas geradas.",
       "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

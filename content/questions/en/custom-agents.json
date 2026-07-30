@@ -9,30 +9,30 @@
       "type": "multiple-choice",
       "text": "What are Custom Agents in Kiro?",
       "options": [
-        { "id": "a", "label": "Configurable specialized agents that maintain their own context and can be optimized for specific domains" },
-        { "id": "b", "label": "Automation scripts that run in the background without user interaction" },
-        { "id": "c", "label": "Third-party extensions installed via the editor's marketplace" },
-        { "id": "d", "label": "Saved prompt templates for reuse in future conversations" }
+        { "id": "a", "label": "Specialized Markdown profiles that combine a system prompt, tools, MCP servers, and permission rules" },
+        { "id": "b", "label": "Temporary subprocesses automatically created by the main agent for every tool call" },
+        { "id": "c", "label": "Steering files with `auto` inclusion, renamed when they declare their own tools" },
+        { "id": "d", "label": "Scheduled automations that run a prompt in a sandbox without the user selecting an agent" }
       ],
-      "explanation": "Custom Agents are configurable specialized agents that maintain their own context and can be optimized for specific domains like frontend, backend, code review, and more. Each agent has its own system prompt and settings.",
+      "explanation": "A Custom Agent is defined in Markdown with YAML front matter. The configuration can select tools, MCP servers, and permission rules, while the file body acts as its specialized system prompt.",
       "sourceUrl": "https://kiro.dev/docs/custom-agents/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "ca-002",
       "category": "Custom Agents",
       "difficulty": "iniciante",
       "type": "true-false",
-      "text": "Custom Agents share the same context as the main chat session.",
+      "text": "Workspace Custom Agents are available only when the workspace is trusted.",
       "options": [
         { "id": "true", "label": "True" },
         { "id": "false", "label": "False" }
       ],
-      "explanation": "Each Custom Agent maintains its own isolated context. This is one of the main advantages of Custom Agents: avoiding context pollution between different domains, keeping each agent focused on its area of specialization.",
+      "explanation": "True. Kiro only loads workspace agents in trusted workspaces because those files can grant tools, commands, and MCP servers. Global agents live in `~/.kiro/agents/`.",
       "sourceUrl": "https://kiro.dev/docs/custom-agents/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "ca-003",
@@ -49,24 +49,24 @@
       "explanation": "Custom Agents are configured in the .kiro/agents/ directory of the project. Each agent has its own configuration file that defines its system prompt, available tools, and scope of action.",
       "sourceUrl": "https://kiro.dev/docs/custom-agents/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "ca-004",
       "category": "Custom Agents",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "Your team has a React frontend and a Python backend. The agent's context is overloaded with tools from both. How to solve this?",
+      "text": "Your team switches between a React frontend and a Python backend and wants selectable profiles with different tools and instructions. How should this be configured?",
       "options": [
         { "id": "a", "label": "Increase the context token limit in settings" },
-        { "id": "b", "label": "Create separate subagents: a frontend-agent with browser/component tools and a backend-agent with database/API docs" },
+        { "id": "b", "label": "Create two Custom Agents in `.kiro/agents/`, each with a prompt, tools, and MCP servers suited to its domain" },
         { "id": "c", "label": "Manually switch between different projects in the editor" },
         { "id": "d", "label": "Use .kiroignore to hide backend files when working on frontend" }
       ],
-      "explanation": "The ideal solution is to create separate subagents: a frontend-agent optimized with browser tools and React components, and a backend-agent with database access and API documentation. Each agent maintains isolated context, avoiding overload.",
+      "explanation": "Custom Agents let teams version selectable role profiles. A frontend agent can declare browser tools and React instructions; another can declare the MCP servers and commands needed for backend work.",
       "sourceUrl": "https://kiro.dev/docs/custom-agents/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "ca-005",
@@ -75,32 +75,32 @@
       "type": "multiple-choice",
       "text": "What is the main difference between Custom Agents, Steering Files, and Skills in Kiro?",
       "options": [
-        { "id": "a", "label": "There is no difference, they are just different names for the same feature" },
-        { "id": "b", "label": "Steering = always-active rules; Skills = on-demand knowledge; Custom Agents = complete agents with isolated context and own tools" },
-        { "id": "c", "label": "Skills are for frontend, Steering for backend, and Custom Agents for DevOps" },
-        { "id": "d", "label": "Custom Agents completely replace Steering Files and Skills when configured" }
+        { "id": "a", "label": "Steering and Skills are equivalent; Custom Agents only change the model used by chat" },
+        { "id": "b", "label": "Steering provides persistent knowledge with inclusion modes; Skills package instructions and resources activated by relevance; Custom Agents define a selectable profile with prompt, tools, and permissions" },
+        { "id": "c", "label": "Skills configure permissions; Steering installs MCP servers; Custom Agents store only reusable prompts" },
+        { "id": "d", "label": "Custom Agents replace Steering and Skills, which stop loading when a specialized profile is selected" }
       ],
-      "explanation": "Each concept has a distinct role: Steering Files define rules that are always active in every interaction; Skills are knowledge packages activated on demand when needed; Custom Agents are complete agents with isolated context, own tools, and dedicated system prompt.",
+      "explanation": "Steering keeps project knowledge and can use `always`, `fileMatch`, `manual`, or `auto` inclusion. Skills are portable packages discovered and activated when a request matches their description. Custom Agents configure a selectable profile with a prompt, tools, MCP servers, and permissions.",
       "sourceUrl": "https://kiro.dev/docs/custom-agents/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "ca-006",
       "category": "Custom Agents",
       "difficulty": "avançado",
       "type": "scenario",
-      "text": "You want to create a code review agent that validates security standards automatically. Which approach is most appropriate?",
+      "text": "You want a specialized profile that users can select to review code against security standards using only authorized tools. Which approach is most appropriate?",
       "options": [
         { "id": "a", "label": "Add security rules in the project's global steering file" },
         { "id": "b", "label": "Create a Custom Agent with a security-focused system prompt, configured in .kiro/agents/" },
         { "id": "c", "label": "Install a security linting extension in the editor" },
-        { "id": "d", "label": "Create a hook that runs a security scanner after each commit" }
+        { "id": "d", "label": "Create a `PostFileSave` Hook even though review should begin only when the user selects the profile" }
       ],
-      "explanation": "The most appropriate approach is to create a dedicated Custom Agent for security code review, configured in .kiro/agents/. This agent will have a system prompt focused on security standards, with isolated context and specific tools for vulnerability analysis.",
+      "explanation": "A Custom Agent in `.kiro/agents/` can combine the review prompt, required tools, and permission rules. It is a selectable profile; if the requirement were automatic event-driven validation, Hooks would be the appropriate mechanism.",
       "sourceUrl": "https://kiro.dev/docs/custom-agents/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

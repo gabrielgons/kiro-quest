@@ -9,15 +9,15 @@
       "type": "multiple-choice",
       "text": "O que são arquivos de Steering no Kiro?",
       "options": [
-        { "id": "a", "label": "Guias de fluxo de trabalho que direcionam o comportamento do agente para tarefas específicas" },
+        { "id": "a", "label": "Conhecimento persistente em Markdown sobre o projeto, como padrões, decisões e convenções que orientam o agente" },
         { "id": "b", "label": "Automações que disparam ações do agente quando ocorrem eventos do IDE, como salvar um arquivo" },
         { "id": "c", "label": "Pacotes instaláveis que empacotam documentação e servidores MCP para expandir o Kiro" },
         { "id": "d", "label": "Documentos de especificação que definem requisitos, design e tarefas de uma feature" }
       ],
-      "explanation": "Arquivos de Steering são documentos markdown que fornecem instruções detalhadas ao Kiro sobre como executar fluxos de trabalho específicos. Eles direcionam o comportamento do agente para padrões e práticas desejadas.",
+      "explanation": "Steering fornece ao Kiro conhecimento persistente do projeto em arquivos Markdown: arquitetura, padrões, decisões, vocabulário e outras convenções. O modo de inclusão determina quando cada arquivo entra no contexto.",
       "sourceUrl": "https://kiro.dev/docs/steering/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "st-002",
@@ -32,7 +32,7 @@
       "explanation": "Steering files podem existir em dois níveis: no diretório do usuário (~/.kiro/steering/) para configurações pessoais, e no workspace (.kiro/steering/) para configurações compartilhadas com a equipe via controle de versão.",
       "sourceUrl": "https://kiro.dev/docs/steering/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "st-003",
@@ -46,26 +46,27 @@
         { "id": "c", "label": "Configurar um Hook que, a cada arquivo salvo, peça ao agente para reescrever o componente no padrão" },
         { "id": "d", "label": "Documentar as convenções em um README na raiz e confiar que o Kiro o leia automaticamente em toda tarefa" }
       ],
-      "explanation": "Arquivos de Steering no workspace (.kiro/steering/) são a forma ideal de definir convenções de equipe. Eles são carregados automaticamente e garantem consistência sem necessidade de repetir instruções.",
+      "explanation": "Um arquivo em `.kiro/steering/` pode ser versionado com o projeto. Para a regra valer em toda interação, configure o front matter com `inclusion: always`; outros modos carregam o arquivo apenas por correspondência, relevância ou referência manual.",
       "sourceUrl": "https://kiro.dev/docs/steering/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "st-004",
       "category": "Steering",
       "difficulty": "avançado",
-      "type": "ordering",
-      "text": "Organize os tipos de inclusão de Steering do mais automático ao mais manual:",
+      "type": "scenario",
+      "text": "Você quer que um arquivo de Steering seja incluído automaticamente quando o pedido do usuário for semanticamente relevante, mesmo sem um arquivo correspondente aberto. Qual configuração usar?",
       "options": [
-        { "id": "step-1", "label": "Inclusão always - carregado em toda interação automaticamente (padrão)" },
-        { "id": "step-2", "label": "Inclusão fileMatch - carregado quando padrões de arquivo correspondem" },
-        { "id": "step-3", "label": "Inclusão manual - carregado via comando slash ou referência pelo usuário" }
+        { "id": "a", "label": "`inclusion: auto`, com `name` e `description` que ajudem o Kiro a decidir a relevância" },
+        { "id": "b", "label": "`inclusion: fileMatch`, sem `fileMatchPattern`, para o Kiro inferir arquivos semanticamente relacionados" },
+        { "id": "c", "label": "`inclusion: always`, porque esse modo só carrega o arquivo quando a descrição corresponde ao pedido" },
+        { "id": "d", "label": "`inclusion: manual`, com uma descrição; o Kiro fará a referência automaticamente quando necessário" }
       ],
-      "explanation": "Steering files no Kiro possuem três modos de inclusão, do mais automático ao mais manual: 'always' é o padrão e é carregado em toda interação; 'fileMatch' carrega automaticamente quando arquivos correspondentes a padrões definidos são abertos; e 'manual' requer que o usuário selecione explicitamente via slash command.",
+      "explanation": "O modo `auto` usa `name` e `description` para o Kiro decidir semanticamente quando o conteúdo é relevante. Os outros modos atuais são `always`, `fileMatch` e `manual`.",
       "sourceUrl": "https://kiro.dev/docs/steering/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-19"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

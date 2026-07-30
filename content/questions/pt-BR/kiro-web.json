@@ -14,10 +14,10 @@
         { "id": "c", "label": "Uma extensão de navegador que adiciona autocompletar em qualquer editor online" },
         { "id": "d", "label": "Um serviço de hospedagem de sites estáticos com deploy automático" }
       ],
-      "explanation": "O Kiro Web é a interface baseada em navegador do Kiro, permitindo que desenvolvedores utilizem todas as capacidades do agente diretamente no browser, sem necessidade de instalação local.",
+      "explanation": "Kiro Web é uma experiência do agente no navegador para trabalhar em repositórios GitHub sem instalação local. A prévia requer uma conta GitHub conectada e assinatura Kiro Pro ou superior.",
       "sourceUrl": "https://kiro.dev/docs/web/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-002",
@@ -32,7 +32,7 @@
       "explanation": "O modo autônomo do Kiro Web permite que o agente trabalhe de forma independente em tarefas, executando múltiplos passos sem precisar de aprovação humana a cada etapa, aumentando a produtividade em tarefas repetitivas.",
       "sourceUrl": "https://kiro.dev/docs/web/autonomous-mode/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-003",
@@ -49,24 +49,24 @@
       "explanation": "O ambiente sandbox no Kiro Web fornece um espaço isolado na nuvem onde o agente pode executar código, rodar testes e realizar operações de build com segurança, sem afetar o ambiente local do desenvolvedor.",
       "sourceUrl": "https://kiro.dev/docs/web/sandbox/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-004",
       "category": "Kiro Web",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "Uma equipe quer usar o Kiro Web para automatizar a criação de PRs a partir de issues. Qual integração com GitHub/GitLab melhor atende esse cenário?",
+      "text": "Uma equipe quer iniciar tarefas do Kiro Web diretamente a partir de issues do GitHub. Qual fluxo é suportado?",
       "options": [
-        { "id": "a", "label": "Conectar o repositório ao Kiro Web e usar tasks para que o agente crie branches, implemente e abra PRs automaticamente" },
-        { "id": "b", "label": "Configurar um bot separado de terceiros que monitora issues e chama o Kiro via API pública" },
-        { "id": "c", "label": "Exportar issues manualmente para um arquivo CSV e importar no Kiro Web" },
-        { "id": "d", "label": "Usar webhooks genéricos que enviam notificações por email para cada issue criada" }
+        { "id": "a", "label": "Conectar o repositório e adicionar o label `kiro` ou comentar `/kiro`; o agente cria a tarefa e pode abrir um PR" },
+        { "id": "b", "label": "Adicionar o issue a um GitHub Project chamado Kiro; qualquer mudança de coluna dispara uma tarefa" },
+        { "id": "c", "label": "Mencionar `@kiro` na descrição; o agente faz commit direto em main sem criar branch" },
+        { "id": "d", "label": "Exportar o issue como YAML e importá-lo manualmente na página de Specs do Kiro Web" }
       ],
-      "explanation": "O Kiro Web possui integração nativa com GitHub e GitLab, permitindo conectar repositórios diretamente. Através de tasks, o agente pode ler issues, criar branches, implementar soluções e abrir PRs automaticamente.",
+      "explanation": "Na integração documentada com GitHub, adicionar o label `kiro` ou comentar `/kiro` cria uma tarefa. O Kiro trabalha em branch, faz commits e pode abrir um Pull Request com a solução.",
       "sourceUrl": "https://kiro.dev/docs/web/github/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-005",
@@ -83,7 +83,7 @@
       "explanation": "No Kiro Web, tasks são criadas descrevendo o objetivo em linguagem natural. O agente interpreta a descrição, cria um plano de execução e implementa os passos necessários de forma autônoma no ambiente sandbox.",
       "sourceUrl": "https://kiro.dev/docs/web/using-the-agent/creating-tasks/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-006",
@@ -95,10 +95,10 @@
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "O Kiro Web oferece uma interface para criar e gerenciar Specs diretamente no navegador. Os Specs são salvos no repositório automaticamente, mas o usuário pode editá-los visualmente sem precisar manipular arquivos manualmente.",
+      "explanation": "O Kiro Web mostra os artefatos do Spec no navegador para revisão e download. Você pode pedir mudanças ao agente, que atualiza o artefato no lugar, e executar todas as tarefas ou uma tarefa específica antes de criar o PR.",
       "sourceUrl": "https://kiro.dev/docs/web/specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-007",
@@ -107,14 +107,14 @@
       "type": "ordering",
       "text": "Organize os níveis de acesso à internet do sandbox do Kiro Web do mais restritivo ao mais permissivo:",
       "options": [
-        { "id": "step-1", "label": "Connections access only - acesso apenas via proxy de conexões (GitHub/GitLab)" },
+        { "id": "step-1", "label": "Connections access only - acesso apenas às conexões gerenciadas configuradas" },
         { "id": "step-2", "label": "Common dependencies - acesso a registros de pacotes permitidos (npm, PyPI, Maven)" },
         { "id": "step-3", "label": "Open internet - acesso completo e irrestrito à internet" }
       ],
-      "explanation": "O sandbox do Kiro Web oferece três níveis progressivos de acesso à internet: 'Connections access only' permite apenas acesso ao proxy de conexões (GitHub/GitLab); 'Common dependencies' adiciona acesso a registros de pacotes comuns; e 'Open internet' permite acesso completo sem restrições.",
+      "explanation": "O sandbox oferece três níveis progressivos: `Connections access only`, `Common dependencies` e `Open internet`. Uma allow-list de domínios também pode adicionar destinos específicos ao nível selecionado.",
       "sourceUrl": "https://kiro.dev/docs/web/sandbox/internet-access/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-19"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

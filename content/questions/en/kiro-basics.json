@@ -17,7 +17,7 @@
       "explanation": "Kiro is an intelligent AI-powered development environment that works alongside developers to design systems, explore solutions, and implement code efficiently.",
       "sourceUrl": "https://kiro.dev/docs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "kb-002",
@@ -32,24 +32,24 @@
       "explanation": "Kiro has file editing capabilities, terminal command execution, and CLI automation assistance, working directly in the developer's environment.",
       "sourceUrl": "https://kiro.dev/docs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "kb-003",
       "category": "Fundamental Concepts",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "You are starting a new project and want Kiro to help structure the architecture. Which approach is most appropriate?",
+      "text": "You are starting a complex feature whose architecture and criteria need review before implementation. Which approach is most appropriate?",
       "options": [
         { "id": "a", "label": "Ask Kiro to create a Spec with requirements, design, and tasks before implementing" },
         { "id": "b", "label": "Ask for a Spec with only the task list, skipping requirements and design to start coding sooner" },
         { "id": "c", "label": "Create a Steering file with the desired architecture and request direct implementation without a Spec" },
         { "id": "d", "label": "Activate an architecture Skill and ask it to generate all the code at once without incremental steps" }
       ],
-      "explanation": "Kiro works best when used to plan before implementing. The Specs workflow allows defining requirements, creating a design, and generating incremental tasks, resulting in more structured and correct code.",
+      "explanation": "In this scenario, Specs make requirements, design, and tasks explicit, reviewable artifacts before execution. Steering and Skills can add context, but they do not replace the requested planning workflow.",
       "sourceUrl": "https://kiro.dev/docs/specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "kb-004",
@@ -61,12 +61,12 @@
         { "id": "step-1", "label": "Define requirements and acceptance criteria" },
         { "id": "step-2", "label": "Create the design document with architecture" },
         { "id": "step-3", "label": "Generate implementation tasks" },
-        { "id": "step-4", "label": "Execute tasks incrementally with verification" }
+        { "id": "step-4", "label": "Execute tasks individually or with Run all while respecting dependencies" }
       ],
-      "explanation": "The Kiro workflow follows a structured progression: first define requirements, then create the design, generate tasks, and finally execute each task with continuous verification.",
+      "explanation": "The Requirements-First flow follows requirements, design, and tasks. During execution, you can run specific tasks or use Run all; in that mode Kiro analyzes dependencies and parallelizes independent tasks in waves.",
       "sourceUrl": "https://kiro.dev/docs/specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

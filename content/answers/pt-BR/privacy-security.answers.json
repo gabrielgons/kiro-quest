@@ -2,7 +2,7 @@
   "stage": "privacy-security",
   "answers": [
     { "questionId": "ps-001", "correctAnswerId": "a" },
-    { "questionId": "ps-002", "correctAnswerId": "false" },
+    { "questionId": "ps-002", "correctAnswerId": "true" },
     { "questionId": "ps-003", "correctAnswerId": "b" },
     { "questionId": "ps-004", "correctAnswerId": "c" },
     { "questionId": "ps-005", "correctAnswerId": "b" },

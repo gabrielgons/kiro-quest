@@ -14,10 +14,10 @@
         { "id": "c", "label": "Reusable instructions activated on demand to load specific context" },
         { "id": "d", "label": "Connections to external tools and services through a standardized protocol" }
       ],
-      "explanation": "Hooks in Kiro are automations that connect IDE events (like file editing, prompt submission) to agent actions (askAgent or runCommand). When the event occurs, the specified action is executed automatically.",
+      "explanation": "Hooks connect Kiro events to an automatic action. In the current configuration, the event is set in `trigger`, a `matcher` can restrict when it fires, and `action.type` selects a `command` or `agent` action.",
       "sourceUrl": "https://kiro.dev/docs/hooks/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "hk-002",
@@ -29,27 +29,27 @@
         { "id": "true", "label": "True" },
         { "id": "false", "label": "False" }
       ],
-      "explanation": "Hooks support the `fileEdited` event (displayed as 'File Save' in the UI) with file pattern filtering (filePatterns). Combined with the 'Shell Command' action (runCommand), it's possible to automatically run lint when saving .ts files.",
+      "explanation": "Use the `PostFileSave` trigger, a matcher for `**/*.ts`, and a `command` action containing the lint command. The hook fires after a matching TypeScript file is saved.",
       "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "hk-003",
       "category": "Hooks",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "You want Kiro to automatically review every file write operation before executing it. Which Hook configuration is appropriate?",
+      "text": "You want to enforce a policy before every file write and block the operation when a validator rejects it. Which Hook configuration is appropriate?",
       "options": [
-        { "id": "a", "label": "eventType: preToolUse, hookAction: askAgent, toolTypes: write" },
-        { "id": "b", "label": "eventType: fileEdited, hookAction: runCommand, command: git diff" },
-        { "id": "c", "label": "eventType: promptSubmit, hookAction: askAgent" },
-        { "id": "d", "label": "eventType: postToolUse, hookAction: runCommand, command: npm test" }
+        { "id": "a", "label": "trigger: PreToolUse, a matcher for write tools, and action.type: command; the validator exits with code 2 to block" },
+        { "id": "b", "label": "trigger: PostToolUse, a matcher for write tools, and action.type: command; exit code 0 undoes the completed operation" },
+        { "id": "c", "label": "trigger: UserPromptSubmit and action.type: agent; the agent individually approves every later tool call" },
+        { "id": "d", "label": "trigger: PostFileSave and action.type: command; the matcher prevents the file from being saved before the write" }
       ],
-      "explanation": "The 'preToolUse' event with toolTypes 'write' intercepts write operations before execution. Combined with 'askAgent', Kiro can review and validate the operation before proceeding.",
+      "explanation": "`PreToolUse` runs before the tool. With a matcher for write tools and a `command` action, the validator can allow the operation with exit code 0 or block it with exit code 2 and return its message to the agent.",
       "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "hk-004",
@@ -58,15 +58,15 @@
       "type": "ordering",
       "text": "Arrange the Hook event types from earliest to latest in the execution cycle:",
       "options": [
-        { "id": "step-1", "label": "Prompt Submit - when the user sends a prompt" },
-        { "id": "step-2", "label": "Pre Tool Use - before the agent uses a tool" },
-        { "id": "step-3", "label": "Post Tool Use - after the agent uses a tool" },
-        { "id": "step-4", "label": "Agent Stop - when the agent finishes its response turn" }
+        { "id": "step-1", "label": "UserPromptSubmit - when the user sends a prompt" },
+        { "id": "step-2", "label": "PreToolUse - before the agent uses a tool" },
+        { "id": "step-3", "label": "PostToolUse - after the agent uses a tool" },
+        { "id": "step-4", "label": "Stop - when the agent finishes its response turn" }
       ],
-      "explanation": "The IDE hook execution cycle follows: the user submits a prompt (Prompt Submit), the agent invokes tools (Pre Tool Use / Post Tool Use intercept before and after each invocation), and finally the agent completes its turn (Agent Stop). File Save (fileEdited) is a separate event triggered when files are saved.",
+      "explanation": "In this cycle, `UserPromptSubmit` occurs on user input; `PreToolUse` and `PostToolUse` wrap each tool call; and `Stop` occurs when the agent finishes the turn. File events such as `PostFileSave` belong to a separate flow.",
       "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-19"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }
