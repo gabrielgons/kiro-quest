@@ -7,6 +7,7 @@ import type { LearningStage } from '@/engine/types';
 import type { AnswerOption, OrderingItem } from '@/data/types';
 import QuizProgressBar from '@/components/QuizProgressBar.vue';
 import FeedbackDisplay from '@/components/FeedbackDisplay.vue';
+import OrderingOptions from '@/components/OrderingOptions.vue';
 
 const router = useRouter();
 const route = useRoute();
@@ -71,19 +72,9 @@ function selectOption(optionId: string) {
   selectedAnswer.value = optionId;
 }
 
-function moveItem(index: number, direction: 'up' | 'down') {
+function handleReorder(orderedIds: string[]) {
   if (quizStore.quizPhase !== 'answering') return;
-  if (!Array.isArray(selectedAnswer.value)) return;
-
-  const newOrder = [...selectedAnswer.value];
-  const swapIndex = direction === 'up' ? index - 1 : index + 1;
-  if (swapIndex < 0 || swapIndex >= newOrder.length) return;
-
-  const current = newOrder[index]!;
-  const target = newOrder[swapIndex]!;
-  newOrder[index] = target;
-  newOrder[swapIndex] = current;
-  selectedAnswer.value = newOrder;
+  selectedAnswer.value = orderedIds;
 }
 
 function handleSubmit() {
@@ -182,37 +173,13 @@ function handleBackToStages() {
       </div>
 
       <!-- Ordering -->
-      <div v-else-if="currentQuestion.type === 'ordering'" class="ordering-list">
-        <p class="order-hint">{{ t('quiz.orderItems') }}</p>
-        <div
-          v-for="(optionId, index) in (selectedAnswer as string[] || [])"
-          :key="optionId"
-          class="order-item"
-        >
-          <span class="order-position">{{ index + 1 }}.</span>
-          <span class="order-label">
-            {{ (currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label }}
-          </span>
-          <div class="order-controls">
-            <button
-              class="move-button"
-              :disabled="index === 0 || quizStore.quizPhase !== 'answering'"
-              :aria-label="`${t('quiz.moveUp')} ${(currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label}`"
-              @click="moveItem(index, 'up')"
-            >
-              &#9650;
-            </button>
-            <button
-              class="move-button"
-              :disabled="index === (selectedAnswer as string[]).length - 1 || quizStore.quizPhase !== 'answering'"
-              :aria-label="`${t('quiz.moveDown')} ${(currentQuestion.options as OrderingItem[]).find(o => o.id === optionId)?.label}`"
-              @click="moveItem(index, 'down')"
-            >
-              &#9660;
-            </button>
-          </div>
-        </div>
-      </div>
+      <OrderingOptions
+        v-else-if="currentQuestion.type === 'ordering'"
+        :items="(currentQuestion.options as OrderingItem[])"
+        :ordered-ids="Array.isArray(selectedAnswer) ? selectedAnswer : []"
+        :disabled="quizStore.quizPhase !== 'answering'"
+        @reorder="handleReorder"
+      />
 
       <!-- Actions -->
       <div class="actions">
@@ -366,68 +333,6 @@ function handleBackToStages() {
 .option-button:disabled {
   cursor: default;
   opacity: 0.8;
-}
-
-.ordering-list {
-  margin-bottom: 1.5rem;
-}
-
-.order-hint {
-  font-size: 0.875rem;
-  color: var(--color-text-secondary, #6b7280);
-  margin-bottom: 0.5rem;
-}
-
-.order-item {
-  display: flex;
-  align-items: center;
-  padding: 0.5rem 0.75rem;
-  border: 2px solid var(--color-border, #e5e7eb);
-  border-radius: 8px;
-  background: var(--color-surface, #fff);
-  margin-bottom: 0.5rem;
-  min-height: 44px;
-}
-
-.order-position {
-  font-weight: 600;
-  margin-right: 0.75rem;
-  color: var(--color-text-secondary, #6b7280);
-  min-width: 1.5rem;
-}
-
-.order-label {
-  flex: 1;
-  font-size: 1rem;
-}
-
-.order-controls {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.move-button {
-  width: 36px;
-  height: 36px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: 4px;
-  background: var(--color-surface, #fff);
-  color: var(--color-text);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.move-button:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-.move-button:focus-visible {
-  outline: 3px solid var(--color-focus, #60a5fa);
-  outline-offset: 2px;
 }
 
 .actions {
