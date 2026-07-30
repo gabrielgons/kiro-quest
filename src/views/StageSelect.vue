@@ -14,8 +14,7 @@ const quizStore = useQuizStore();
 
 function getStageStatus(stage: LearningStage): StageStatus {
   if (quizStore.completedStages.includes(stage)) return 'completed';
-  if (quizStore.currentStage === stage && !quizStore.completedStages.includes(stage) &&
-      Object.keys(quizStore.userAnswersByStage).includes(stage)) return 'in-progress';
+  if (quizStore.hasInProgressAttempt(stage)) return 'in-progress';
   return 'not-started';
 }
 
@@ -28,7 +27,19 @@ const stages = computed(() =>
 );
 
 function handleSelectStage(stage: LearningStage) {
-  quizStore.startStage(stage);
+  const status = getStageStatus(stage);
+
+  if (status === 'completed') {
+    router.push(`/summary/${stage}`);
+    return;
+  }
+
+  if (status === 'in-progress') {
+    quizStore.resumeStage(stage);
+  } else {
+    quizStore.startStage(stage);
+  }
+
   router.push(`/quiz/${stage}`);
 }
 </script>

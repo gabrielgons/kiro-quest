@@ -51,6 +51,9 @@
   "quiz.orderItems": "Arrange items in the correct order",
   "quiz.moveUp": "Move up",
   "quiz.moveDown": "Move down",
+  "quiz.navigation": "Quiz navigation",
+  "quiz.backToStages": "Back to stages",
+  "quiz.exitHint": "Your confirmed answers stay saved.",
   "quiz.true": "True",
   "quiz.false": "False",
 
@@ -101,6 +104,8 @@
   "error.noQuestions": "No questions available for this stage",
   "error.loadFailed": "Failed to load data",
   "error.cannotVerify": "Could not verify this question",
+  "error.cannotResumeStage": "Could not resume the {stage} stage.",
+  "error.loadStageQuestions": "Could not load questions for the {stage} stage.",
 
   "notification.dismiss": "Dismiss",
 
