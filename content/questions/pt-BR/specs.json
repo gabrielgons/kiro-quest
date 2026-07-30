@@ -55,18 +55,18 @@
       "category": "Specs",
       "difficulty": "avançado",
       "type": "ordering",
-      "text": "Organize as etapas do fluxo Requirements-First de um Feature Spec:",
+      "text": "Após selecionar o fluxo Requirements-First, organize as etapas abaixo, incluindo a análise opcional antes do design:",
       "options": [
-        { "id": "step-1", "label": "Escrever user stories e critérios de aceitação" },
-        { "id": "step-2", "label": "Analisar requisitos para ambiguidades" },
-        { "id": "step-3", "label": "Criar documento de design com arquitetura" },
-        { "id": "step-4", "label": "Gerar plano de tarefas incrementais" },
-        { "id": "step-5", "label": "Executar tarefas com verificação" }
+        { "id": "step-1", "label": "Gerar requirements.md com user stories e critérios de aceitação" },
+        { "id": "step-2", "label": "Opcionalmente, analisar e refinar os requisitos para eliminar ambiguidades" },
+        { "id": "step-3", "label": "Gerar design.md com arquitetura e componentes" },
+        { "id": "step-4", "label": "Gerar tasks.md com tarefas discretas e rastreáveis" },
+        { "id": "step-5", "label": "Implementar a funcionalidade executando as tarefas" }
       ],
-      "explanation": "O fluxo Requirements-First segue a progressão: definir requisitos → analisar ambiguidades → criar design → gerar tarefas → executar com verificação. Cada etapa informa a próxima.",
-      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/requirements-first/",
+      "explanation": "No fluxo Requirements-First, o Kiro gera primeiro requirements.md. Depois de revisar os requisitos, você pode usar Analyze Requirements para encontrar ambiguidades, inconsistências e lacunas antes de seguir para o design, mas essa análise é opcional. Em seguida, o Kiro gera design.md e tasks.md, e as tarefas são executadas para implementar a funcionalidade.",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }
