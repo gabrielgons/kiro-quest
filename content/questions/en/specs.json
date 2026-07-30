@@ -55,18 +55,18 @@
       "category": "Specs",
       "difficulty": "avançado",
       "type": "ordering",
-      "text": "Arrange the steps of the Requirements-First flow of a Feature Spec:",
+      "text": "After selecting the Requirements-First workflow, arrange the steps below, including the optional analysis before design:",
       "options": [
-        { "id": "step-1", "label": "Write user stories and acceptance criteria" },
-        { "id": "step-2", "label": "Analyze requirements for ambiguities" },
-        { "id": "step-3", "label": "Create design document with architecture" },
-        { "id": "step-4", "label": "Generate incremental task plan" },
-        { "id": "step-5", "label": "Execute tasks with verification" }
+        { "id": "step-1", "label": "Generate requirements.md with user stories and acceptance criteria" },
+        { "id": "step-2", "label": "Optionally analyze and refine the requirements to eliminate ambiguities" },
+        { "id": "step-3", "label": "Generate design.md with architecture and components" },
+        { "id": "step-4", "label": "Generate tasks.md with discrete and trackable tasks" },
+        { "id": "step-5", "label": "Implement the feature by executing the tasks" }
       ],
-      "explanation": "The Requirements-First flow follows the progression: define requirements → analyze ambiguities → create design → generate tasks → execute with verification. Each step informs the next.",
-      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/requirements-first/",
+      "explanation": "In the Requirements-First workflow, Kiro first generates requirements.md. After reviewing the requirements, you can use Analyze Requirements to find ambiguities, inconsistencies, and gaps before proceeding to design, but this analysis is optional. Kiro then generates design.md and tasks.md, and the tasks are executed to implement the feature.",
+      "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }
