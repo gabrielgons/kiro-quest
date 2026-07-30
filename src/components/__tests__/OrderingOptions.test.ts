@@ -58,7 +58,10 @@ describe('OrderingOptions', () => {
         clientX: 20,
         clientY: 120,
       });
-      await wrapper.get('.order-list').trigger('pointerup', { pointerId: 1 });
+      const pointerUp = new Event('pointerup');
+      Object.defineProperty(pointerUp, 'pointerId', { value: 1 });
+      window.dispatchEvent(pointerUp);
+      await wrapper.vm.$nextTick();
 
       expect(wrapper.emitted('reorder')?.[0]?.[0]).toEqual([
         'step-b',
@@ -71,6 +74,62 @@ describe('OrderingOptions', () => {
         );
       });
     } finally {
+      if (originalDescriptor) {
+        Object.defineProperty(document, 'elementFromPoint', originalDescriptor);
+      } else {
+        Reflect.deleteProperty(document, 'elementFromPoint');
+      }
+    }
+  });
+
+  it('stops reordering after the pointer is released outside the list', async () => {
+    const wrapper = mount(OrderingOptions, {
+      props: {
+        items,
+        orderedIds: ['step-a', 'step-b', 'step-c'],
+        disabled: false,
+      },
+    });
+
+    const lastItem = wrapper.get('[data-order-id="step-c"]').element;
+    const firstItem = wrapper.get('[data-order-id="step-a"]').element;
+    const elementFromPoint = vi.fn(() => lastItem);
+    const originalDescriptor = Object.getOwnPropertyDescriptor(document, 'elementFromPoint');
+    Object.defineProperty(document, 'elementFromPoint', {
+      configurable: true,
+      value: elementFromPoint,
+    });
+
+    try {
+      await wrapper.get('[data-testid="drag-handle-step-a"]').trigger('pointerdown', {
+        pointerId: 7,
+        pointerType: 'mouse',
+        button: 0,
+      });
+      await wrapper.get('.order-list').trigger('pointermove', {
+        pointerId: 7,
+        clientX: 20,
+        clientY: 120,
+      });
+
+      const pointerUp = new Event('pointerup');
+      Object.defineProperty(pointerUp, 'pointerId', { value: 7 });
+      window.dispatchEvent(pointerUp);
+      await wrapper.vm.$nextTick();
+
+      expect(wrapper.get('.order-list').classes()).not.toContain('is-dragging');
+      expect(wrapper.find('.order-item.is-dragging').exists()).toBe(false);
+
+      elementFromPoint.mockReturnValue(firstItem);
+      await wrapper.get('.order-list').trigger('pointermove', {
+        pointerId: 7,
+        clientX: 20,
+        clientY: 20,
+      });
+
+      expect(wrapper.emitted('reorder')).toHaveLength(1);
+    } finally {
+      wrapper.unmount();
       if (originalDescriptor) {
         Object.defineProperty(document, 'elementFromPoint', originalDescriptor);
       } else {
