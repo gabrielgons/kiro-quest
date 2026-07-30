@@ -23,8 +23,11 @@ import { questionStore } from '@/data/questionStore';
 import { progressTracker } from '@/progress/progressTracker';
 import type { ProgressState } from '@/progress/types';
 import { useAuthStore } from '@/stores/authStore';
+import { useLocale } from '@/i18n/useLocale';
 
 export const useQuizStore = defineStore('quiz', () => {
+  const { t } = useLocale();
+
   // --- State ---
   const currentStage = ref<LearningStage>('kiro-basics');
   const currentQuestionIndex = ref(0);
@@ -108,6 +111,11 @@ export const useQuizStore = defineStore('quiz', () => {
     Object.keys(userAnswersByStage.value).length > 0
   );
 
+  function hasInProgressAttempt(stage: LearningStage): boolean {
+    return !completedStages.value.includes(stage) &&
+      (userAnswersByStage.value[stage]?.length ?? 0) > 0;
+  }
+
   const incorrectAnswers = computed(() => {
     const stageAnswers = userAnswersByStage.value[currentStage.value] ?? [];
     return stageAnswers.filter((a) => !a.isCorrect);
@@ -125,7 +133,9 @@ export const useQuizStore = defineStore('quiz', () => {
     const stageQuestions = questionStore.getQuestionsForStage(stage);
 
     if (stageQuestions.length === 0) {
-      errorMessage.value = `Não foi possível carregar as perguntas para o estágio "${stage}".`;
+      errorMessage.value = t('error.loadStageQuestions', {
+        stage: t(`stage.name.${stage}`),
+      });
       return;
     }
 
@@ -142,6 +152,56 @@ export const useQuizStore = defineStore('quiz', () => {
     _persist();
   }
 
+  /**
+   * Reloads the current in-progress stage without clearing its answers.
+   * Starting over remains an explicit operation handled by retryStage.
+   */
+  function resumeStage(stage: LearningStage): void {
+    const stageAnswers = userAnswersByStage.value[stage];
+    if (!hasInProgressAttempt(stage) || !stageAnswers) {
+      errorMessage.value = t('error.cannotResumeStage', {
+        stage: t(`stage.name.${stage}`),
+      });
+      return;
+    }
+
+    const stageQuestions = questionStore.getQuestionsForStage(stage);
+    if (stageQuestions.length === 0) {
+      errorMessage.value = t('error.loadStageQuestions', {
+        stage: t(`stage.name.${stage}`),
+      });
+      return;
+    }
+
+    const isCurrentAttempt = currentStage.value === stage;
+
+    currentStage.value = stage;
+    questions.value = stageQuestions;
+    lastAnswerResult.value = null;
+    errorMessage.value = null;
+
+    // Index and phase are persisted only for the current stage. When returning
+    // to another saved attempt, continue from its first unanswered question.
+    if (!isCurrentAttempt) {
+      const answeredQuestionIds = new Set(stageAnswers.map((answer) => answer.questionId));
+      const nextQuestionIndex = stageQuestions.findIndex(
+        (question) => !answeredQuestionIds.has(question.id)
+      );
+
+      if (nextQuestionIndex === -1) {
+        currentQuestionIndex.value = stageQuestions.length - 1;
+        quizPhase.value = 'feedback';
+      } else {
+        currentQuestionIndex.value = nextQuestionIndex;
+        quizPhase.value = 'answering';
+      }
+    }
+
+    if (quizPhase.value === 'feedback') {
+      _reconstructLastAnswerResult();
+    }
+  }
+
   function submitAnswer(selectedAnswer: string | string[]): void {
     const question = currentQuestion.value;
     if (!question) return;
@@ -150,7 +210,7 @@ export const useQuizStore = defineStore('quiz', () => {
     try {
       answerKey = questionStore.getAnswerKey(question.id);
     } catch {
-      errorMessage.value = 'Não foi possível verificar esta pergunta.';
+      errorMessage.value = t('error.cannotVerify');
       return;
     }
 
@@ -438,9 +498,11 @@ export const useQuizStore = defineStore('quiz', () => {
     recommendedNextStage,
     incorrectAnswers,
     hasAnyProgress,
+    hasInProgressAttempt,
 
     // Actions
     startStage,
+    resumeStage,
     submitAnswer,
     nextQuestion,
     completeStage,

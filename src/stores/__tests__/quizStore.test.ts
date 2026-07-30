@@ -3,6 +3,7 @@ import { setActivePinia, createPinia } from 'pinia';
 import { useQuizStore } from '@/stores/quizStore';
 import type { QuestionPresentation, AnswerKey } from '@/data/types';
 import type { LearningStage } from '@/engine/types';
+import { useLocale } from '@/i18n/useLocale';
 
 const mockQuestions: QuestionPresentation[] = [
   {
@@ -113,6 +114,7 @@ vi.mock('@/progress/progressTracker', () => ({
 describe('quizStore - retry score accumulation fix', () => {
   beforeEach(() => {
     setActivePinia(createPinia());
+    useLocale().setLocale('pt-BR');
   });
 
   function answerAllQuestions(store: ReturnType<typeof useQuizStore>, answers: string[]) {
@@ -234,7 +236,7 @@ describe('quizStore - retry score accumulation fix', () => {
     // 'specs' returns empty array from mock
     store.startStage('specs');
 
-    expect(store.errorMessage).toContain('specs');
+    expect(store.errorMessage).toContain('Specs');
     // questions should remain empty since load failed
     expect(store.questions).toHaveLength(0);
   });
@@ -275,5 +277,69 @@ describe('quizStore - retry score accumulation fix', () => {
     expect(store.stageResults['kiro-basics']?.totalCount).toBe(4);
     expect(store.questionsAnswered).toBe(4);
     expect(store.correctAnswerCount).toBe(3);
+  });
+
+  it('resumeStage preserves the current attempt and restores feedback', () => {
+    const store = useQuizStore();
+    store.startStage('kiro-basics');
+    store.submitAnswer('a');
+
+    const answersBeforeResume = [...store.userAnswersByStage['kiro-basics']!];
+    const questionIndexBeforeResume = store.currentQuestionIndex;
+
+    store.resumeStage('kiro-basics');
+
+    expect(store.userAnswersByStage['kiro-basics']).toEqual(answersBeforeResume);
+    expect(store.currentQuestionIndex).toBe(questionIndexBeforeResume);
+    expect(store.quizPhase).toBe('feedback');
+    expect(store.lastAnswerResult?.questionId).toBe('q1');
+    expect(store.questions).toHaveLength(mockQuestions.length);
+    expect(store.errorMessage).toBeNull();
+  });
+
+  it('resumeStage restores another saved stage at its first unanswered question', () => {
+    const store = useQuizStore();
+    store.startStage('kiro-basics');
+    store.submitAnswer('a');
+    const savedAnswers = [...store.userAnswersByStage['kiro-basics']!];
+
+    // Simulate that the user switched to a different stage.
+    store.currentStage = 'specs';
+    store.currentQuestionIndex = 0;
+    store.quizPhase = 'answering';
+
+    store.resumeStage('kiro-basics');
+
+    expect(store.currentStage).toBe('kiro-basics');
+    expect(store.currentQuestionIndex).toBe(1);
+    expect(store.quizPhase).toBe('answering');
+    expect(store.lastAnswerResult).toBeNull();
+    expect(store.userAnswersByStage['kiro-basics']).toEqual(savedAnswers);
+    expect(store.errorMessage).toBeNull();
+  });
+
+  it('resumeStage restores the final feedback when all questions were answered', () => {
+    const store = useQuizStore();
+    store.startStage('kiro-basics');
+    answerAllQuestions(store, ['a', 'b', 'c', 'a']);
+
+    store.currentStage = 'specs';
+    store.currentQuestionIndex = 0;
+    store.quizPhase = 'answering';
+
+    store.resumeStage('kiro-basics');
+
+    expect(store.currentQuestionIndex).toBe(mockQuestions.length - 1);
+    expect(store.quizPhase).toBe('feedback');
+    expect(store.lastAnswerResult?.questionId).toBe('q4');
+  });
+
+  it('localizes resume errors using the active locale', () => {
+    useLocale().setLocale('en');
+    const store = useQuizStore();
+
+    store.resumeStage('kiro-basics');
+
+    expect(store.errorMessage).toBe('Could not resume the Kiro Basics stage.');
   });
 });

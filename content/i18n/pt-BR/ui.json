@@ -51,6 +51,9 @@
   "quiz.orderItems": "Organize os itens na ordem correta",
   "quiz.moveUp": "Mover para cima",
   "quiz.moveDown": "Mover para baixo",
+  "quiz.navigation": "Navegação do quiz",
+  "quiz.backToStages": "Voltar aos estágios",
+  "quiz.exitHint": "Suas respostas confirmadas ficam salvas.",
   "quiz.true": "Verdadeiro",
   "quiz.false": "Falso",
 
@@ -101,6 +104,8 @@
   "error.noQuestions": "Nenhuma pergunta disponível para este estágio",
   "error.loadFailed": "Falha ao carregar dados",
   "error.cannotVerify": "Não foi possível verificar esta pergunta",
+  "error.cannotResumeStage": "Não foi possível retomar o estágio {stage}.",
+  "error.loadStageQuestions": "Não foi possível carregar as perguntas do estágio {stage}.",
 
   "notification.dismiss": "Fechar",
 

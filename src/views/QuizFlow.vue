@@ -20,7 +20,11 @@ const stage = route.params.stage as LearningStage;
 
 onMounted(() => {
   if (quizStore.questions.length === 0 || quizStore.currentStage !== stage) {
-    quizStore.startStage(stage);
+    if (quizStore.hasInProgressAttempt(stage)) {
+      quizStore.resumeStage(stage);
+    } else {
+      quizStore.startStage(stage);
+    }
   }
   initializeAnswer();
 });
@@ -95,6 +99,10 @@ function handleNext() {
     quizStore.nextQuestion();
   }
 }
+
+function handleBackToStages() {
+  router.push('/stages');
+}
 </script>
 
 <template>
@@ -109,6 +117,13 @@ function handleNext() {
 
     <!-- Quiz content -->
     <template v-else-if="currentQuestion">
+      <nav class="quiz-navigation" :aria-label="t('quiz.navigation')">
+        <button class="quiz-exit-button" @click="handleBackToStages">
+          {{ t('quiz.backToStages') }}
+        </button>
+        <span class="quiz-exit-hint">{{ t('quiz.exitHint') }}</span>
+      </nav>
+
       <QuizProgressBar
         :current="quizStore.currentQuestionIndex + 1"
         :total="quizStore.questions.length"
@@ -245,6 +260,46 @@ function handleNext() {
   max-width: 700px;
   margin: 0 auto;
   min-height: 100vh;
+}
+
+.quiz-navigation {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+}
+
+.quiz-exit-button {
+  min-height: 44px;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  color: var(--color-text);
+  cursor: pointer;
+  font: inherit;
+}
+
+.quiz-exit-button:hover {
+  border-color: var(--color-primary);
+}
+
+.quiz-exit-hint {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  text-align: right;
+}
+
+@media (max-width: 480px) {
+  .quiz-navigation {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .quiz-exit-hint {
+    text-align: left;
+  }
 }
 
 .sr-only {
