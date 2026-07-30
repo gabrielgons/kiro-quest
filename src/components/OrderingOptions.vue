@@ -16,10 +16,17 @@ const emit = defineEmits<{
 const { t } = useLocale();
 const announcement = ref('');
 const instructionsId = useId();
+const dragOrderIds = ref<string[] | null>(null);
+const draggedItemId = ref<string | null>(null);
+const dropTargetId = ref<string | null>(null);
+const dragStartIndex = ref<number | null>(null);
+const keyboardGrabbedItemId = ref<string | null>(null);
+const keyboardOriginalOrderIds = ref<string[] | null>(null);
 
 const orderedItems = computed<OrderingItem[]>(() => {
   const itemsById = new Map(props.items.map((item) => [item.id, item]));
-  const selectedItems = props.orderedIds
+  const activeOrder = dragOrderIds.value ?? props.orderedIds;
+  const selectedItems = activeOrder
     .map((id) => itemsById.get(id))
     .filter((item): item is OrderingItem => item !== undefined);
   const selectedIds = new Set(selectedItems.map((item) => item.id));
@@ -38,31 +45,219 @@ async function announceMovement(item: OrderingItem, position: number): Promise<v
   });
 }
 
-function moveItem(fromIndex: number, toIndex: number): void {
+async function announceStatus(
+  key: string,
+  item: OrderingItem,
+  position: number
+): Promise<void> {
+  announcement.value = '';
+  await nextTick();
+  announcement.value = t(key, {
+    item: item.label,
+    position: position + 1,
+    total: orderedItems.value.length,
+  });
+}
+
+function startDrag(itemId: string, event: PointerEvent): void {
   if (
     props.disabled ||
-    fromIndex === toIndex ||
-    fromIndex < 0 ||
-    toIndex < 0 ||
-    fromIndex >= orderedItems.value.length ||
-    toIndex >= orderedItems.value.length
+    keyboardGrabbedItemId.value !== null ||
+    (event.pointerType === 'mouse' && event.button !== 0)
   ) {
     return;
   }
 
-  const newOrder = orderedItems.value.map((item) => item.id);
-  const [movedId] = newOrder.splice(fromIndex, 1);
-  const movedItem = orderedItems.value[fromIndex];
-  if (!movedId || !movedItem) return;
+  const currentOrder = orderedItems.value.map((item) => item.id);
+  const itemIndex = currentOrder.indexOf(itemId);
+  if (itemIndex === -1) return;
 
-  newOrder.splice(toIndex, 0, movedId);
-  emit('reorder', newOrder);
-  void announceMovement(movedItem, toIndex);
+  dragOrderIds.value = currentOrder;
+  draggedItemId.value = itemId;
+  dropTargetId.value = itemId;
+  dragStartIndex.value = itemIndex;
+
+  const handle = event.currentTarget as HTMLElement;
+  handle.setPointerCapture?.(event.pointerId);
 }
 
-function handlePositionChange(index: number, event: Event): void {
-  const select = event.target as HTMLSelectElement;
-  moveItem(index, Number(select.value) - 1);
+function handlePointerMove(event: PointerEvent): void {
+  const draggedId = draggedItemId.value;
+  const currentOrder = dragOrderIds.value;
+  if (
+    !draggedId ||
+    !currentOrder ||
+    props.disabled ||
+    keyboardGrabbedItemId.value !== null
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  const target = document
+    .elementFromPoint(event.clientX, event.clientY)
+    ?.closest<HTMLElement>('[data-order-id]');
+  const targetId = target?.dataset.orderId;
+  if (!targetId || targetId === draggedId) return;
+
+  const fromIndex = currentOrder.indexOf(draggedId);
+  const toIndex = currentOrder.indexOf(targetId);
+  if (fromIndex === -1 || toIndex === -1 || fromIndex === toIndex) return;
+
+  const newOrder = [...currentOrder];
+  newOrder.splice(fromIndex, 1);
+  newOrder.splice(toIndex, 0, draggedId);
+  dragOrderIds.value = newOrder;
+  dropTargetId.value = targetId;
+  emit('reorder', newOrder);
+}
+
+async function finishDrag(event: PointerEvent): Promise<void> {
+  const draggedId = draggedItemId.value;
+  const finalOrder = dragOrderIds.value;
+  const initialIndex = dragStartIndex.value;
+  if (
+    !draggedId ||
+    !finalOrder ||
+    initialIndex === null ||
+    keyboardGrabbedItemId.value !== null
+  ) {
+    return;
+  }
+
+  const handle = event.currentTarget as HTMLElement;
+  if (handle.hasPointerCapture?.(event.pointerId)) {
+    handle.releasePointerCapture?.(event.pointerId);
+  }
+
+  const finalIndex = finalOrder.indexOf(draggedId);
+  const movedItem = props.items.find((item) => item.id === draggedId);
+
+  draggedItemId.value = null;
+  dropTargetId.value = null;
+  dragStartIndex.value = null;
+
+  await nextTick();
+  dragOrderIds.value = null;
+
+  if (movedItem && finalIndex !== -1 && finalIndex !== initialIndex) {
+    await announceMovement(movedItem, finalIndex);
+  }
+}
+
+function startKeyboardMove(itemId: string): void {
+  if (props.disabled || draggedItemId.value !== null) return;
+
+  const currentOrder = orderedItems.value.map((item) => item.id);
+  const itemIndex = currentOrder.indexOf(itemId);
+  const item = props.items.find((candidate) => candidate.id === itemId);
+  if (itemIndex === -1 || !item) return;
+
+  dragOrderIds.value = currentOrder;
+  keyboardOriginalOrderIds.value = [...currentOrder];
+  keyboardGrabbedItemId.value = itemId;
+  draggedItemId.value = itemId;
+  dragStartIndex.value = itemIndex;
+  void announceStatus('quiz.keyboardDragStarted', item, itemIndex);
+}
+
+function moveKeyboardItem(itemId: string, direction: -1 | 1): void {
+  const currentOrder = dragOrderIds.value;
+  if (keyboardGrabbedItemId.value !== itemId || !currentOrder) return;
+
+  const fromIndex = currentOrder.indexOf(itemId);
+  const toIndex = fromIndex + direction;
+  if (fromIndex === -1 || toIndex < 0 || toIndex >= currentOrder.length) return;
+
+  const targetId = currentOrder[toIndex];
+  const newOrder = [...currentOrder];
+  newOrder.splice(fromIndex, 1);
+  newOrder.splice(toIndex, 0, itemId);
+  dragOrderIds.value = newOrder;
+  dropTargetId.value = targetId ?? null;
+  emit('reorder', newOrder);
+
+  const item = props.items.find((candidate) => candidate.id === itemId);
+  if (item) {
+    void announceMovement(item, toIndex);
+  }
+}
+
+async function finishKeyboardMove(itemId: string): Promise<void> {
+  const finalOrder = dragOrderIds.value;
+  if (keyboardGrabbedItemId.value !== itemId || !finalOrder) return;
+
+  const finalIndex = finalOrder.indexOf(itemId);
+  const item = props.items.find((candidate) => candidate.id === itemId);
+
+  keyboardGrabbedItemId.value = null;
+  keyboardOriginalOrderIds.value = null;
+  draggedItemId.value = null;
+  dropTargetId.value = null;
+  dragStartIndex.value = null;
+
+  await nextTick();
+  dragOrderIds.value = null;
+
+  if (item && finalIndex !== -1) {
+    await announceStatus('quiz.keyboardDragDropped', item, finalIndex);
+  }
+}
+
+async function cancelKeyboardMove(itemId: string): Promise<void> {
+  const originalOrder = keyboardOriginalOrderIds.value;
+  if (keyboardGrabbedItemId.value !== itemId || !originalOrder) return;
+
+  const originalIndex = originalOrder.indexOf(itemId);
+  const item = props.items.find((candidate) => candidate.id === itemId);
+
+  dragOrderIds.value = [...originalOrder];
+  emit('reorder', [...originalOrder]);
+  keyboardGrabbedItemId.value = null;
+  keyboardOriginalOrderIds.value = null;
+  draggedItemId.value = null;
+  dropTargetId.value = null;
+  dragStartIndex.value = null;
+
+  await nextTick();
+  dragOrderIds.value = null;
+
+  if (item && originalIndex !== -1) {
+    await announceStatus('quiz.keyboardDragCancelled', item, originalIndex);
+  }
+}
+
+function handleHandleKeydown(itemId: string, event: KeyboardEvent): void {
+  if (props.disabled) return;
+
+  if ((event.key === ' ' || event.key === 'Enter') && !event.repeat) {
+    event.preventDefault();
+    if (keyboardGrabbedItemId.value === itemId) {
+      void finishKeyboardMove(itemId);
+    } else if (keyboardGrabbedItemId.value === null) {
+      startKeyboardMove(itemId);
+    }
+    return;
+  }
+
+  if (keyboardGrabbedItemId.value !== itemId) return;
+
+  if (event.key === 'ArrowUp') {
+    event.preventDefault();
+    moveKeyboardItem(itemId, -1);
+  } else if (event.key === 'ArrowDown') {
+    event.preventDefault();
+    moveKeyboardItem(itemId, 1);
+  } else if (event.key === 'Escape') {
+    event.preventDefault();
+    void cancelKeyboardMove(itemId);
+  }
+}
+
+function handleHandleBlur(itemId: string): void {
+  if (keyboardGrabbedItemId.value === itemId) {
+    void finishKeyboardMove(itemId);
+  }
 }
 </script>
 
@@ -70,65 +265,61 @@ function handlePositionChange(index: number, event: Event): void {
   <div class="ordering-options">
     <p :id="instructionsId" class="order-hint">{{ t('quiz.orderItems') }}</p>
 
-    <div
+    <TransitionGroup
+      name="order"
+      tag="div"
       class="order-list"
+      :class="{
+        'is-dragging': draggedItemId !== null,
+        'is-disabled': disabled,
+      }"
       role="list"
       :aria-describedby="instructionsId"
+      @pointermove="handlePointerMove"
+      @pointerup="finishDrag"
+      @pointercancel="finishDrag"
     >
       <div
         v-for="(item, index) in orderedItems"
         :key="item.id"
         class="order-item"
+        :class="{
+          'is-dragging': draggedItemId === item.id,
+          'is-drop-target': dropTargetId === item.id && draggedItemId !== item.id,
+        }"
         role="listitem"
+        :data-order-id="item.id"
         :data-testid="`order-item-${item.id}`"
       >
+        <button
+          type="button"
+          class="drag-handle"
+          :class="{ 'is-keyboard-grabbed': keyboardGrabbedItemId === item.id }"
+          :disabled="disabled"
+          :aria-pressed="keyboardGrabbedItemId === item.id"
+          :aria-describedby="instructionsId"
+          :aria-label="t(
+            keyboardGrabbedItemId === item.id ? 'quiz.dropItem' : 'quiz.dragItem',
+            { item: item.label }
+          )"
+          :data-testid="`drag-handle-${item.id}`"
+          @pointerdown.prevent="startDrag(item.id, $event)"
+          @keydown="handleHandleKeydown(item.id, $event)"
+          @blur="handleHandleBlur(item.id)"
+        >
+          <svg viewBox="0 0 16 24" focusable="false" aria-hidden="true">
+            <circle cx="5" cy="5" r="1.5" />
+            <circle cx="11" cy="5" r="1.5" />
+            <circle cx="5" cy="12" r="1.5" />
+            <circle cx="11" cy="12" r="1.5" />
+            <circle cx="5" cy="19" r="1.5" />
+            <circle cx="11" cy="19" r="1.5" />
+          </svg>
+        </button>
         <span class="order-position">{{ index + 1 }}.</span>
         <span class="order-label">{{ item.label }}</span>
-
-        <div class="order-controls">
-          <label class="position-control">
-            <span>{{ t('quiz.position') }}</span>
-            <select
-              class="position-select"
-              :value="index + 1"
-              :disabled="disabled"
-              :aria-label="t('quiz.moveToPosition', { item: item.label })"
-              :data-testid="`position-select-${item.id}`"
-              @change="handlePositionChange(index, $event)"
-            >
-              <option
-                v-for="position in orderedItems.length"
-                :key="position"
-                :value="position"
-              >
-                {{ position }}
-              </option>
-            </select>
-          </label>
-
-          <div class="step-controls">
-            <button
-              type="button"
-              class="move-button"
-              :disabled="index === 0 || disabled"
-              :aria-label="t('quiz.moveItemUp', { item: item.label })"
-              @click="moveItem(index, index - 1)"
-            >
-              <span aria-hidden="true">&#9650;</span>
-            </button>
-            <button
-              type="button"
-              class="move-button"
-              :disabled="index === orderedItems.length - 1 || disabled"
-              :aria-label="t('quiz.moveItemDown', { item: item.label })"
-              @click="moveItem(index, index + 1)"
-            >
-              <span aria-hidden="true">&#9660;</span>
-            </button>
-          </div>
-        </div>
       </div>
-    </div>
+    </TransitionGroup>
 
     <span class="sr-only" aria-live="polite" aria-atomic="true">
       {{ announcement }}
@@ -147,6 +338,10 @@ function handlePositionChange(index: number, event: Event): void {
   gap: 0.5rem;
 }
 
+.order-list.is-dragging {
+  user-select: none;
+}
+
 .order-hint {
   margin-bottom: 0.25rem;
   color: var(--color-text-secondary, #6b7280);
@@ -154,14 +349,82 @@ function handlePositionChange(index: number, event: Event): void {
 }
 
 .order-item {
-  display: flex;
+  display: grid;
+  grid-template-columns: 44px 1.5rem minmax(0, 1fr);
   align-items: center;
   gap: 0.75rem;
-  padding: 0.5rem 0.75rem;
+  padding: 0.625rem 0.75rem;
   border: 2px solid var(--color-border, #e5e7eb);
-  border-radius: 8px;
+  border-radius: 10px;
   background: var(--color-surface, #fff);
-  min-height: 60px;
+  min-height: 64px;
+  transition:
+    border-color 0.15s ease,
+    background-color 0.15s ease,
+    box-shadow 0.15s ease,
+    opacity 0.15s ease;
+}
+
+.order-item.is-dragging {
+  z-index: 1;
+  border-color: var(--color-primary, #3b82f6);
+  background: var(--color-primary-light, #e0e7ff);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 18%);
+  opacity: 0.92;
+}
+
+.order-item.is-drop-target {
+  border-color: var(--color-primary, #3b82f6);
+}
+
+.order-move {
+  transition: transform 0.18s ease;
+}
+
+.drag-handle {
+  display: flex;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 8px;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  color: var(--color-text-secondary, #6b7280);
+  cursor: grab;
+  touch-action: none;
+}
+
+.drag-handle:hover:not(:disabled) {
+  background: color-mix(in srgb, var(--color-primary, #3b82f6) 12%, transparent);
+  color: var(--color-primary, #3b82f6);
+}
+
+.drag-handle:active {
+  cursor: grabbing;
+}
+
+.drag-handle.is-keyboard-grabbed {
+  background: var(--color-primary, #3b82f6);
+  color: #fff;
+  cursor: grabbing;
+}
+
+.drag-handle:focus-visible {
+  outline: 3px solid var(--color-focus, #60a5fa);
+  outline-offset: 2px;
+}
+
+.drag-handle:disabled {
+  opacity: 0.35;
+  cursor: default;
+}
+
+.drag-handle svg {
+  width: 16px;
+  height: 24px;
+  fill: currentColor;
 }
 
 .order-position {
@@ -174,63 +437,6 @@ function handlePositionChange(index: number, event: Event): void {
   flex: 1;
   font-size: 1rem;
   min-width: 0;
-}
-
-.order-controls {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.position-control {
-  display: flex;
-  align-items: center;
-  gap: 0.375rem;
-  color: var(--color-text-secondary, #6b7280);
-  font-size: 0.875rem;
-}
-
-.position-select {
-  min-width: 3.25rem;
-  min-height: 44px;
-  padding: 0 0.5rem;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: 6px;
-  background: var(--color-surface, #fff);
-  color: var(--color-text);
-  cursor: pointer;
-  font: inherit;
-}
-
-.step-controls {
-  display: flex;
-  gap: 0.25rem;
-}
-
-.move-button {
-  width: 44px;
-  height: 44px;
-  border: 1px solid var(--color-border, #e5e7eb);
-  border-radius: 6px;
-  background: var(--color-surface, #fff);
-  color: var(--color-text);
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-}
-
-.move-button:disabled,
-.position-select:disabled {
-  opacity: 0.3;
-  cursor: default;
-}
-
-.move-button:focus-visible,
-.position-select:focus-visible {
-  outline: 3px solid var(--color-focus, #60a5fa);
-  outline-offset: 2px;
 }
 
 .sr-only {
@@ -246,22 +452,9 @@ function handlePositionChange(index: number, event: Event): void {
 
 @media (max-width: 600px) {
   .order-item {
-    align-items: flex-start;
-    flex-wrap: wrap;
-  }
-
-  .order-label {
-    padding-top: 0.625rem;
-  }
-
-  .order-position {
-    padding-top: 0.625rem;
-  }
-
-  .order-controls {
-    width: 100%;
-    justify-content: space-between;
-    padding-left: 2.25rem;
+    grid-template-columns: 44px 1.5rem minmax(0, 1fr);
+    gap: 0.5rem;
+    padding: 0.625rem 0.5rem;
   }
 }
 </style>
