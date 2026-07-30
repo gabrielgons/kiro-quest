@@ -63,8 +63,9 @@ export class BackendStack extends cdk.Stack {
       ALLOWED_ORIGINS: allowedOrigins.join(','),
     };
 
-    // Low concurrency protects the account from runaway invocation volume.
-    // Reserved concurrency does not pre-warm functions and has no hourly charge.
+    // API Gateway throttling below limits traffic before Lambda invocation.
+    // Do not reserve concurrency here: low-quota accounts must keep their
+    // regional concurrency available as the mandatory unreserved pool.
     const saveProgressFn = new lambda.Function(this, 'SaveProgressFn', {
       functionName: 'KiroQuest-SaveProgress',
       runtime: lambda.Runtime.NODEJS_22_X,
@@ -73,7 +74,6 @@ export class BackendStack extends cdk.Stack {
       environment: lambdaEnvironment,
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
-      reservedConcurrentExecutions: 2,
       logRetention: logs.RetentionDays.ONE_WEEK,
     });
 
@@ -85,7 +85,6 @@ export class BackendStack extends cdk.Stack {
       environment: lambdaEnvironment,
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
-      reservedConcurrentExecutions: 2,
       logRetention: logs.RetentionDays.ONE_WEEK,
     });
 
@@ -97,7 +96,6 @@ export class BackendStack extends cdk.Stack {
       environment: lambdaEnvironment,
       memorySize: 128,
       timeout: cdk.Duration.seconds(10),
-      reservedConcurrentExecutions: 2,
       logRetention: logs.RetentionDays.ONE_WEEK,
     });
 
