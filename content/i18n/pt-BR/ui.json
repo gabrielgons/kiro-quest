@@ -162,5 +162,16 @@
   "share.previewCertificate": "Pré-visualização do certificado",
 
   "user.profile": "Perfil",
-  "user.logout": "Sair"
+  "user.logout": "Sair",
+
+  "menu.open": "Abrir conta e preferências",
+  "menu.close": "Fechar conta e preferências",
+  "menu.account": "Conta",
+  "menu.preferences": "Preferências",
+  "menu.accountAndPreferences": "Conta e preferências",
+
+  "settings.language": "Idioma",
+  "settings.theme": "Tema",
+  "settings.light": "Claro",
+  "settings.dark": "Escuro"
 }

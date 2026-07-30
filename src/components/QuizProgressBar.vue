@@ -96,10 +96,4 @@ const { t } = useLocale();
   transition: width 0.3s ease;
 }
 
-/* Prevent difficulty badge from overlapping the fixed-position header avatar on mobile */
-@media (max-width: 480px) {
-  .progress-info {
-    padding-right: 3rem;
-  }
-}
 </style>
