@@ -258,7 +258,11 @@ function handleBackToStages() {
   text-align: right;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 640px) {
+  .quiz-view {
+    padding-top: 1.25rem;
+  }
+
   .quiz-navigation {
     align-items: flex-start;
     flex-direction: column;

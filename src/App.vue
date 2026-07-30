@@ -8,6 +8,7 @@ import ThemeToggle from '@/components/ThemeToggle.vue';
 import LocaleSwitcher from '@/components/LocaleSwitcher.vue';
 import LoginButton from '@/components/LoginButton.vue';
 import UserMenu from '@/components/UserMenu.vue';
+import MobileActionsMenu from '@/components/MobileActionsMenu.vue';
 import { version } from '../package.json';
 
 const quizStore = useQuizStore();
@@ -54,12 +55,16 @@ function dismissError() {
   </div>
 
   <header class="app-header">
-    <LocaleSwitcher />
-    <UserMenu />
-    <LoginButton />
+    <span class="app-header__brand" aria-hidden="true">Kiro Quest</span>
+    <div class="app-header__desktop-actions">
+      <LocaleSwitcher />
+      <UserMenu />
+      <LoginButton />
+    </div>
+    <MobileActionsMenu />
   </header>
 
-  <ThemeToggle />
+  <ThemeToggle class="app-theme-toggle" />
   <router-view />
 
   <span class="app-version">v{{ appVersion }}</span>
@@ -75,12 +80,19 @@ function dismissError() {
 
 .app-header {
   position: fixed;
-  top: 1rem;
-  right: 1rem;
+  top: max(1rem, env(safe-area-inset-top, 0px));
+  right: max(1rem, env(safe-area-inset-right, 0px));
   z-index: 1000;
+}
+
+.app-header__desktop-actions {
   display: flex;
   align-items: center;
   gap: 0.5rem;
+}
+
+.app-header__brand {
+  display: none;
 }
 
 .notification {
@@ -116,12 +128,45 @@ function dismissError() {
 
 .app-version {
   position: fixed;
-  bottom: 0.5rem;
-  left: 0.75rem;
+  bottom: calc(0.5rem + env(safe-area-inset-bottom, 0px));
+  left: calc(0.75rem + env(safe-area-inset-left, 0px));
   font-size: 0.65rem;
   color: var(--color-text-secondary);
   opacity: 0.5;
   pointer-events: none;
   user-select: none;
+}
+
+@media (max-width: 640px) {
+  .app-header {
+    position: sticky;
+    top: 0;
+    right: auto;
+    z-index: 1000;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    min-height: calc(56px + env(safe-area-inset-top, 0px));
+    padding: env(safe-area-inset-top, 0px) 1rem 0;
+    border-bottom: 1px solid var(--color-border);
+    background: var(--color-background);
+  }
+
+  .app-header__brand {
+    display: block;
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+  }
+
+  .app-header__desktop-actions,
+  .app-theme-toggle.theme-toggle {
+    display: none;
+  }
+
+  #app > main {
+    min-height: calc(100dvh - 56px - env(safe-area-inset-top, 0px));
+  }
 }
 </style>

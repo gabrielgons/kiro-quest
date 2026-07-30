@@ -162,5 +162,16 @@
   "share.previewCertificate": "Certificate preview",
 
   "user.profile": "Profile",
-  "user.logout": "Sign out"
+  "user.logout": "Sign out",
+
+  "menu.open": "Open account and preferences",
+  "menu.close": "Close account and preferences",
+  "menu.account": "Account",
+  "menu.preferences": "Preferences",
+  "menu.accountAndPreferences": "Account and preferences",
+
+  "settings.language": "Language",
+  "settings.theme": "Theme",
+  "settings.light": "Light",
+  "settings.dark": "Dark"
 }
