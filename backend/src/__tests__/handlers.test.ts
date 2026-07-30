@@ -1,6 +1,27 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { readdirSync, readFileSync } from 'node:fs';
+import { dirname, join } from 'node:path';
+import { fileURLToPath } from 'node:url';
 import type { ApiEvent } from '../handlers/utils.js';
-import { getUserId, getUserEmail, getUserName, errorResponse } from '../handlers/utils.js';
+import {
+  getUserId,
+  getUserEmail,
+  getUserName,
+  errorResponse,
+  isValidStageId,
+  isValidSaveProgressRequest,
+  validateBodySize,
+} from '../handlers/utils.js';
+import { STAGE_QUESTION_COUNTS } from '../models/stageCatalog.js';
+
+function createAnswer(questionNumber: number) {
+  return {
+    questionId: `question-${questionNumber}`,
+    selectedOptionId: `option-${questionNumber}`,
+    isCorrect: true,
+    answeredAt: 1704067200000 + questionNumber,
+  };
+}
 
 function createMockEvent(overrides: Partial<ApiEvent> = {}): ApiEvent {
   return {
@@ -145,6 +166,91 @@ describe('Handler Utils', () => {
       expect(JSON.parse(response.body as string)).toEqual({ error: 'Bad request' });
     });
   });
+
+  describe('request validation', () => {
+    it.each(['pt-BR', 'en'])(
+      'should keep the backend catalog aligned with %s content',
+      (locale) => {
+        const testDirectory = dirname(fileURLToPath(import.meta.url));
+        const contentDirectory = join(
+          testDirectory,
+          '..',
+          '..',
+          '..',
+          'content',
+          'questions',
+          locale,
+        );
+        const catalog = Object.fromEntries(
+          readdirSync(contentDirectory)
+            .filter((file) => file.endsWith('.json') && !file.startsWith('_'))
+            .map((file) => {
+              const data = JSON.parse(
+                readFileSync(join(contentDirectory, file), 'utf8'),
+              ) as { stage: string; questions: unknown[] };
+              return [data.stage, data.questions.length];
+            }),
+        );
+
+        expect(catalog).toEqual(STAGE_QUESTION_COUNTS);
+      },
+    );
+
+    it('should only accept stage IDs from the catalog', () => {
+      expect(isValidStageId('kiro-basics')).toBe(true);
+      expect(isValidStageId('made-up-stage')).toBe(false);
+      expect(isValidStageId('../kiro-basics')).toBe(false);
+    });
+
+    it('should accept a structurally consistent progress payload', () => {
+      expect(isValidSaveProgressRequest({
+        stageId: 'kiro-basics',
+        currentQuestionIndex: 1,
+        quizPhase: 'feedback',
+        userAnswers: [createAnswer(0), createAnswer(1)],
+      })).toBe(true);
+    });
+
+    it.each([
+      {
+        stageId: 'made-up-stage',
+        currentQuestionIndex: 0,
+        quizPhase: 'answering',
+        userAnswers: [],
+      },
+      {
+        stageId: 'kiro-basics',
+        currentQuestionIndex: -1,
+        quizPhase: 'answering',
+        userAnswers: [],
+      },
+      {
+        stageId: 'kiro-basics',
+        currentQuestionIndex: 0,
+        quizPhase: 'unknown',
+        userAnswers: [],
+      },
+      {
+        stageId: 'kiro-basics',
+        currentQuestionIndex: 2,
+        quizPhase: 'answering',
+        userAnswers: [],
+      },
+      {
+        stageId: 'kiro-basics',
+        currentQuestionIndex: 0,
+        quizPhase: 'feedback',
+        userAnswers: [{ ...createAnswer(0), extra: 'not allowed' }],
+      },
+    ])('should reject invalid progress payload %#', (payload) => {
+      expect(isValidSaveProgressRequest(payload)).toBe(false);
+    });
+
+    it('should reject bodies larger than 16 KiB', () => {
+      const event = createMockEvent({ body: 'x'.repeat(16 * 1024 + 1) });
+      expect(validateBodySize(event)?.statusCode).toBe(413);
+    });
+  });
 });
 
 describe('saveProgress handler', () => {
@@ -169,8 +275,9 @@ describe('saveProgress handler', () => {
   });
 
   it('should return 400 when body is missing required fields', async () => {
+    const mockSend = vi.fn();
     vi.doMock('../models/dynamodb.js', () => ({
-      docClient: { send: vi.fn() },
+      docClient: { send: mockSend },
       TABLE_NAME: 'TestTable',
     }));
 
@@ -179,6 +286,7 @@ describe('saveProgress handler', () => {
 
     const response = await handler(event);
     expect(response.statusCode).toBe(400);
+    expect(mockSend).not.toHaveBeenCalled();
   });
 
   it('should save progress and return 200', async () => {
@@ -194,7 +302,7 @@ describe('saveProgress handler', () => {
         stageId: 'kiro-basics',
         currentQuestionIndex: 2,
         quizPhase: 'answering',
-        userAnswers: [],
+        userAnswers: [createAnswer(0), createAnswer(1)],
       }),
     });
 
@@ -272,119 +380,57 @@ describe('getProgress handler', () => {
     expect(body.progress).toHaveLength(1);
     expect(body.progress[0].stageId).toBe('kiro-basics');
   });
-});
 
-describe('getRankings handler', () => {
-  beforeEach(() => {
-    vi.resetModules();
-  });
-
-  it('should return 400 when stageId is missing', async () => {
-    vi.doMock('../models/dynamodb.js', () => ({
-      docClient: { send: vi.fn() },
-      TABLE_NAME: 'TestTable',
-    }));
-
-    const { handler } = await import('../handlers/getRankings.js');
-    const event = createMockEvent();
-
-    const response = await handler(event);
-    expect(response.statusCode).toBe(400);
-  });
-
-  it('should return rankings for a stage', async () => {
-    const mockItems = [
-      {
-        userId: 'user-1',
-        userName: 'Alice',
-        score: 10,
-        totalQuestions: 10,
-        completedAt: 1700000000000,
-      },
-      {
-        userId: 'user-2',
-        userName: 'Bob',
-        score: 8,
-        totalQuestions: 10,
-        completedAt: 1700000001000,
-      },
-    ];
-    const mockSend = vi.fn().mockResolvedValue({ Items: mockItems });
+  it('should reject an unknown stage without querying DynamoDB', async () => {
+    const mockSend = vi.fn();
     vi.doMock('../models/dynamodb.js', () => ({
       docClient: { send: mockSend },
       TABLE_NAME: 'TestTable',
     }));
 
-    const { handler } = await import('../handlers/getRankings.js');
+    const { handler } = await import('../handlers/getProgress.js');
     const event = createMockEvent({
-      queryStringParameters: { stageId: 'kiro-basics' },
+      queryStringParameters: { stageId: 'made-up-stage' },
     });
 
     const response = await handler(event);
-    expect(response.statusCode).toBe(200);
-
-    const body = JSON.parse(response.body as string);
-    expect(body.stageId).toBe('kiro-basics');
-    expect(body.rankings).toHaveLength(2);
-    expect(body.rankings[0].userName).toBe('Alice');
+    expect(response.statusCode).toBe(400);
+    expect(mockSend).not.toHaveBeenCalled();
   });
 });
 
-describe('submitResult handler', () => {
+describe('getProfile handler', () => {
   beforeEach(() => {
     vi.resetModules();
   });
 
-  it('should return 401 when no userId', async () => {
-    vi.doMock('../models/dynamodb.js', () => ({
-      docClient: { send: vi.fn() },
-      TABLE_NAME: 'TestTable',
-    }));
-
-    const { handler } = await import('../handlers/submitResult.js');
-    const event = createMockEvent({
-      body: JSON.stringify({ stageId: 'kiro-basics', correctCount: 8, totalCount: 10 }),
-    });
-    event.requestContext.authorizer.jwt.claims = {};
-
-    const response = await handler(event);
-    expect(response.statusCode).toBe(401);
-  });
-
-  it('should return 400 when body is missing required fields', async () => {
-    vi.doMock('../models/dynamodb.js', () => ({
-      docClient: { send: vi.fn() },
-      TABLE_NAME: 'TestTable',
-    }));
-
-    const { handler } = await import('../handlers/submitResult.js');
-    const event = createMockEvent({ body: JSON.stringify({ stageId: 'kiro-basics' }) });
-
-    const response = await handler(event);
-    expect(response.statusCode).toBe(400);
-  });
-
-  it('should save result and ranking and return 200', async () => {
-    const mockSend = vi.fn().mockResolvedValue({});
+  it('should derive the profile from progress without writing to DynamoDB', async () => {
+    const mockSend = vi.fn()
+      .mockResolvedValueOnce({ Items: undefined, Item: undefined })
+      .mockResolvedValueOnce({
+        Items: [
+          {
+            stageId: 'kiro-basics',
+            quizPhase: 'stage-complete',
+            userAnswers: [
+              createAnswer(0),
+              { ...createAnswer(1), isCorrect: false },
+            ],
+          },
+        ],
+      });
     vi.doMock('../models/dynamodb.js', () => ({
       docClient: { send: mockSend },
       TABLE_NAME: 'TestTable',
     }));
 
-    const { handler } = await import('../handlers/submitResult.js');
-    const event = createMockEvent({
-      body: JSON.stringify({ stageId: 'kiro-basics', correctCount: 9, totalCount: 10 }),
-    });
+    const { handler } = await import('../handlers/getProfile.js');
+    const response = await handler(createMockEvent());
 
-    const response = await handler(event);
     expect(response.statusCode).toBe(200);
-    // Should write both result and ranking items in a single transaction
-    expect(mockSend).toHaveBeenCalledOnce();
-
+    expect(mockSend).toHaveBeenCalledTimes(2);
     const body = JSON.parse(response.body as string);
-    expect(body.stageId).toBe('kiro-basics');
-    expect(body.correctCount).toBe(9);
-    expect(body.totalCount).toBe(10);
-    expect(body.completedAt).toBeGreaterThan(0);
+    expect(body.completedStages).toEqual(['kiro-basics']);
+    expect(body.totalScore).toBe(1);
   });
 });
