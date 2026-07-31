@@ -128,6 +128,8 @@ watch(
         :data-order-id="item.id"
         :data-testid="`order-item-${item.id}`"
       >
+        <span class="order-position">{{ index + 1 }}.</span>
+        <span class="order-label">{{ item.label }}</span>
         <span
           class="drag-handle"
           aria-hidden="true"
@@ -143,8 +145,6 @@ watch(
             <circle cx="11" cy="19" r="1.5" />
           </svg>
         </span>
-        <span class="order-position">{{ index + 1 }}.</span>
-        <span class="order-label">{{ item.label }}</span>
       </div>
     </VueDraggable>
 
@@ -177,7 +177,7 @@ watch(
 
 .order-item {
   display: grid;
-  grid-template-columns: 44px 1.5rem minmax(0, 1fr);
+  grid-template-columns: 1.5rem minmax(0, 1fr) 44px;
   align-items: center;
   gap: 0.75rem;
   padding: 0.625rem 0.75rem;
@@ -271,7 +271,7 @@ watch(
 
 @media (max-width: 600px) {
   .order-item {
-    grid-template-columns: 44px 1.5rem minmax(0, 1fr);
+    grid-template-columns: 1.5rem minmax(0, 1fr) 44px;
     gap: 0.5rem;
     padding: 0.625rem 0.5rem;
   }

@@ -30,6 +30,11 @@ describe('OrderingOptions', () => {
       'Etapa A',
       'Etapa B',
     ]);
+    expect(
+      Array.from(wrapper.get('[data-order-id="step-c"]').element.children).map(
+        (element) => element.className,
+      ),
+    ).toEqual(['order-position', 'order-label', 'drag-handle']);
   });
 
   it('moves the last item to the first position in one drag lifecycle', async () => {
