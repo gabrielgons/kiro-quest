@@ -137,6 +137,8 @@ describe('MobileActionsMenu', () => {
 
     const localeButtons = wrapper.findAll('.mobile-actions-menu__segmented button');
     expect(localeButtons).toHaveLength(2);
+    expect(localeButtons[0]!.text()).toContain('🇧🇷');
+    expect(localeButtons[1]!.text()).toContain('🇺🇸');
     expect(localeButtons[0]!.attributes('aria-pressed')).toBe('true');
     expect(localeButtons[1]!.attributes('aria-pressed')).toBe('false');
 

@@ -247,7 +247,8 @@ onBeforeUnmount(() => {
                     :aria-pressed="locale === 'pt-BR'"
                     @click="selectLocale('pt-BR')"
                   >
-                    PT
+                    <span class="mobile-actions-menu__locale-flag" aria-hidden="true">🇧🇷</span>
+                    <span>PT</span>
                   </button>
                   <button
                     type="button"
@@ -255,7 +256,8 @@ onBeforeUnmount(() => {
                     :aria-pressed="locale === 'en'"
                     @click="selectLocale('en')"
                   >
-                    EN
+                    <span class="mobile-actions-menu__locale-flag" aria-hidden="true">🇺🇸</span>
+                    <span>EN</span>
                   </button>
                 </div>
               </div>
@@ -466,7 +468,7 @@ onBeforeUnmount(() => {
 
 .mobile-actions-menu__segmented {
   display: grid;
-  grid-template-columns: repeat(2, 48px);
+  grid-template-columns: repeat(2, 64px);
   gap: 0.25rem;
   padding: 0.25rem;
   border-radius: 10px;
@@ -474,6 +476,10 @@ onBeforeUnmount(() => {
 }
 
 .mobile-actions-menu__segmented button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.3rem;
   min-width: 48px;
   min-height: 44px;
   border: 0;
@@ -484,6 +490,11 @@ onBeforeUnmount(() => {
   font: inherit;
   font-size: 0.875rem;
   font-weight: 700;
+}
+
+.mobile-actions-menu__locale-flag {
+  font-size: 1rem;
+  line-height: 1;
 }
 
 .mobile-actions-menu__segmented button.active {
