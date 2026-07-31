@@ -356,7 +356,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   background: var(--color-primary);
-  color: var(--color-text-inverse, #ffffff);
+  color: var(--color-on-primary, #ffffff);
   font-weight: var(--font-weight-semibold, 600);
 }
 
@@ -488,7 +488,7 @@ onBeforeUnmount(() => {
 
 .mobile-actions-menu__segmented button.active {
   background: var(--color-primary);
-  color: var(--color-text-inverse, #ffffff);
+  color: var(--color-on-primary, #ffffff);
   box-shadow: var(--shadow-sm);
 }
 
@@ -532,7 +532,7 @@ onBeforeUnmount(() => {
   border: 0;
   border-radius: var(--radius-md);
   background: var(--color-primary);
-  color: var(--color-text-inverse, #ffffff);
+  color: var(--color-on-primary, #ffffff);
   cursor: pointer;
   font: inherit;
   font-weight: 700;
