@@ -14,10 +14,10 @@
         { "id": "c", "label": "A browser extension that adds autocomplete to any online editor" },
         { "id": "d", "label": "A static site hosting service with automatic deploy" }
       ],
-      "explanation": "Kiro Web is the browser-based interface of Kiro, allowing developers to use all the agent's capabilities directly in the browser without local installation.",
+      "explanation": "Kiro Web is a browser-based agent experience for working on GitHub repositories without local installation. The preview requires a connected GitHub account and a Kiro Pro or higher subscription.",
       "sourceUrl": "https://kiro.dev/docs/web/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-002",
@@ -32,7 +32,7 @@
       "explanation": "Kiro Web's autonomous mode allows the agent to work independently on tasks, executing multiple steps without needing human approval at each stage, increasing productivity for repetitive tasks.",
       "sourceUrl": "https://kiro.dev/docs/web/autonomous-mode/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-003",
@@ -49,24 +49,24 @@
       "explanation": "The sandbox environment in Kiro Web provides an isolated space in the cloud where the agent can execute code, run tests, and perform build operations securely without affecting the developer's local environment.",
       "sourceUrl": "https://kiro.dev/docs/web/sandbox/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-004",
       "category": "Kiro Web",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "A team wants to use Kiro Web to automate PR creation from issues. Which GitHub/GitLab integration best serves this scenario?",
+      "text": "A team wants to start Kiro Web tasks directly from GitHub issues. Which flow is supported?",
       "options": [
-        { "id": "a", "label": "Connect the repository to Kiro Web and use tasks so the agent creates branches, implements, and opens PRs automatically" },
-        { "id": "b", "label": "Configure a separate third-party bot that monitors issues and calls Kiro via public API" },
-        { "id": "c", "label": "Manually export issues to a CSV file and import into Kiro Web" },
-        { "id": "d", "label": "Use generic webhooks that send email notifications for each created issue" }
+        { "id": "a", "label": "Connect the repository and add the `kiro` label or comment `/kiro`; the agent creates a task and may open a PR" },
+        { "id": "b", "label": "Add the issue to a GitHub Project named Kiro; every column change triggers a task" },
+        { "id": "c", "label": "Mention `@kiro` in the description; the agent commits directly to main without a branch" },
+        { "id": "d", "label": "Export the issue as YAML and manually import it on the Kiro Web Specs page" }
       ],
-      "explanation": "Kiro Web has native integration with GitHub and GitLab, allowing repositories to be connected directly. Through tasks, the agent can read issues, create branches, implement solutions, and open PRs automatically.",
+      "explanation": "In the documented GitHub integration, adding the `kiro` label or commenting `/kiro` creates a task. Kiro works on a branch, commits changes, and can open a Pull Request with the solution.",
       "sourceUrl": "https://kiro.dev/docs/web/github/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-005",
@@ -83,7 +83,7 @@
       "explanation": "In Kiro Web, tasks are created by describing the goal in natural language. The agent interprets the description, creates an execution plan, and implements the necessary steps autonomously in the sandbox environment.",
       "sourceUrl": "https://kiro.dev/docs/web/using-the-agent/creating-tasks/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-006",
@@ -95,10 +95,10 @@
         { "id": "true", "label": "True" },
         { "id": "false", "label": "False" }
       ],
-      "explanation": "Kiro Web offers an interface for creating and managing Specs directly in the browser. Specs are saved to the repository automatically, but the user can edit them visually without needing to manipulate files manually.",
+      "explanation": "Kiro Web displays Spec artifacts in the browser for review and download. You can request changes from the agent, which updates the artifact in place, and run all tasks or a specific task before creating the PR.",
       "sourceUrl": "https://kiro.dev/docs/web/specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-06-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "web-007",
@@ -107,14 +107,14 @@
       "type": "ordering",
       "text": "Arrange the internet access levels of the Kiro Web sandbox from most restrictive to most permissive:",
       "options": [
-        { "id": "step-1", "label": "Connections access only - access only via the connections proxy (GitHub/GitLab)" },
+        { "id": "step-1", "label": "Connections access only - access only to configured managed connections" },
         { "id": "step-2", "label": "Common dependencies - access to allowed package registries (npm, PyPI, Maven)" },
         { "id": "step-3", "label": "Open internet - full unrestricted internet access" }
       ],
-      "explanation": "The Kiro Web sandbox offers three progressive internet access levels: 'Connections access only' allows access only via the connections proxy (GitHub/GitLab); 'Common dependencies' adds access to common package registries; and 'Open internet' allows full unrestricted access.",
+      "explanation": "The sandbox offers three progressive levels: `Connections access only`, `Common dependencies`, and `Open internet`. A domain allow-list can also add specific destinations to the selected level.",
       "sourceUrl": "https://kiro.dev/docs/web/sandbox/internet-access/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-19"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

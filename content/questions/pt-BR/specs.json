@@ -14,41 +14,41 @@
         { "id": "c", "label": "Empacotar documentação e servidores MCP para expandir as capacidades do Kiro de forma modular" },
         { "id": "d", "label": "Conectar o Kiro a ferramentas e serviços externos por meio de um protocolo padronizado" }
       ],
-      "explanation": "Um Spec no Kiro é um documento estruturado que define requisitos (requirements.md), design (design.md) e tarefas (tasks.md), guiando a implementação de forma incremental e verificável.",
+      "explanation": "Um Spec é um conjunto de artefatos estruturados que registra requisitos ou análise de bug, design e tarefas. Esses artefatos mantêm o raciocínio e o plano de implementação revisáveis.",
       "sourceUrl": "https://kiro.dev/docs/specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "sp-002",
       "category": "Specs",
       "difficulty": "iniciante",
       "type": "true-false",
-      "text": "Um Spec no Kiro é composto por três documentos principais: requirements.md, design.md e tasks.md.",
+      "text": "Todo Spec gera três arquivos principais: requirements.md ou bugfix.md na primeira fase, seguido por design.md e tasks.md.",
       "options": [
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "Specs no Kiro seguem uma estrutura de três documentos: requirements.md para critérios de aceitação, design.md para arquitetura e decisões técnicas, e tasks.md para o plano de implementação.",
+      "explanation": "Verdadeiro. Feature Specs usam `requirements.md`; Bugfix Specs usam `bugfix.md`. Ambos completam o conjunto com `design.md` e `tasks.md`.",
       "sourceUrl": "https://kiro.dev/docs/specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "sp-003",
       "category": "Specs",
       "difficulty": "intermediário",
       "type": "scenario",
-      "text": "Você precisa adicionar uma funcionalidade de autenticação ao seu projeto. Qual fluxo de Spec é mais apropriado?",
+      "text": "Uma nova autenticação envolve produto, segurança e frontend; os critérios ainda precisam ser alinhados antes da arquitetura. Qual fluxo é mais apropriado?",
       "options": [
-        { "id": "a", "label": "Feature Spec: começar pelos requisitos, depois design, e finalmente tarefas" },
-        { "id": "b", "label": "Bugfix Spec: reproduzir o comportamento ausente com um teste que falha antes de implementar" },
-        { "id": "c", "label": "Fast Task: implementar a autenticação direto, já que é um requisito comum e bem conhecido" }
+        { "id": "a", "label": "Feature Spec Requirements-First: alinhar user stories e critérios, depois gerar design e tarefas" },
+        { "id": "b", "label": "Feature Spec Design-First: congelar a arquitetura primeiro e derivar os requisitos sem revisão dos stakeholders" },
+        { "id": "c", "label": "Bugfix Spec: tratar a ausência da feature como comportamento defeituoso e preservar todo o restante como unchanged behavior" }
       ],
-      "explanation": "Para novas funcionalidades, o fluxo de Feature Spec é ideal pois permite definir requisitos claros, projetar a arquitetura e gerar tarefas incrementais antes da implementação.",
+      "explanation": "Como é uma nova funcionalidade com critérios ainda em alinhamento, Requirements-First permite consolidar requisitos antes do design. Design-First também é um fluxo de Feature Spec, mas é mais indicado quando a arquitetura técnica já está clara e deve conduzir os requisitos.",
       "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "sp-004",

@@ -7,17 +7,17 @@
       "category": "Cenários Enterprise",
       "difficulty": "iniciante",
       "type": "multiple-choice",
-      "text": "Qual benefício principal o Kiro oferece para equipes enterprise?",
+      "text": "No Kiro Enterprise, o que é um Kiro profile?",
       "options": [
-        { "id": "a", "label": "Padronização de workflows de desenvolvimento através de Specs e Steering compartilhados" },
-        { "id": "b", "label": "Geração de relatórios de produtividade individual de cada desenvolvedor da equipe" },
-        { "id": "c", "label": "Gerenciamento automático de infraestrutura em produção" },
-        { "id": "d", "label": "Eliminação da necessidade de code review" }
+        { "id": "a", "label": "Uma coleção de configurações e controles que determina a experiência do Kiro para usuários ou grupos associados" },
+        { "id": "b", "label": "Um relatório individual de produtividade gerado para cada desenvolvedor enterprise" },
+        { "id": "c", "label": "Uma cópia isolada e self-hosted do modelo executada dentro da VPC da empresa" },
+        { "id": "d", "label": "Um template de Spec que substitui os níveis de assinatura e a atribuição de créditos" }
       ],
-      "explanation": "Para equipes enterprise, o Kiro oferece padronização de workflows através de Specs e Steering compartilhados no repositório, garantindo consistência nas práticas de desenvolvimento.",
+      "explanation": "Um Kiro profile reúne configurações e controles aplicados aos usuários ou grupos associados. Ele faz parte dos conceitos de administração enterprise junto com IAM Identity Center, região AWS, grupos, usuários, créditos e níveis de assinatura.",
       "sourceUrl": "https://kiro.dev/docs/enterprise/concepts/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "es-002",
@@ -32,7 +32,7 @@
       "explanation": "Steering files em .kiro/steering/ fazem parte do repositório e são compartilhados com toda a equipe via Git, garantindo que todos sigam as mesmas diretrizes de desenvolvimento.",
       "sourceUrl": "https://kiro.dev/docs/steering/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "es-003",
@@ -41,15 +41,15 @@
       "type": "scenario",
       "text": "Uma equipe de 20 desenvolvedores precisa garantir que todos sigam padrões de segurança ao criar APIs. Qual combinação de recursos do Kiro é mais eficaz?",
       "options": [
-        { "id": "a", "label": "Steering files com regras de segurança + Hooks que validam antes de cada escrita de código" },
-        { "id": "b", "label": "Definir as regras de segurança apenas em uma Skill que cada desenvolvedor ativa manualmente ao criar APIs" },
-        { "id": "c", "label": "Treinamento presencial mensal sobre segurança" },
-        { "id": "d", "label": "Revisão manual de cada pull request por um especialista em segurança" }
+        { "id": "a", "label": "Steering versionado com `inclusion: always` + Hook `PreToolUse` com comando que bloqueia violações usando código de saída 2" },
+        { "id": "b", "label": "Uma Skill ativada por relevância + Hook `PostToolUse`, assumindo que a saída 2 reverta a escrita já concluída" },
+        { "id": "c", "label": "Steering com `inclusion: manual` + Hook `Stop`, para impedir cada escrita antes de acontecer" },
+        { "id": "d", "label": "Um Custom Agent opcional sem regras de permissão, selecionado apenas quando o desenvolvedor lembrar" }
       ],
-      "explanation": "A combinação de Steering files (definindo regras de segurança em .kiro/steering/) com Hooks (validando automaticamente antes de escritas via preToolUse) garante enforcement contínuo e automático dos padrões de segurança em toda a equipe. Consulte também https://kiro.dev/docs/hooks/ para detalhes sobre automações.",
-      "sourceUrl": "https://kiro.dev/docs/steering/",
+      "explanation": "Steering `always` mantém as regras no contexto; um Hook `PreToolUse` executa a política antes da ferramenta de escrita. Em triggers bloqueantes, o comando pode encerrar com código 2 para impedir a ação e devolver a justificativa ao agente.",
+      "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

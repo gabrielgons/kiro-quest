@@ -17,7 +17,7 @@
       "explanation": "No fluxo Requirements-First, você define requisitos e critérios de aceitação antes do design. No Design-First, você começa pela arquitetura técnica e depois deriva os requisitos a partir dela.",
       "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "fs-002",
@@ -29,10 +29,10 @@
         { "id": "true", "label": "Verdadeiro" },
         { "id": "false", "label": "Falso" }
       ],
-      "explanation": "Durante a fase de design de um Feature Spec, Kiro extrai propriedades de corretude dos requisitos EARS. Essas propriedades definem comportamentos universais verificáveis por testes baseados em propriedades (property-based testing), servindo como ponte entre especificações legíveis e garantias testáveis por máquina.",
+      "explanation": "Durante o design, o Kiro extrai propriedades de corretude dos requisitos EARS. Elas podem ser verificadas por property-based testing; a geração desses testes é opcional por padrão durante a execução das tarefas.",
       "sourceUrl": "https://kiro.dev/docs/specs/correctness/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "fs-003",
@@ -41,15 +41,15 @@
       "type": "scenario",
       "text": "Você está criando um Feature Spec e o Kiro detectou ambiguidades nos requisitos. O que acontece?",
       "options": [
-        { "id": "a", "label": "O Kiro apresenta perguntas clarificadoras e sugere resoluções automáticas quando possível" },
-        { "id": "b", "label": "O Kiro resolve todas as ambiguidades sozinho, assumindo suposições, e segue para o design sem avisar" },
-        { "id": "c", "label": "O Kiro marca os requisitos ambíguos como concluídos e os exclui do design final" },
-        { "id": "d", "label": "O Kiro bloqueia o spec até que você reescreva manualmente todos os requisitos do zero" }
+        { "id": "a", "label": "Ao executar Analyze Requirements, o Kiro apresenta perguntas clarificadoras com correções sugeridas para você revisar" },
+        { "id": "b", "label": "A análise roda obrigatoriamente ao gerar requirements.md e aplica todas as correções sem confirmação" },
+        { "id": "c", "label": "O Kiro exclui requisitos ambíguos e recalcula o design apenas com os itens que passaram na análise" },
+        { "id": "d", "label": "O Spec fica bloqueado até que todos os requisitos sejam reescritos manualmente fora do Kiro" }
       ],
-      "explanation": "Quando o Kiro detecta ambiguidades nos requisitos, ele usa o serviço de raciocínio para apresentar perguntas clarificadoras. Itens auto-resolvíveis são incluídos com respostas recomendadas, enquanto questões restantes são apresentadas ao usuário.",
+      "explanation": "Analyze Requirements é uma etapa opcional após a geração dos requisitos. Ela identifica lacunas e ambiguidades e apresenta perguntas clarificadoras com correções sugeridas, que o usuário revisa antes de atualizar o documento.",
       "sourceUrl": "https://kiro.dev/docs/specs/analyze-requirements/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "fs-004",
@@ -61,12 +61,12 @@
         { "id": "step-1", "label": "Definir requisitos com user stories e critérios de aceitação" },
         { "id": "step-2", "label": "Criar documento de design com arquitetura e componentes" },
         { "id": "step-3", "label": "Gerar plano de tarefas discretas e rastreáveis" },
-        { "id": "step-4", "label": "Executar tarefas individualmente ou em paralelo" }
+        { "id": "step-4", "label": "Executar tarefas individualmente ou usar Run all, que respeita dependências e paraleliza tarefas independentes" }
       ],
       "explanation": "O workflow de um Feature Spec segue três fases documentadas: Requirements (definir requisitos e critérios de aceitação), Design (criar arquitetura e decisões técnicas em design.md), e Tasks (gerar tarefas discretas em tasks.md). A execução das tarefas encerra o ciclo com implementação verificável.",
       "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

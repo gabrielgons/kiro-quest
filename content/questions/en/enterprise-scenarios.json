@@ -7,17 +7,17 @@
       "category": "Enterprise Scenarios",
       "difficulty": "iniciante",
       "type": "multiple-choice",
-      "text": "What main benefit does Kiro offer for enterprise teams?",
+      "text": "In Kiro Enterprise, what is a Kiro profile?",
       "options": [
-        { "id": "a", "label": "Standardization of development workflows through shared Specs and Steering" },
-        { "id": "b", "label": "Generation of individual productivity reports for each developer on the team" },
-        { "id": "c", "label": "Automatic management of production infrastructure" },
-        { "id": "d", "label": "Elimination of the need for code review" }
+        { "id": "a", "label": "A collection of settings and controls that determines the Kiro experience for associated users or groups" },
+        { "id": "b", "label": "An individual productivity report generated for each enterprise developer" },
+        { "id": "c", "label": "An isolated self-hosted copy of the model running inside the company's VPC" },
+        { "id": "d", "label": "A Spec template that replaces subscription tiers and credit allocation" }
       ],
-      "explanation": "For enterprise teams, Kiro offers workflow standardization through shared Specs and Steering in the repository, ensuring consistency in development practices.",
+      "explanation": "A Kiro profile groups settings and controls applied to associated users or groups. It is one of the enterprise administration concepts alongside IAM Identity Center, AWS region, groups, users, credits, and subscription tiers.",
       "sourceUrl": "https://kiro.dev/docs/enterprise/concepts/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "es-002",
@@ -32,7 +32,7 @@
       "explanation": "Steering files in .kiro/steering/ are part of the repository and shared with the entire team via Git, ensuring everyone follows the same development guidelines.",
       "sourceUrl": "https://kiro.dev/docs/steering/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "es-003",
@@ -41,15 +41,15 @@
       "type": "scenario",
       "text": "A team of 20 developers needs to ensure everyone follows security standards when creating APIs. Which combination of Kiro features is most effective?",
       "options": [
-        { "id": "a", "label": "Steering files with security rules + Hooks that validate before each code write" },
-        { "id": "b", "label": "Define security rules only in a Skill that each developer manually activates when creating APIs" },
-        { "id": "c", "label": "Monthly in-person training on security" },
-        { "id": "d", "label": "Manual review of each pull request by a security specialist" }
+        { "id": "a", "label": "Versioned Steering with `inclusion: always` plus a `PreToolUse` Hook whose command blocks violations with exit code 2" },
+        { "id": "b", "label": "A relevance-activated Skill plus a `PostToolUse` Hook, assuming exit code 2 reverts an already completed write" },
+        { "id": "c", "label": "Steering with `inclusion: manual` plus a `Stop` Hook to prevent each write before it happens" },
+        { "id": "d", "label": "An optional Custom Agent with no permission rules, selected only when a developer remembers" }
       ],
-      "explanation": "The combination of Steering files (defining security rules in .kiro/steering/) with Hooks (automatically validating before writes via preToolUse) ensures continuous and automatic enforcement of security standards across the entire team.",
-      "sourceUrl": "https://kiro.dev/docs/steering/",
+      "explanation": "`always` Steering keeps the rules in context; a `PreToolUse` Hook runs the policy before the write tool. For blocking triggers, the command can exit with code 2 to stop the action and return its reason to the agent.",
+      "sourceUrl": "https://kiro.dev/docs/hooks/types/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

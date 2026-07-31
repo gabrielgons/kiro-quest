@@ -17,7 +17,7 @@
       "explanation": "Powers são pacotes que combinam documentação, guias de workflow (steering files) e opcionalmente servidores MCP, fornecendo capacidades expandidas ao Kiro de forma modular.",
       "sourceUrl": "https://kiro.dev/docs/powers/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "pow-002",
@@ -32,7 +32,7 @@
       "explanation": "Do ponto de vista do usuário, Powers ativam de forma transparente quando Kiro detecta keywords relevantes na conversa ou tarefa. Internamente, o agente executa um processo de ativação (activate) antes de usar as ferramentas do Power, mas isso ocorre automaticamente sem intervenção do usuário. O fluxo visível é: instalar o Power e então usá-lo naturalmente nas conversas.",
       "sourceUrl": "https://kiro.dev/docs/powers/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "pow-003",
@@ -49,7 +49,7 @@
       "explanation": "Do ponto de vista do usuário, o fluxo é: instalar o Power, mencionar keywords relevantes na conversa, o Kiro avalia e carrega automaticamente o Power relevante (executando internamente a ativação), e então as ferramentas ficam disponíveis para uso na interação.",
       "sourceUrl": "https://kiro.dev/docs/powers/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

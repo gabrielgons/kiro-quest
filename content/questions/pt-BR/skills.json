@@ -14,10 +14,10 @@
         { "id": "c", "label": "Pacotes instaláveis que combinam documentação e servidores MCP" },
         { "id": "d", "label": "Automações que disparam ações do agente em resposta a eventos do IDE" }
       ],
-      "explanation": "Skills no Kiro são instruções reutilizáveis que podem ser ativadas para carregar contexto e instruções específicas, permitindo comportamentos especializados sob demanda.",
+      "explanation": "Skills são pacotes portáveis que podem reunir instruções, scripts, templates e outros recursos. O Kiro descobre as Skills disponíveis e ativa uma quando a solicitação corresponde à sua descrição.",
       "sourceUrl": "https://kiro.dev/docs/skills/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "sk-002",
@@ -32,24 +32,24 @@
       "explanation": "Skills podem ser adicionadas em ~/.kiro/skills/ para uso global do usuário ou em .kiro/skills/ para uso específico do workspace, oferecendo flexibilidade na organização.",
       "sourceUrl": "https://kiro.dev/docs/skills/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "sk-003",
       "category": "Skills",
       "difficulty": "avançado",
       "type": "scenario",
-      "text": "Você quer que o Kiro sempre siga um padrão específico de logging ao criar serviços. Qual recurso é mais adequado?",
+      "text": "Você quer empacotar instruções, um script de configuração e templates de logging para o Kiro usar sob demanda ao criar novos serviços. Qual recurso é mais adequado?",
       "options": [
-        { "id": "a", "label": "Criar uma Skill com as instruções de logging que pode ser ativada quando necessário" },
-        { "id": "b", "label": "Adicionar comentários em cada arquivo de serviço explicando o padrão" },
-        { "id": "c", "label": "Criar um linter customizado que verifica o padrão" },
-        { "id": "d", "label": "Escrever um script que adiciona logging automaticamente após a criação" }
+        { "id": "a", "label": "Criar uma Skill com SKILL.md, o script e os templates necessários" },
+        { "id": "b", "label": "Criar Steering com `inclusion: always` e incorporar nele todos os scripts e templates" },
+        { "id": "c", "label": "Criar um Hook `PostFileSave` para carregar as instruções somente quando o pedido for semanticamente relevante" },
+        { "id": "d", "label": "Criar um Custom Agent apenas com a URL dos templates, sem declarar ferramentas ou recursos" }
       ],
-      "explanation": "Uma Skill é ideal para este caso pois permite definir instruções reutilizáveis sobre o padrão de logging que o Kiro seguirá sempre que a skill for ativada durante a criação de serviços.",
+      "explanation": "Skills foram projetadas para empacotar conhecimento e recursos reutilizáveis, inclusive scripts e templates. O Kiro pode ativar a Skill quando a solicitação de criação de serviço corresponder à descrição dela.",
       "sourceUrl": "https://kiro.dev/docs/skills/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

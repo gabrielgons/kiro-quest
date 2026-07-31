@@ -9,15 +9,15 @@
       "type": "multiple-choice",
       "text": "What are Automations in Kiro Web?",
       "options": [
-        { "id": "a", "label": "Automated recurring tasks that run in a cloud sandbox, cloning repos and opening PRs with changes" },
+        { "id": "a", "label": "Scheduled prompts that run autonomously in a cloud sandbox and open a PR when they produce changes to review" },
         { "id": "b", "label": "Local scripts that execute on the developer's terminal at scheduled times" },
         { "id": "c", "label": "CI/CD workflows configured directly in GitHub Actions" },
         { "id": "d", "label": "Keyboard macros that automate command sequences in the editor" }
       ],
-      "explanation": "Automations in Kiro Web are automated recurring tasks that run in a cloud sandbox. They clone repositories, execute user-defined tasks, and automatically open Pull Requests with the changes made.",
+      "explanation": "Automations run prompts on a schedule in a cloud sandbox. When an execution produces changes to review, Kiro opens a Pull Request; a run that requires no change does not need to create a PR.",
       "sourceUrl": "https://kiro.dev/docs/web/automations/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "au-002",
@@ -32,24 +32,24 @@
       "explanation": "Automations run in a cloud sandbox, completely isolated from the developer's local environment. This ensures security, reproducibility, and allows execution even when the developer's machine is not running.",
       "sourceUrl": "https://kiro.dev/docs/web/automations/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "au-003",
       "category": "Cloud Automations",
       "difficulty": "intermediário",
       "type": "multiple-choice",
-      "text": "What is the final result of an Automation execution?",
+      "text": "When an Automation execution produces changes that need review, what result should you expect?",
       "options": [
         { "id": "a", "label": "A PDF report sent via email to the team" },
         { "id": "b", "label": "A Pull Request is automatically opened with the changes made" },
         { "id": "c", "label": "A direct commit to the main branch without review" },
         { "id": "d", "label": "A Slack notification with a summary of suggested changes" }
       ],
-      "explanation": "The final result of an Automation execution is a Pull Request automatically opened with the changes made. This maintains the code review flow and allows the team to review changes before merging.",
+      "explanation": "When there are changes to review, the Automation opens a Pull Request instead of committing directly to main. Some runs may finish without a PR when no change is necessary.",
       "sourceUrl": "https://kiro.dev/docs/web/automations/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "au-004",
@@ -66,7 +66,7 @@
       "explanation": "The ideal solution is to create an Automation with a daily or weekly schedule that checks gaps between changed code in main and existing documentation, automatically opening a PR when something needs updating.",
       "sourceUrl": "https://kiro.dev/docs/web/automations/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "au-005",
@@ -83,7 +83,7 @@
       "explanation": "Each Automation supports up to 5 schedules, offering flexibility in configuration. Accepted formats include simplified built-in options (like hourly and daily) and custom cron expressions for greater control over execution times.",
       "sourceUrl": "https://kiro.dev/docs/web/automations/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-19"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "au-006",
@@ -100,7 +100,7 @@
       "explanation": "The ideal configuration uses Automations: select the repository, describe the task (detect changed files without test coverage and generate necessary tests), and configure the schedule with a cron expression for execution every Tuesday.",
       "sourceUrl": "https://kiro.dev/docs/web/automations/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-07-01"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

@@ -17,22 +17,22 @@
       "explanation": "Using Specs before implementing ensures that requirements, design, and tasks are aligned, reducing rework and guaranteeing that implementation meets actual needs.",
       "sourceUrl": "https://kiro.dev/docs/specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "rww-002",
       "category": "Real-World Workflows",
       "difficulty": "intermediário",
       "type": "true-false",
-      "text": "In a real workflow with Kiro, it is recommended to execute all tasks at once without intermediate verification.",
+      "text": "When using Run all in a Spec, Kiro ignores dependencies and starts every task simultaneously.",
       "options": [
         { "id": "true", "label": "True" },
         { "id": "false", "label": "False" }
       ],
-      "explanation": "The recommended workflow is to execute tasks incrementally with verification after each step, ensuring that errors are detected early and don't propagate to subsequent tasks.",
+      "explanation": "False. Run all analyzes the dependency graph, runs independent tasks in parallel, and waits for prerequisites before dependent tasks. Users can also choose to execute tasks individually.",
       "sourceUrl": "https://kiro.dev/docs/specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "rww-003",
@@ -41,15 +41,15 @@
       "type": "ordering",
       "text": "Arrange the complete bugfix workflow with Kiro in the correct order:",
       "options": [
-        { "id": "step-1", "label": "Investigate and identify the bug's root cause" },
-        { "id": "step-2", "label": "Write a test that reproduces the bug" },
-        { "id": "step-3", "label": "Implement the fix" },
-        { "id": "step-4", "label": "Verify the test passes with the fix" }
+        { "id": "step-1", "label": "Document current, expected, and unchanged behavior in bugfix.md" },
+        { "id": "step-2", "label": "Explore the codebase and generate design.md with root cause, fix, and properties" },
+        { "id": "step-3", "label": "Generate tasks.md with tasks and tests for the fix and regressions" },
+        { "id": "step-4", "label": "Execute the tasks to implement and validate the fix" }
       ],
-      "explanation": "The bugfix workflow with Kiro follows: investigate the root cause, write an exploration test that confirms the bug, implement the fix, and verify that the test now passes.",
+      "explanation": "The documented flow starts with behavior analysis in bugfix.md, continues with investigation and design, generates the plan in tasks.md, and only then executes the implementation and validation.",
       "sourceUrl": "https://kiro.dev/docs/specs/bugfix-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }

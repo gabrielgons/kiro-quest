@@ -17,7 +17,7 @@
       "explanation": "In the Requirements-First flow, you define requirements and acceptance criteria before the design. In Design-First, you start with the technical architecture and then derive requirements from it.",
       "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "fs-002",
@@ -29,10 +29,10 @@
         { "id": "true", "label": "True" },
         { "id": "false", "label": "False" }
       ],
-      "explanation": "During the design phase of a Feature Spec, Kiro extracts correctness properties from EARS requirements. These properties define universal behaviors verifiable by property-based testing, serving as a bridge between human-readable specifications and machine-testable guarantees.",
+      "explanation": "During design, Kiro extracts correctness properties from EARS requirements. They can be verified through property-based testing; generating those tests is optional by default during task execution.",
       "sourceUrl": "https://kiro.dev/docs/specs/correctness/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "fs-003",
@@ -41,15 +41,15 @@
       "type": "scenario",
       "text": "You are creating a Feature Spec and Kiro detected ambiguities in the requirements. What happens?",
       "options": [
-        { "id": "a", "label": "Kiro presents clarifying questions and suggests automatic resolutions when possible" },
-        { "id": "b", "label": "Kiro resolves all ambiguities on its own, making assumptions, and proceeds to design without warning" },
-        { "id": "c", "label": "Kiro marks the ambiguous requirements as complete and excludes them from the final design" },
-        { "id": "d", "label": "Kiro blocks the spec until you manually rewrite all requirements from scratch" }
+        { "id": "a", "label": "When you run Analyze Requirements, Kiro presents clarifying questions with suggested fixes for you to review" },
+        { "id": "b", "label": "Analysis runs mandatorily when requirements.md is generated and applies every fix without confirmation" },
+        { "id": "c", "label": "Kiro deletes ambiguous requirements and recalculates the design using only items that passed analysis" },
+        { "id": "d", "label": "The Spec is blocked until every requirement is manually rewritten outside Kiro" }
       ],
-      "explanation": "When Kiro detects ambiguities in requirements, it uses the reasoning service to present clarifying questions. Self-resolvable items are included with recommended answers, while remaining questions are presented to the user.",
+      "explanation": "Analyze Requirements is an optional step after requirements generation. It identifies gaps and ambiguities and presents clarifying questions with suggested fixes, which the user reviews before updating the document.",
       "sourceUrl": "https://kiro.dev/docs/specs/analyze-requirements/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     },
     {
       "id": "fs-004",
@@ -61,12 +61,12 @@
         { "id": "step-1", "label": "Define requirements with user stories and acceptance criteria" },
         { "id": "step-2", "label": "Create design document with architecture and components" },
         { "id": "step-3", "label": "Generate plan of discrete and trackable tasks" },
-        { "id": "step-4", "label": "Execute tasks individually or in parallel" }
+        { "id": "step-4", "label": "Execute tasks individually or use Run all, which respects dependencies and parallelizes independent tasks" }
       ],
       "explanation": "The Feature Spec workflow follows three documented phases: Requirements (define requirements and acceptance criteria), Design (create architecture and technical decisions in design.md), and Tasks (generate discrete tasks in tasks.md). Task execution concludes the cycle with verifiable implementation.",
       "sourceUrl": "https://kiro.dev/docs/specs/feature-specs/",
       "reviewStatus": "reviewed",
-      "lastReviewedDate": "2025-01-15"
+      "lastReviewedDate": "2026-07-30"
     }
   ]
 }
