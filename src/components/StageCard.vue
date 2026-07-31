@@ -110,7 +110,7 @@ const statusKeys: Record<StageStatus, string> = {
   padding: 1px 6px;
   border-radius: var(--radius-sm);
   background: var(--color-primary);
-  color: var(--color-text-inverse);
+  color: var(--color-on-primary);
   font-weight: var(--font-weight-semibold);
   text-transform: uppercase;
 }

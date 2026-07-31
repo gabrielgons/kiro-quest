@@ -300,7 +300,7 @@ function handleKeydown(event: KeyboardEvent): void {
 
 .modal-button--primary {
   background-color: var(--color-primary);
-  color: var(--color-text-inverse);
+  color: var(--color-on-primary);
 }
 
 .modal-button--primary:hover:not(:disabled) {

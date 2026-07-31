@@ -129,7 +129,7 @@ onBeforeUnmount(() => {
   align-items: center;
   justify-content: center;
   background: var(--color-primary);
-  color: var(--color-text-inverse, #ffffff);
+  color: var(--color-on-primary, #ffffff);
   font-size: var(--font-size-sm, 0.875rem);
   font-weight: var(--font-weight-semibold, 600);
 }

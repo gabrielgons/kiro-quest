@@ -313,7 +313,7 @@ async function handleNativeShare(): Promise<void> {
   border: none;
   border-radius: var(--radius-lg);
   background: var(--color-primary);
-  color: var(--color-text-inverse);
+  color: var(--color-on-primary);
   font-family: var(--font-family-base);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
@@ -345,7 +345,7 @@ async function handleNativeShare(): Promise<void> {
 .spinner {
   width: 1rem;
   height: 1rem;
-  border: 2px solid var(--color-text-inverse);
+  border: 2px solid var(--color-on-primary);
   border-top-color: transparent;
   border-radius: var(--radius-full);
   animation: spin 0.7s linear infinite;
@@ -422,7 +422,7 @@ async function handleNativeShare(): Promise<void> {
 
 .action-button.download {
   background: var(--color-primary);
-  color: var(--color-text-inverse);
+  color: var(--color-on-primary);
   border-color: var(--color-primary);
 }
 
